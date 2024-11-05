@@ -24,3 +24,7 @@ Models is our entities we use in program. Models can encapsulate some simple log
 Persistence is database.
 
 I think this architecture will simplify our development workflow because every non-trivial problem is a set of trivial ones and by giving structure to the solution of the problem we can't get confused in the solution and will concentrate on important things.
+
+General naming conventions (more on msdn):
+![image](https://github.com/user-attachments/assets/6c118d2f-5281-44e6-8b96-45eb28cd40c4)
+
