@@ -1,3 +1,5 @@
+node_modules/
+.vite/
 [Bb]in/
 [Dd]ebug/
 [Oo]bj/
