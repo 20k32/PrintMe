@@ -1,34 +1,40 @@
 INSERT INTO user_status (status)
-VALUES ('Active'),
-       ('Inactive'),
-       ('Blocked');
+VALUES ('ACTIVE'),
+       ('INACTIVE'),
+       ('BLOCKED');
+
 INSERT INTO request_type (type)
-VALUES ('User report'),
-       ('Printer application'),
-       ('Account deletion'),
-       ('Printer description change');
+VALUES ('USER_REPORT'),
+       ('PRINTER_APPLICATION'),
+       ('ACCOUNT_DELETION'),
+       ('PRINTER_DESCRIPTION_CHANGE');
+
 INSERT INTO request_status (status)
-VALUES ('Pending'),
-       ('Accepted'),
-       ('Declined');
+VALUES ('PENDING'),
+       ('ACCEPTED'),
+       ('DECLINED');
+
 INSERT INTO request_status_reason (reason)
-VALUES ('No reason'),
-       ('User deleted'),
-       ('User banned');
+VALUES ('NO_REASON'),
+       ('USER_DELETED'),
+       ('USER_BANNED');
+
 INSERT INTO print_order_status (status)
-VALUES ('Pending'),
-       ('Accepted'),
-       ('Declined'),
-       ('In progress'),
-       ('Completed'),
-       ('Cancelled'),
-       ('Archived');
+VALUES ('PENDING'),
+       ('ACCEPTED'),
+       ('DECLINED'),
+       ('IN_PROGRESS'),
+       ('COMPLETED'),
+       ('CANCELLED'),
+       ('ARCHIVED');
+
 INSERT INTO print_order_status_reason (reason)
-VALUES ('Inappropriate content'),
-       ('Abusive behaviour'),
-       ('Absent materials');
+VALUES ('INAPPROPRIATE_CONTENT'),
+       ('ABUSIVE_BEHAVIOUR'),
+       ('ABSENT_MATERIALS');
+
 INSERT INTO print_material (name)
 VALUES ('PLA'),
        ('ABS'),
        ('PETG'),
-       ('Nylon');
+       ('NYLON');
