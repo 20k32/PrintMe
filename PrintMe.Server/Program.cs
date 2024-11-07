@@ -1,4 +1,7 @@
 
+using PrintMe.Server.Logic.Authentication;
+using PrintMe.Server.Models.Authentication;
+
 namespace PrintMe.Server;
 
 public static class Program
