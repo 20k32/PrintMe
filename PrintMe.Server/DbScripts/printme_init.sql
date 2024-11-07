@@ -29,8 +29,6 @@ CREATE DATABASE printme_db
     WITH
     OWNER = printme_owner
     ENCODING = 'UTF8'
-    LC_COLLATE = 'Ukrainian_Ukraine.utf8'
-    LC_CTYPE = 'Ukrainian_Ukraine.utf8'
     LOCALE_PROVIDER = 'libc'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1
