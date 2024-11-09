@@ -1,37 +1,37 @@
 CREATE TABLE IF NOT EXISTS user_status
 (
     user_status_id SERIAL PRIMARY KEY,
-    status         TEXT NOT NULL
+    status         TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS request_type
 (
     request_type_id SERIAL PRIMARY KEY,
-    type            TEXT NOT NULL
+    type            TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS request_status
 (
     request_status_id SERIAL PRIMARY KEY,
-    status            TEXT NOT NULL
+    status            TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS request_status_reason
 (
     request_status_reason_id SERIAL PRIMARY KEY,
-    reason                   TEXT NOT NULL
+    reason                   TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS print_order_status
 (
     print_order_status_id SERIAL PRIMARY KEY,
-    status                TEXT NOT NULL
+    status                TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS print_order_status_reason
 (
     print_order_status_reason_id SERIAL PRIMARY KEY,
-    reason                       TEXT NOT NULL
+    reason                       TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "user"
@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS message
 (
     chat_id   INT REFERENCES chat (chat_id) ON DELETE CASCADE,
     send_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    sender_id INT REFERENCES "user" (user_id) ON DELETE SET NULL,
-    text      TEXT,
+    sender_id INT  REFERENCES "user" (user_id) ON DELETE SET NULL,
+    text      TEXT NOT NULL,
     PRIMARY KEY (chat_id, send_time)
 );
 
@@ -82,8 +82,8 @@ CREATE TABLE IF NOT EXISTS request
     delete_user_id           INT REFERENCES "user" (user_id) ON DELETE SET NULL,
     model_id                 INT,
     description              TEXT,
-    location_x               FLOAT,
-    location_y               FLOAT,
+    location_x               REAL,
+    location_y               REAL,
     min_model_height         FLOAT,
     min_model_width          FLOAT,
     max_model_height         FLOAT,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS request
 CREATE TABLE IF NOT EXISTS print_material
 (
     print_material_id SERIAL PRIMARY KEY,
-    name              TEXT NOT NULL
+    name              TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS request_print_materials
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS request_print_materials
 CREATE TABLE IF NOT EXISTS printer_model
 (
     printer_model_id SERIAL PRIMARY KEY,
-    name             TEXT NOT NULL
+    name             TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS printer
@@ -141,9 +141,9 @@ CREATE TABLE IF NOT EXISTS print_order
     order_date                   DATE DEFAULT CURRENT_DATE NOT NULL,
     due_date                     DATE                      NOT NULL,
     item_link                    TEXT                      NOT NULL,
-    item_quantity                INT CHECK (item_quantity > 0),
+    item_quantity                INT                       NOT NULL CHECK (item_quantity > 0),
     item_description             TEXT,
-    item_material_id             INT                       REFERENCES print_material (print_material_id) ON DELETE SET NULL,
+    item_material_id             INT                       NOT NULL REFERENCES print_material (print_material_id) ON DELETE SET NULL,
     print_order_status_id        INT                       REFERENCES print_order_status (print_order_status_id) ON DELETE SET NULL,
     print_order_status_reason_id INT                       REFERENCES print_order_status_reason (print_order_status_reason_id) ON DELETE SET NULL
 );
@@ -177,8 +177,6 @@ CREATE INDEX IF NOT EXISTS idx_chat_user2_id ON chat (user2_id);
 
 -- Message table indexes
 
-CREATE INDEX IF NOT EXISTS idx_message_chat_id ON message (chat_id);
-
 CREATE INDEX IF NOT EXISTS idx_message_send_time ON message (send_time);
 
 -- Request table indexes
@@ -204,8 +202,6 @@ CREATE INDEX IF NOT EXISTS idx_print_order_printer_id ON print_order (printer_id
 CREATE INDEX IF NOT EXISTS idx_print_order_order_date ON print_order (order_date);
 
 -- Favourites table indexes
-
-CREATE INDEX IF NOT EXISTS idx_favourites_user_id ON favourites (user_id);
 
 CREATE INDEX IF NOT EXISTS idx_favourites_printer_id ON favourites (printer_id);
 
