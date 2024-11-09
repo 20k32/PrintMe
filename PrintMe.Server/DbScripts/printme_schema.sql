@@ -84,10 +84,10 @@ CREATE TABLE IF NOT EXISTS request
     description              TEXT,
     location_x               REAL,
     location_y               REAL,
-    min_model_height         FLOAT,
-    min_model_width          FLOAT,
-    max_model_height         FLOAT,
-    max_model_width          FLOAT,
+    min_model_height         REAL,
+    min_model_width          REAL,
+    max_model_height         REAL,
+    max_model_width          REAL,
     request_status_id        INT NOT NULL REFERENCES request_status (request_status_id) ON DELETE CASCADE,
     request_status_reason_id INT REFERENCES request_status_reason (request_status_reason_id) ON DELETE SET NULL
 );
@@ -117,12 +117,12 @@ CREATE TABLE IF NOT EXISTS printer
     printer_model_id INT REFERENCES printer_model (printer_model_id) ON DELETE CASCADE,
     user_id          INT   REFERENCES "user" (user_id) ON DELETE SET NULL,
     description      TEXT,
-    min_model_height FLOAT NOT NULL,
-    min_model_width  FLOAT NOT NULL,
-    max_model_height FLOAT NOT NULL,
-    max_model_width  FLOAT NOT NULL,
-    location_x       FLOAT NOT NULL,
-    location_y       FLOAT NOT NULL
+    min_model_height REAL NOT NULL,
+    min_model_width  REAL NOT NULL,
+    max_model_height REAL NOT NULL,
+    max_model_width  REAL NOT NULL,
+    location_x       REAL NOT NULL,
+    location_y       REAL NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS print_materials
