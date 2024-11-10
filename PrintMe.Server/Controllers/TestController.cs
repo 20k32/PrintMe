@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Logic.Authentication;
+using PrintMe.Server.Models.Authentication;
 
 namespace PrintMe.Server.Controllers;
 
@@ -6,6 +9,12 @@ namespace PrintMe.Server.Controllers;
 [Route("api/[controller]")]
 public sealed class TestController : ControllerBase
 {
+    private IServiceProvider _provider;
+    public TestController(IServiceProvider provider)
+    {
+        _provider = provider;
+    }
+    
     /// <summary>
     /// Get data "Hell to world"
     /// </summary>
@@ -24,19 +33,14 @@ public sealed class TestController : ControllerBase
     }
     
     /// <summary>
-    /// Get numbers hahahah
+    /// <para>This endpoint requires authorization.</para>
+    /// Generate token, click 'lock' icon at the right and paste it to get access.
     /// </summary>
-    /// <returns>123123123</returns>
-    [HttpGet("TestGetNumbers")]
-    public IResult GetNumbers()
+    /// <returns></returns>
+    [HttpGet("test")]
+    [Authorize]
+    public IResult AuthorizationTest()
     {
-        var dataObject =
-            new {
-                Value = "123123123"
-            };
-
-        var json = Results.Json(dataObject);
-
-        return json;
+        return Results.Json("Some data");
     }
 }

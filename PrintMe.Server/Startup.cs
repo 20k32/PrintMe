@@ -1,10 +1,13 @@
+using PrintMe.Server.Logic.Authentication;
+
 namespace PrintMe.Server;
 
 public class Startup
 {
-    public void ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services, ConfigurationManager manager)
     {
-        services.AddEndpointsApiExplorer()
+        services.ConfigureAuthentication(manager)
+            .AddEndpointsApiExplorer()
             .AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",
@@ -28,9 +31,12 @@ public class Startup
             builder.UseSwagger();
             builder.UseSwaggerUI();
         }
-
+        builder.UseAuthentication();
+        
         builder.UseRouting();
 
+        builder.UseAuthorization();
+        
         builder.UseCors(policy =>
         {
             policy.AllowAnyHeader()
@@ -39,7 +45,7 @@ public class Startup
         });
 
         builder.UseHttpsRedirection();
-
+        
         builder.UseEndpoints(endpoints =>
         {
             endpoints.MapControllerRoute(
