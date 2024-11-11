@@ -2,8 +2,12 @@ using System.Security;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Entities;
 using PrintMe.Server.Logic.Authentication;
+using PrintMe.Server.Logic.Registration;
 using PrintMe.Server.Models.Authentication;
+using PrintMe.Server.Models.Registration;
+using PrintMe.Server.Persistence.Registration;
 
 namespace PrintMe.Server.Controllers;
 
@@ -29,5 +33,18 @@ public sealed class AuthorizationController : ControllerBase
         var json = Results.Json(str);
         
         return json;
+    }
+    
+    /// <summary>
+    /// Create a new user and save it to the database.
+    /// </summary>
+    [HttpPost("registration")]
+    public IResult RegisterUser([FromBody] UserRegistrationInfo userData)
+    {
+        var _context = _provider.GetService<UserContext>();
+        var _userPersistence = new UserPersistence(_context);
+        UserRegistrationInfo userInfo =  UserRegistrationLogic.CreateUser(userData.Email, userData.HashedPassword, userData.FirstName, userData.LastName);
+        _userPersistence.SaveUser(userInfo);
+        return Results.Ok(new { message = "User registered successfully" });
     }
 }
