@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS "user"
     user_status_id           INT         REFERENCES user_status (user_status_id) ON DELETE SET NULL,
     should_hide_phone_number BOOLEAN DEFAULT TRUE,
     description              TEXT,
-    password                 TEXT        NOT NULL
+    password                 TEXT        NOT NULL,
+    salt                     TEXT        NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS rating
