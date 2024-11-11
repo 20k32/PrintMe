@@ -4,7 +4,7 @@ namespace PrintMe.Server.Logic.Registration;
 
 public class SecurityHelper
 {
-    private const int SaltLenght = 128;         // const of salt and number of iterations for hashings
+    private const int SaltLenght = 128;
     private const int HashIterations = 1024;
 
     public static string GenerateSalt()
