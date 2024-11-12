@@ -1,14 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Models.Registration;
 
-namespace PrintMe.Server.Persistence;
+namespace PrintMe.Server.Entities;
 
-public class AppDbContext : DbContext
+public class UserContext : DbContext
 {
+    public UserContext(DbContextOptions<UserContext> options) : base(options)
+    {
+    }
     public DbSet<UserRegistrationInfo> Users { get; set; }
-
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("printme_db@localhost"); 
+        optionsBuilder.UseNpgsql("DefaultConnection");
     }
 }

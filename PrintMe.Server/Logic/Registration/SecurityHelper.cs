@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace PrintMe.Server.Logic.Registration;
 
-public class SecurityHelper
+public static class SecurityHelper
 {
     private const int SaltLenght = 128;
     private const int HashIterations = 1024;

@@ -1,11 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using PrintMe.Server.Entities;
 using PrintMe.Server.Logic.Authentication;
 
 namespace PrintMe.Server;
 
 public class Startup
 {
+    public IConfiguration Configuration { get; }
     public void ConfigureServices(IServiceCollection services, ConfigurationManager manager)
     {
+        services.AddEntityFrameworkNpgsql().AddDbContext<UserContext> (options =>
+            options.UseNpgsql(Configuration.GetConnectionString ("DefaultConnection")));
+        
         services.ConfigureAuthentication(manager)
             .AddEndpointsApiExplorer()
             .AddSwaggerGen(c =>

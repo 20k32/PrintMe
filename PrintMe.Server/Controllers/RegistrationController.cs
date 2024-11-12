@@ -10,12 +10,10 @@ namespace PrintMe.Server.Controllers;
 public class RegistrationController : ControllerBase
 {
     private IServiceProvider _provider;
-    private readonly UserRegistrationLogic _userLogic;
     private readonly UserPersistence _userPersistence;
 
-    public RegistrationController(UserRegistrationLogic userLogic, UserPersistence userPersistence, IServiceProvider provider)
+    public RegistrationController(UserPersistence userPersistence, IServiceProvider provider)
     {
-        _userLogic = userLogic;
         _userPersistence = userPersistence;
         _provider = provider;
     }
