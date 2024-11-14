@@ -1,4 +1,4 @@
-export const GOOGLE_MAPS_API_KEY = "AIzaSyBTQjA84vcQVkumDzEnZHSABh6NAUsLh4A";
+export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 export const MAP_CONFIG = {
   center: { // Ukraine center
