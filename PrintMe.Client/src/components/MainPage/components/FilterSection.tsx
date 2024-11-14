@@ -15,6 +15,7 @@ const FilterFold: React.FC<FilterOption> = ({
     isOpen ? "open" : "closed"
   );
   const [showContent, setShowContent] = useState(isOpen);
+  const selectedCount = state.length;
 
   useEffect(() => {
     if (isOpen) {
@@ -49,6 +50,7 @@ const FilterFold: React.FC<FilterOption> = ({
     <div className={`${animationState}`}>
       <label onClick={() => setIsOpen(!isOpen)} className="filterLabel">
         <span className="labelText">{label}</span>
+        {selectedCount > 0 && <span className="counter">{selectedCount}</span>}
         <span className="arrow">{isOpen ? "↑" : "↓"}</span>
       </label>
       {showContent && (
