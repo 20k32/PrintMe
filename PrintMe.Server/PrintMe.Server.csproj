@@ -5,6 +5,7 @@
         <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>073a222b-3eec-497a-869d-2d6a6d9fb92c</UserSecretsId>
+        <OutputType>Exe</OutputType>
   </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -26,19 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Migrations\**" />
+      <Folder Include="Persistence\" />
     </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Remove="Migrations\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Remove="Migrations\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Migrations\**" />
-    </ItemGroup>
-
 </Project>
