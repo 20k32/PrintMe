@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Registration;
-using PrintMe.Server.Models.Registration;
-using PrintMe.Server.Persistence.Registration;
 
 namespace PrintMe.Server.Controllers;
 
@@ -10,11 +8,11 @@ namespace PrintMe.Server.Controllers;
 public class RegistrationController : ControllerBase
 {
     private IServiceProvider _provider;
-    private readonly UserPersistence _userPersistence;
+   // private readonly UserPersistence _userPersistence;
 
-    public RegistrationController(UserPersistence userPersistence, IServiceProvider provider)
+    public RegistrationController(IServiceProvider provider)
     {
-        _userPersistence = userPersistence;
+       // _userPersistence = provider.GetService<UserPersistence>();
         _provider = provider;
     }
     /// <summary>
@@ -23,8 +21,8 @@ public class RegistrationController : ControllerBase
     [HttpPost("registration")]
     public IResult RegisterUser([FromBody] dynamic userData)
     {
-        UserRegistrationInfo userInfo =  UserRegistrationLogic.CreateUser(userData.Email, userData.Password, userData.FirstName, userData.LastName);
-        _userPersistence.SaveUser(userInfo);
+        //User userInfo =  UserRegistrationLogic.CreateUser(userData.Email, userData.Password, userData.FirstName, userData.LastName);
+       // _userPersistence.SaveUser(userInfo);
         return Results.Ok(new { message = "User registered successfully" });
     }
 }

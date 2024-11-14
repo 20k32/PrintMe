@@ -1,11 +1,12 @@
-using PrintMe.Server.Models.Registration;
+
 using System.Text.RegularExpressions;
+using PrintMe.Server.Persistence.Models;
 
 namespace PrintMe.Server.Logic.Registration;
 
 internal static class UserRegistrationLogic
 {
-    public static UserRegistrationInfo CreateUser(string userEmail, string password, string firstName, string lastName)
+    public static void CreateUser(string userEmail, string password, string firstName, string lastName)
     {
         // if (!Regex.IsMatch(userEmail, @"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
         //     // Example Matches
@@ -23,7 +24,7 @@ internal static class UserRegistrationLogic
         userEmail = userEmail.ToLower();
         var salt = SecurityHelper.GenerateSalt();
         var hashedPassword = SecurityHelper.HashPassword(password, salt);
-        var user = new UserRegistrationInfo(userEmail, firstName, lastName, hashedPassword, salt);
-        return user;
+
+//        return user;
     }
 }
