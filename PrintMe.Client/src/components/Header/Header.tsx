@@ -1,17 +1,21 @@
-import "./headerstyle.css";
+import React from "react";
+import "./assets/header.css";
 import chats from "../../assets/images/chats.png";
 import profile from "../../assets/images/profile.png";
 import logOut from "../../assets/images/log-out.png";
-import isLogined from "./logined.json";
 
-const Header = () => {
+interface HeaderProps {
+  isLogined: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ isLogined }) => {
   return (
     <div className="header-container">
       <div className="header-logo">PrintMe</div>
       <div className="header-pages">
         <a href="#">main page</a>
         <a href="#">info</a>
-        {isLogined.logined && (
+        {isLogined && (
           <>
             <a href="#">printers</a>
             <a href="#">orders</a>
@@ -19,7 +23,7 @@ const Header = () => {
         )}
       </div>
       <div className="header-profile">
-        {isLogined.logined ? (
+        {isLogined ? (
           <>
             <a href="#">
               <img src={chats} alt="chats" />
@@ -32,9 +36,7 @@ const Header = () => {
             </a>
           </>
         ) : (
-          <>
-            <a href="#">sign up/in</a>
-          </>
+          <a href="#">sign up/in</a>
         )}
       </div>
     </div>

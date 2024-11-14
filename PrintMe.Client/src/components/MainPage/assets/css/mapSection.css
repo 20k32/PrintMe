@@ -15,7 +15,7 @@
 .map-section button {
   padding: 8px 16px;
   margin: 10px 0;
-  background-color: #4285F4;
+  background-color: #4285f4;
   color: white;
   border: none;
   border-radius: 4px;
@@ -23,13 +23,12 @@
 }
 
 .map-section button:hover {
-  background-color: #3367D6;
+  background-color: #3367d6;
 }
 
 .map {
   margin: 0 auto;
   margin-top: 2rem;
-  ;
   border: 1px solid black;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   width: 80%;
