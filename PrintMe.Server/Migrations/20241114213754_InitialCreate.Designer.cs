@@ -553,6 +553,11 @@ namespace PrintMe.Server.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone_number");
+                    
+                    b.Property<string>("Salt")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("salt");
 
                     b.Property<bool?>("ShouldHidePhoneNumber")
                         .ValueGeneratedOnAdd()

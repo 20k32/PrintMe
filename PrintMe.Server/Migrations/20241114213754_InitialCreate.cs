@@ -129,7 +129,8 @@ namespace PrintMe.Server.Migrations
                     user_status_id = table.Column<int>(type: "integer", nullable: true),
                     should_hide_phone_number = table.Column<bool>(type: "boolean", nullable: true, defaultValue: true),
                     description = table.Column<string>(type: "text", nullable: true),
-                    password = table.Column<string>(type: "text", nullable: false)
+                    password = table.Column<string>(type: "text", nullable: false),
+                    salt = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

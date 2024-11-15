@@ -22,6 +22,8 @@ public partial class User
     public string Description { get; set; }
 
     public string Password { get; set; }
+    
+    public string Salt { get; set; }
 
     public virtual ICollection<Chat> ChatUser1s { get; set; } = new List<Chat>();
 

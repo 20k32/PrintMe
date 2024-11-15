@@ -434,6 +434,9 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .HasColumnName("phone_number");
+            entity.Property(e => e.Salt)
+                .IsRequired()
+                .HasColumnName("salt");
             entity.Property(e => e.ShouldHidePhoneNumber)
                 .HasDefaultValue(true)
                 .HasColumnName("should_hide_phone_number");
