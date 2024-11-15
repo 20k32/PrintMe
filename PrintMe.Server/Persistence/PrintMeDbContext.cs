@@ -20,7 +20,7 @@ public partial class PrintMeDbContext : DbContext
 
     public virtual DbSet<Message> Messages { get; set; }
 
-    public virtual DbSet<PrintMaterial1> PrintMaterials1 { get; set; }
+    public virtual DbSet<PrintMaterial> PrintMaterials1 { get; set; }
 
     public virtual DbSet<PrintOrder> PrintOrders { get; set; }
 
@@ -48,7 +48,7 @@ public partial class PrintMeDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("YourConStr, recommend to set up user-secrets");
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=printme_db;Username=postgres;Password=superuser");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -108,13 +108,12 @@ public partial class PrintMeDbContext : DbContext
                 .HasConstraintName("message_sender_id_fkey");
         });
 
-        modelBuilder.Entity<PrintMaterial1>(entity =>
+        modelBuilder.Entity<PrintMaterial>(entity =>
         {
-            entity.HasKey(e => e.PrintMaterialId).HasName("print_material_pkey");
+            entity.HasKey(e => e.PrintMaterialId).HasName("print_material_id");
 
             entity.ToTable("print_material");
-
-            entity.Property(e => e.PrintMaterialId).HasColumnName("print_material_id");
+            
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasColumnName("name");
@@ -235,7 +234,7 @@ public partial class PrintMeDbContext : DbContext
             entity.HasMany(d => d.Materials).WithMany(p => p.Printers)
                 .UsingEntity<Dictionary<string, object>>(
                     "PrintMaterial",
-                    r => r.HasOne<PrintMaterial1>().WithMany()
+                    r => r.HasOne<PrintMaterial>().WithMany()
                         .HasForeignKey("MaterialId")
                         .HasConstraintName("print_materials_material_id_fkey"),
                     l => l.HasOne<Printer>().WithMany()
@@ -348,7 +347,7 @@ public partial class PrintMeDbContext : DbContext
             entity.HasMany(d => d.PrintMaterials).WithMany(p => p.Requests)
                 .UsingEntity<Dictionary<string, object>>(
                     "RequestPrintMaterial",
-                    r => r.HasOne<PrintMaterial1>().WithMany()
+                    r => r.HasOne<PrintMaterial>().WithMany()
                         .HasForeignKey("PrintMaterialId")
                         .HasConstraintName("request_print_materials_print_material_id_fkey"),
                     l => l.HasOne<Request>().WithMany()
@@ -416,7 +415,7 @@ public partial class PrintMeDbContext : DbContext
             entity.HasIndex(e => e.Email, "user_email_key").IsUnique();
 
             entity.HasIndex(e => e.PhoneNumber, "user_phone_number_key").IsUnique();
-
+            
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.Email)
@@ -431,6 +430,9 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Password)
                 .IsRequired()
                 .HasColumnName("password");
+            entity.Property(e => e.PasswordSalt)
+                .IsRequired()
+                .HasColumnName("salt");
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .HasColumnName("phone_number");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PrintMe.Server.Persistence.Models;
 
-public partial class PrintMaterial1
+public partial class PrintMaterial
 {
     public int PrintMaterialId { get; set; }
 

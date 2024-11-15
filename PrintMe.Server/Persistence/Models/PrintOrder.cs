@@ -29,7 +29,7 @@ public partial class PrintOrder
 
     public int? PrintOrderStatusReasonId { get; set; }
 
-    public virtual PrintMaterial1 ItemMaterial { get; set; }
+    public virtual PrintMaterial ItemMaterial { get; set; }
 
     public virtual PrintOrderStatus PrintOrderStatus { get; set; }
 

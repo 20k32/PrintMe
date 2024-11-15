@@ -11,7 +11,7 @@ internal sealed class TokenGenerator
     private readonly Options _options;
     public TokenGenerator(Options options) => (_options) = (options);
     
-    public string GetForUserInfo(UserAuthInfo user)
+    public string GetForUserInfo(UserAuthRequest user)
     {
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_options.SecureBase64Span.ToArray());
@@ -33,12 +33,12 @@ internal sealed class TokenGenerator
     }
     
     
-    private static ClaimsIdentity GenerateClaims(UserAuthInfo user)
+    private static ClaimsIdentity GenerateClaims(UserAuthRequest user)
     {
         var claims = new ClaimsIdentity();
         
-        claims.AddClaim(new Claim(ClaimTypes.Name, user.Name));
-        claims.AddClaim(new Claim(ClaimTypes.Role, user.Role));
+        claims.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+        claims.AddClaim(new Claim(CustomClaimTypes.PASSWORD_RAW, user.Password));
         
         return claims;
     }

@@ -31,7 +31,7 @@ public partial class Printer
 
     public virtual User User { get; set; }
 
-    public virtual ICollection<PrintMaterial1> Materials { get; set; } = new List<PrintMaterial1>();
+    public virtual ICollection<PrintMaterial> Materials { get; set; } = new List<PrintMaterial>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

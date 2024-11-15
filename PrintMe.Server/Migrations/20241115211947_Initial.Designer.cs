@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PrintMe.Server.Persistence;
@@ -11,9 +12,11 @@ using PrintMe.Server.Persistence;
 namespace PrintMe.Server.Migrations
 {
     [DbContext(typeof(PrintMeDbContext))]
-    partial class PrintMeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241115211947_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -544,9 +547,6 @@ namespace PrintMe.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
-
-                    b.Property<string>("PasswordSalt")
-                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
