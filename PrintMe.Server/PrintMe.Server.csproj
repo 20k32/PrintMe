@@ -27,6 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Persistence\" />
+      <Folder Include="Models\Api\" />
     </ItemGroup>
 </Project>
