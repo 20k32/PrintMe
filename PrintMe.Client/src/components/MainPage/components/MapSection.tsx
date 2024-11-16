@@ -73,7 +73,6 @@ const MapSection: React.FC = () => {
           </div>
         </LoadScript>
       </div>
-      <button className="user-address-prompt">Set default address</button>
     </div>
   );
 };

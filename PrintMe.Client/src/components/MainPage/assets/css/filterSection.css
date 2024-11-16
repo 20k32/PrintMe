@@ -138,3 +138,13 @@
     font-size: 0.7em;
     margin-left: 0.5em;
 }
+
+.tip-container {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    text-align: left;
+}

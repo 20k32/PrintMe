@@ -124,6 +124,7 @@ const FilterFoldGroup: React.FC = () => {
           setIsOpen={updateOpenState("colors")}
         />
       </div>
+      <p className="tip-container">You can add your default address in profile</p>
     </div>
   );
 };
