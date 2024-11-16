@@ -10,6 +10,7 @@ export const MAP_CONFIG = {
     width: "100%",
     height: "100%",
   },
+  libraries: ["places"] as const,
 };
 
 export const FILTER_OPTIONS = {
