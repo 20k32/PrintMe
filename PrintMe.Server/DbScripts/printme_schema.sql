@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS "user"
     last_name                TEXT        NOT NULL,
     email                    TEXT UNIQUE NOT NULL,
     phone_number             VARCHAR(20) UNIQUE,
+    address                  TEXT,
     user_status_id           INT         REFERENCES user_status (user_status_id) ON DELETE SET NULL,
     should_hide_phone_number BOOLEAN DEFAULT TRUE,
     description              TEXT,
