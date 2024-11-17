@@ -1,20 +1,25 @@
 import { useState } from "react";
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
 import "./App.css";
 import Header from "./components/Header/Header.tsx";
-
-// import MyComponent from './MyComponent.tsx'
 import MainPage from "./components/MainPage/MainPage.tsx";
-import PseudoLogin from "./components/Header/PseudoLogin.tsx";
+import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 
 function App() {
   const [isLogined, setIsLogined] = useState<boolean>(false);
+  const [showLogin, setShowLogin] = useState<boolean>(false);
+
+  const handleCloseLogin = () => {
+    setShowLogin(false); // Закриває модальне вікно
+  };
 
   return (
     <>
-      <Header isLogined={isLogined} />
-      <PseudoLogin onClick={setIsLogined} />
+      <Header isLogined={isLogined} showLS={setShowLogin} />
+      <LoginSignup
+        onClick={setIsLogined}
+        showLS={showLogin}
+        onClose={handleCloseLogin} // Передає функцію закриття
+      />      
       <MainPage />
     </>
   );

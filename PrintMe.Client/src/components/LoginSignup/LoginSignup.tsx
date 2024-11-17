@@ -1,14 +1,37 @@
 import { useState } from 'react';
 import './assets/css/loginSignup.css';
-import user_icon from './assets/images/person.png'
+import user_icon from './assets/images/person.png';
 import email_icon from './assets/images/email.png';
 import password_icon from './assets/images/password.png';
 
-export const LoginSignup = () => {
-  const [action, setAction] = useState("Sign In");
+interface LoginSignupProps {
+    onClick: (isLoggedIn: boolean) => void;
+    showLS: boolean;
+    onClose: () => void; // Функція для закриття модального вікна
+  }
+  
+
+  export const LoginSignup: React.FC<LoginSignupProps> = ({
+    onClick,
+    showLS,
+    onClose,
+  }) => {
+    const [action, setAction] = useState("Sign In"); 
+
+    const handleChangetrue = () => {
+        onClick(true);
+        onClose(); // Закриває модальне вікно після успішного входу
+      };
+
+  const closeWindow = () =>{
+    showLS=false;
+  }
 
   return (
-    <div className='container'>
+    <>
+    {showLS && (
+        <div onClick={onClose} className="background">
+      <div className="container" onClick={(e) => e.stopPropagation()}>
         {}
         <div className="header">
             <div 
@@ -60,11 +83,14 @@ export const LoginSignup = () => {
         
         {}
         <div className="submit-container">
-            <div className="submit">
+            <div className="submit" onClick={handleChangetrue}>
                 {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
             </div>
         </div>
     </div>
+    </div>
+    )};
+    </>
   );
 };
 

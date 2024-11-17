@@ -13,6 +13,7 @@
   padding-inline: 90px;
   font-size: 32px;
   font-family: CabinCondensed;
+  z-index: 10;
 }
 
 .header-logo {
