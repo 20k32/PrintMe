@@ -1,9 +1,9 @@
+import { API_BASE_URL } from "../constants";
+
 interface LoginRequest {
   name: string;
   role: string;
 }
-
-const API_BASE_URL = "http://localhost:5193/api";
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<string> {

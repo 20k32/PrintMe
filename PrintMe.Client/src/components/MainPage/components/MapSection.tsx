@@ -5,7 +5,7 @@ import {
   StandaloneSearchBox,
   Libraries,
 } from "@react-google-maps/api";
-import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../constants";
+import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../../../constants";
 import "../assets/css/mapSection.css";
 
 const libraries: Libraries = ["places"];

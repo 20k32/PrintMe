@@ -17,36 +17,27 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
   onClose,
 }) => {
   const [action, setAction] = useState("Sign In");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const handleChangetrue = () => {
     onClick(true);
     onClose(); // Закриває модальне вікно після успішного входу
   };
 
-  //   const closeWindow = () =>{
-  //     showLS=false;
-  //   }
-
   const submit = async () => {
     if (action === "Sign In") {
-      const emailInput = document.querySelector(
-        'input[type="email"]'
-      ) as HTMLInputElement;
-      const passwordInput = document.querySelector(
-        'input[type="password"]'
-      ) as HTMLInputElement;
-
-      if (emailInput && passwordInput) {
-        try {
-          const token = await authService.login({
-            name: emailInput.value,
-            role: "user",
-          });
-          localStorage.setItem("token", token);
-          handleChangetrue();
-        } catch (error) {
-          console.error("Login failed:", error);
-        }
+      try {
+        const token = await authService.login({
+          name: email,
+          role: "user",
+        });
+        localStorage.setItem("token", token);
+        handleChangetrue();
+      } catch (error) {
+        console.error("Login failed:", error);
       }
     } else {
       handleChangetrue();
@@ -80,23 +71,43 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
                 <>
                   <div className="input">
                     <img src={user_icon} alt="" />
-                    <input type="text" placeholder="First Name" />
+                    <input
+                      type="text"
+                      placeholder="First Name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
                   </div>
                   <div className="input">
                     <img src={user_icon} alt="" />
-                    <input type="text" placeholder="Last Name" />
+                    <input
+                      type="text"
+                      placeholder="Last Name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
                   </div>
                 </>
               )}
 
               <div className="input">
                 <img src={email_icon} alt="" />
-                <input type="email" placeholder="Email" />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
 
               <div className="input">
                 <img src={password_icon} alt="" />
-                <input type="password" placeholder="Password" />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
             </div>
 
