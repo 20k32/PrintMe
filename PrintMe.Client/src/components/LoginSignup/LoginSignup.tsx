@@ -12,15 +12,22 @@ interface LoginSignupProps {
 }
 
 export const LoginSignup: React.FC<LoginSignupProps> = ({
-  onClick,
-  showLS,
-  onClose,
-}) => {
+                                                          onClick,
+                                                          showLS,
+                                                          onClose,
+                                                        }) => {
   const [action, setAction] = useState("Sign In");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+  });
 
   const handleChangetrue = () => {
     onClick(true);
@@ -28,6 +35,42 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
   };
 
   const submit = async () => {
+    let hasError = false;
+    const newErrors = { email: "", password: "", firstName: "", lastName: "" };
+
+    if (action === "Sign Up") {
+      if (!firstName) {
+        newErrors.firstName = "First Name is required";
+        hasError = true;
+      }
+      if (!lastName) {
+        newErrors.lastName = "Last Name is required";
+        hasError = true;
+      }
+    }
+
+    if (!email) {
+      newErrors.email = "Email is required";
+      hasError = true;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Invalid email address";
+      hasError = true;
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+      hasError = true;
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    if (hasError) {
+      return;
+    }
+
     if (action === "Sign In") {
       try {
         const token = await authService.login({
@@ -44,92 +87,98 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
     }
   };
 
+
   return (
-    <>
-      {showLS && (
-        <div onClick={onClose} className="background">
-          <div className="container" onClick={(e) => e.stopPropagation()}>
-            {}
-            <div className="header">
-              <div
-                className={action === "Sign In" ? "text active" : "text"}
-                onClick={() => setAction("Sign In")}
-              >
-                SIGN IN
-              </div>
-              <div
-                className={action === "Sign Up" ? "text active" : "text"}
-                onClick={() => setAction("Sign Up")}
-              >
-                SIGN UP
-              </div>
-            </div>
-
-            {}
-            <div className="inputs">
-              {action === "Sign Up" && (
-                <>
-                  <div className="input">
-                    <img src={user_icon} alt="" />
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
+      <>
+        {showLS && (
+            <div onClick={onClose} className="background">
+              <div className="container" onClick={(e) => e.stopPropagation()}>
+                {}
+                <div className="header">
+                  <div
+                      className={action === "Sign In" ? "text active" : "text"}
+                      onClick={() => setAction("Sign In")}
+                  >
+                    SIGN IN
                   </div>
-                  <div className="input">
-                    <img src={user_icon} alt="" />
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
+                  <div
+                      className={action === "Sign Up" ? "text active" : "text"}
+                      onClick={() => setAction("Sign Up")}
+                  >
+                    SIGN UP
                   </div>
-                </>
-              )}
+                </div>
 
-              <div className="input">
-                <img src={email_icon} alt="" />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+                {}
+                <div className="inputs">
+                  {action === "Sign Up" && (
+                      <>
+                        <div className="input">
+                          <img src={user_icon} alt="" />
+                          <input
+                              type="text"
+                              placeholder="First Name"
+                              value={firstName}
+                              onChange={(e) => setFirstName(e.target.value)}
+                          />
+                          {errors.firstName && <div className="error">{errors.firstName}</div>}
+                        </div>
+                        <div className="input">
+                          <img src={user_icon} alt="" />
+                          <input
+                              type="text"
+                              placeholder="Last Name"
+                              value={lastName}
+                              onChange={(e) => setLastName(e.target.value)}
+                          />
+                          {errors.lastName && <div className="error">{errors.lastName}</div>}
+                        </div>
+                      </>
+                  )}
 
-              <div className="input">
-                <img src={password_icon} alt="" />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                  <div className="input">
+                    <img src={email_icon} alt="" />
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {errors.email && <div className="error">{errors.email}</div>}
+                  </div>
+
+                  <div className="input">
+                    <img src={password_icon} alt="" />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    {errors.password && <div className="error">{errors.password}</div>}
+                  </div>
+                </div>
+
+                {}
+                {action === "Sign In" && (
+                    <div className="forgot-password">
+                      Forgot password? <span>Click here</span>
+                    </div>
+                )}
+
+                {}
+                <div className="submit-container">
+                  <div className="submit" onClick={submit}>
+                    {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
+                  </div>
+                </div>
               </div>
             </div>
-
-            {}
-            {action === "Sign In" && (
-              <div className="forgot-password">
-                Forgot password? <span>Click here</span>
-              </div>
-            )}
-
-            {}
-            <div className="submit-container">
-              <div className="submit" onClick={submit}>
-                {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      ;
-    </>
+        )}
+        ;
+      </>
   );
 };
 
 export default LoginSignup;
+

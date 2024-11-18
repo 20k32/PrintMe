@@ -1,8 +1,8 @@
 import React from "react";
-import "./assets/header.css";
-import chats from "../../assets/images/chats.png";
-import profile from "../../assets/images/profile.png";
-import logOut from "../../assets/images/log-out.png";
+import "./assets/css/header.css";
+import chats from "./assets/images/chats.png";
+import profile from "./assets/images/profile.png";
+import logOut from "./assets/images/log-out.png";
 
 interface HeaderProps {
   isLogined: boolean;
