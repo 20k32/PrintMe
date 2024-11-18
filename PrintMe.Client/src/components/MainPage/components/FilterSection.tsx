@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FilterOption } from "../types";
-import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../constants";
+import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../../../constants";
 import "../assets/css/filterSection.css";
 
 const FilterFold: React.FC<FilterOption> = ({

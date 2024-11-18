@@ -7,9 +7,10 @@ import logOut from "../../assets/images/log-out.png";
 interface HeaderProps {
   isLogined: boolean;
   showLS: (isShowedLS: boolean) => void; // Функція для відкриття/закриття LoginSignup
+  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ isLogined, showLS }) => {
+const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
   const handleShowLS = () => {
     showLS(true); // Відкриває модальне вікно
   };
@@ -37,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS }) => {
               <img src={profile} alt="profile" />
             </a>
             <a href="#">
-              <img src={logOut} alt="logOut" />
+              <img src={logOut} alt="logOut" onClick={onLogout} />
             </a>
           </>
         ) : (

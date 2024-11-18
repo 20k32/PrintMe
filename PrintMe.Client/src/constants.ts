@@ -26,3 +26,6 @@ export const INITIAL_FILTER_STATE: Record<FilterKey, string[]> = {
   sizes: [],
   colors: [],
 };
+
+
+export const API_BASE_URL = "http://localhost:5193/api";

@@ -9,16 +9,24 @@ function App() {
   const [showLogin, setShowLogin] = useState<boolean>(false);
 
   const handleCloseLogin = () => {
-    setShowLogin(false); // Закриває модальне вікно
+    setShowLogin(false);
+  };
+
+  const handleLogout = () => {
+    setIsLogined(false);
   };
 
   return (
     <>
-      <Header isLogined={isLogined} showLS={setShowLogin} />
+      <Header 
+        isLogined={isLogined} 
+        showLS={setShowLogin} 
+        onLogout={handleLogout}
+      />
       <LoginSignup
         onClick={setIsLogined}
         showLS={showLogin}
-        onClose={handleCloseLogin} // Передає функцію закриття
+        onClose={handleCloseLogin}
       />      
       <MainPage />
     </>
