@@ -12,8 +12,8 @@ using PrintMe.Server.Persistence;
 namespace PrintMe.Server.Migrations
 {
     [DbContext(typeof(PrintMeDbContext))]
-    [Migration("20241114213754_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241115212030_PasswordSalt")]
+    partial class PasswordSalt
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,12 +128,11 @@ namespace PrintMe.Server.Migrations
                     b.ToTable("message", (string)null);
                 });
 
-            modelBuilder.Entity("PrintMe.Server.Persistence.Models.PrintMaterial1", b =>
+            modelBuilder.Entity("PrintMe.Server.Persistence.Models.PrintMaterial", b =>
                 {
                     b.Property<int>("PrintMaterialId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("print_material_id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PrintMaterialId"));
 
@@ -143,7 +142,7 @@ namespace PrintMe.Server.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("PrintMaterialId")
-                        .HasName("print_material_pkey");
+                        .HasName("print_material_id");
 
                     b.ToTable("print_material", (string)null);
                 });
@@ -549,15 +548,13 @@ namespace PrintMe.Server.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password");
 
+                    b.Property<string>("PasswordSalt")
+                        .HasColumnType("text");
+
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone_number");
-                    
-                    b.Property<string>("Salt")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("salt");
 
                     b.Property<bool?>("ShouldHidePhoneNumber")
                         .ValueGeneratedOnAdd()
@@ -646,7 +643,7 @@ namespace PrintMe.Server.Migrations
 
             modelBuilder.Entity("PrintMaterial", b =>
                 {
-                    b.HasOne("PrintMe.Server.Persistence.Models.PrintMaterial1", null)
+                    b.HasOne("PrintMe.Server.Persistence.Models.PrintMaterial", null)
                         .WithMany()
                         .HasForeignKey("MaterialId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -702,7 +699,7 @@ namespace PrintMe.Server.Migrations
 
             modelBuilder.Entity("PrintMe.Server.Persistence.Models.PrintOrder", b =>
                 {
-                    b.HasOne("PrintMe.Server.Persistence.Models.PrintMaterial1", "ItemMaterial")
+                    b.HasOne("PrintMe.Server.Persistence.Models.PrintMaterial", "ItemMaterial")
                         .WithMany("PrintOrders")
                         .HasForeignKey("ItemMaterialId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -848,7 +845,7 @@ namespace PrintMe.Server.Migrations
 
             modelBuilder.Entity("RequestPrintMaterial", b =>
                 {
-                    b.HasOne("PrintMe.Server.Persistence.Models.PrintMaterial1", null)
+                    b.HasOne("PrintMe.Server.Persistence.Models.PrintMaterial", null)
                         .WithMany()
                         .HasForeignKey("PrintMaterialId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -868,7 +865,7 @@ namespace PrintMe.Server.Migrations
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("PrintMe.Server.Persistence.Models.PrintMaterial1", b =>
+            modelBuilder.Entity("PrintMe.Server.Persistence.Models.PrintMaterial", b =>
                 {
                     b.Navigation("PrintOrders");
                 });

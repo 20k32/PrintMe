@@ -1,0 +1,39 @@
+.map-section {
+  width: 65%;
+  padding: 1rem ;
+  background-color: #fff;
+  border-radius: 16px 0 0 16px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.map-section h2 {
+  text-align: left;
+  font-size: 2rem;
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.map-section button {
+  padding: 8px 16px;
+  margin: 10px 0;
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.map-section button:hover {
+  background-color: #3367D6;
+}
+
+.map {
+  border: 1px solid black;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  height: 500px;
+  background-color: #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 2rem auto;
+}

@@ -11,8 +11,10 @@ public class Startup
     public IConfiguration Configuration { get; }
     public void ConfigureServices(IServiceCollection services, ConfigurationManager manager)
     {
+        services.AddRouting(options => options.LowercaseUrls = true);
+        
         services.AddDbContext<PrintMeDbContext>(options =>
-            options.UseNpgsql("YourConStr, recommend to set up user-secrets",
+            options.UseNpgsql("Host=localhost;Port=5432;Database=printme_db;Username=postgres;Password=superuser",
                 builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)));
         
         services.ConfigureAuthentication(manager)

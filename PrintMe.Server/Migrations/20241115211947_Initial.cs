@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PrintMe.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,13 +16,13 @@ namespace PrintMe.Server.Migrations
                 name: "print_material",
                 columns: table => new
                 {
-                    print_material_id = table.Column<int>(type: "integer", nullable: false)
+                    PrintMaterialId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("print_material_pkey", x => x.print_material_id);
+                    table.PrimaryKey("print_material_id", x => x.PrintMaterialId);
                 });
 
             migrationBuilder.CreateTable(
@@ -357,7 +357,7 @@ namespace PrintMe.Server.Migrations
                         name: "print_materials_material_id_fkey",
                         column: x => x.material_id,
                         principalTable: "print_material",
-                        principalColumn: "print_material_id",
+                        principalColumn: "PrintMaterialId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "print_materials_printer_id_fkey",
@@ -392,7 +392,7 @@ namespace PrintMe.Server.Migrations
                         name: "print_order_item_material_id_fkey",
                         column: x => x.item_material_id,
                         principalTable: "print_material",
-                        principalColumn: "print_material_id",
+                        principalColumn: "PrintMaterialId",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "print_order_print_order_status_id_fkey",
@@ -434,7 +434,7 @@ namespace PrintMe.Server.Migrations
                         name: "request_print_materials_print_material_id_fkey",
                         column: x => x.print_material_id,
                         principalTable: "print_material",
-                        principalColumn: "print_material_id",
+                        principalColumn: "PrintMaterialId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "request_print_materials_request_id_fkey",

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Registration;
+using PrintMe.Server.Models.ApiResult;
+using PrintMe.Server.Models.ApiResult.Common;
 using PrintMe.Server.Models.Authentication;
 using PrintMe.Server.Models.Registration;
 using PrintMe.Server.Persistence;
@@ -26,12 +28,32 @@ public sealed class AuthorizationController : ControllerBase
     /// To view use https://jwt.io/
     /// </summary>
     [HttpPost("login")]
-    public IResult GenerateToken([FromBody] UserAuthInfo user)
+    public IResult GenerateToken([FromBody] UserAuthRequest user)
     {
-        var generator = _provider.GetService<TokenGenerator>();
-        var str = generator.GetForUserInfo(user);
-        var json = Results.Json(str);
+        ResultBase resultBase = null; 
+        var context = _provider.GetService<PrintMeDbContext>();
         
+        var dbUser = context.Users
+            .AsQueryable()
+            .FirstOrDefault(existing => existing.Email.Equals(user.Email));
+
+        if (dbUser is null)
+        {
+            resultBase = new("There is no such use in database.", StatusCodes.Status403Forbidden);
+        }
+        else if (!dbUser.Password.Equals(user.Password))
+        {
+            resultBase = new("Password is incorrect, please, try another one.",
+                StatusCodes.Status401Unauthorized);
+        }
+        else
+        {
+            var generator = _provider.GetService<TokenGenerator>();
+            var token = generator.GetForUserInfo(user);
+            resultBase = new("There is such user in database.", StatusCodes.Status200OK);
+        }
+        
+        var json = Results.Json(resultBase);
         return json;
     }
     

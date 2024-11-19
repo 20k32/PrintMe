@@ -49,5 +49,5 @@ public partial class Request
 
     public virtual User UserSender { get; set; }
 
-    public virtual ICollection<PrintMaterial1> PrintMaterials { get; set; } = new List<PrintMaterial1>();
+    public virtual ICollection<PrintMaterial> PrintMaterials { get; set; } = new List<PrintMaterial>();
 }
