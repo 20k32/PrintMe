@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FilterOption } from "../types";
-import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../constants";
+import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../../../constants";
 import "../assets/css/filterSection.css";
 
 const FilterFold: React.FC<FilterOption> = ({
@@ -124,6 +124,7 @@ const FilterFoldGroup: React.FC = () => {
           setIsOpen={updateOpenState("colors")}
         />
       </div>
+      <p className="tip-container">You can add your default address in profile</p>
     </div>
   );
 };

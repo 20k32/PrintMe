@@ -52,7 +52,10 @@ public class Startup
         {
             policy.AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowCredentials()
+                .WithOrigins("http://localhost:5173")
+                .SetIsOriginAllowed(origin => true)
+                .WithExposedHeaders("Access-Control-Allow-Origin");
         });
 
         builder.UseHttpsRedirection();
