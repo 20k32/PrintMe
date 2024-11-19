@@ -28,9 +28,13 @@ internal static class UserRegistrationLogic
         {
             Email = userRegistration.Email.ToLower(),
             Password = hashedPassword,
-            Salt = salt,
+            PasswordSalt = salt,
             FirstName = userRegistration.FirstName,
-            LastName = userRegistration.LastName
+            LastName = userRegistration.LastName,
+            UserStatusId = 1,
+            PhoneNumber = "",
+            ShouldHidePhoneNumber = true,
+            Description = ""
         };
         return user;
     }

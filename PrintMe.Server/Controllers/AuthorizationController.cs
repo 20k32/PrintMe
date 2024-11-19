@@ -1,6 +1,7 @@
 using System.Security;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Registration;
@@ -64,14 +65,23 @@ public sealed class AuthorizationController : ControllerBase
     public IResult RegisterUser([FromBody]UserRegistrationInfo userRegistration)
     {
         var context = _provider.GetService<PrintMeDbContext>();
+        var dbUser = context.Users.FirstOrDefault(u => u.Email == userRegistration.Email);
+        if (dbUser != null)
+        {
+            return Results.Conflict(new { message = "Email already used" });
+        }
+        try
+        {
+            var userInfo = UserRegistrationLogic.CreateUser(userRegistration);
+            context.Users.Add(userInfo);
+        }
+        catch (ArgumentException e)
+        {
+            return Results.BadRequest(new { message = e.Message });
+        }
 
-        var userInfo = UserRegistrationLogic.CreateUser(userRegistration);
-        context.Users.Add(userInfo);
-        
         var entries = context.ChangeTracker.Entries();
-        
         context.SaveChanges();
-
         var user = context.Users.First();
         
         return Results.Ok(new { message = "User registered successfully" });
