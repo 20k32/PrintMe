@@ -37,19 +37,26 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
   const submit = async () => {
     let hasError = false;
     const newErrors = { email: "", password: "", firstName: "", lastName: "" };
+    
+      if (action === "Sign Up") {
+        if (!firstName) {
+          newErrors.firstName = "First Name is required";
+          hasError = true;
+        } else if (!/^[A-Za-z]+$/.test(firstName)) {
+          newErrors.firstName = "First Name must contain only letters";
+          hasError = true;
+        }
 
-    if (action === "Sign Up") {
-      if (!firstName) {
-        newErrors.firstName = "First Name is required";
-        hasError = true;
+        if (!lastName) {
+          newErrors.lastName = "Last Name is required";
+          hasError = true;
+        } else if (!/^[A-Za-z]+$/.test(lastName)) {
+          newErrors.lastName = "Last Name must contain only letters";
+          hasError = true;
+        }
       }
-      if (!lastName) {
-        newErrors.lastName = "Last Name is required";
-        hasError = true;
-      }
-    }
-
-    if (!email) {
+      
+      if (!email) {
       newErrors.email = "Email is required";
       hasError = true;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
