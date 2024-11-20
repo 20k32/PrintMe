@@ -100,11 +100,18 @@
     width: 220px;
     height: 50px;
     color: #fff;
-    background: #4c00b4;
+    background: #4c00b4; 
     border-radius: 50px;
     font-size: 19px;
     font-weight: 700;
     cursor: pointer;
+    transition: background-color 0.3s ease; 
+}
+
+.submit:disabled {
+    background: #cccccc; 
+    cursor: not-allowed; 
+    color: #666; 
 }
 
 .gray {
@@ -114,5 +121,6 @@
 .error {
     color: red;
     font-size: 12px;
-    margin-top: 4px;
+    margin-top: 1px; 
+    margin-left: 50px; 
 }

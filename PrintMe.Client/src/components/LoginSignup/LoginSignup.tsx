@@ -8,8 +8,33 @@ import { authService } from "../../services/authService";
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
   showLS: boolean;
-  onClose: () => void; // Функція для закриття модального вікна
+  onClose: () => void;
 }
+
+// Валідація для кожного поля
+const validateFirstName = (value: string) => {
+  if (!value) return "First Name is required";
+  if (!/^[A-Za-z]+$/.test(value)) return "First Name must contain only letters";
+  return "";
+};
+
+const validateLastName = (value: string) => {
+  if (!value) return "Last Name is required";
+  if (!/^[A-Za-z]+$/.test(value)) return "Last Name must contain only letters";
+  return "";
+};
+
+const validateEmail = (value: string) => {
+  if (!value) return "Email is required";
+  if (!/\S+@\S+\.\S+/.test(value)) return "Invalid email address";
+  return "";
+};
+
+const validatePassword = (value: string) => {
+  if (!value) return "Password is required";
+  if (value.length < 8) return "Password must be at least 8 characters";
+  return "";
+};
 
 export const LoginSignup: React.FC<LoginSignupProps> = ({
                                                           onClick,
@@ -21,7 +46,6 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -29,54 +53,37 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
     lastName: "",
   });
 
-  const handleChangetrue = () => {
-    onClick(true);
-    onClose(); // Закриває модальне вікно після успішного входу
+  // Обробка змін у полях
+  const handleChange = (field: string, value: string) => {
+    let error = "";
+    if (field === "firstName") {
+      setFirstName(value);
+      error = validateFirstName(value);
+    } else if (field === "lastName") {
+      setLastName(value);
+      error = validateLastName(value);
+    } else if (field === "email") {
+      setEmail(value);
+      error = validateEmail(value);
+    } else if (field === "password") {
+      setPassword(value);
+      error = validatePassword(value);
+    }
+    setErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const submit = async () => {
-    let hasError = false;
-    const newErrors = { email: "", password: "", firstName: "", lastName: "" };
-    
-      if (action === "Sign Up") {
-        if (!firstName) {
-          newErrors.firstName = "First Name is required";
-          hasError = true;
-        } else if (!/^[A-Za-z]+$/.test(firstName)) {
-          newErrors.firstName = "First Name must contain only letters";
-          hasError = true;
-        }
+    const newErrors = {
+      firstName: action === "Sign Up" ? validateFirstName(firstName) : "",
+      lastName: action === "Sign Up" ? validateLastName(lastName) : "",
+      email: validateEmail(email),
+      password: validatePassword(password),
+    };
 
-        if (!lastName) {
-          newErrors.lastName = "Last Name is required";
-          hasError = true;
-        } else if (!/^[A-Za-z]+$/.test(lastName)) {
-          newErrors.lastName = "Last Name must contain only letters";
-          hasError = true;
-        }
-      }
-      
-      if (!email) {
-      newErrors.email = "Email is required";
-      hasError = true;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Invalid email address";
-      hasError = true;
-    }
-
-    if (!password) {
-      newErrors.password = "Password is required";
-      hasError = true;
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-      hasError = true;
-    }
-
+    const hasError = Object.values(newErrors).some((error) => error !== "");
     setErrors(newErrors);
 
-    if (hasError) {
-      return;
-    }
+    if (hasError) return;
 
     if (action === "Sign In") {
       try {
@@ -85,22 +92,22 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
           role: "user",
         });
         localStorage.setItem("token", token);
-        handleChangetrue();
+        onClick(true);
+        onClose();
       } catch (error) {
         console.error("Login failed:", error);
       }
     } else {
-      handleChangetrue();
+      onClick(true);
+      onClose();
     }
   };
-
 
   return (
       <>
         {showLS && (
             <div onClick={onClose} className="background">
               <div className="container" onClick={(e) => e.stopPropagation()}>
-                {}
                 <div className="header">
                   <div
                       className={action === "Sign In" ? "text active" : "text"}
@@ -116,7 +123,6 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
                   </div>
                 </div>
 
-                {}
                 <div className="inputs">
                   {action === "Sign Up" && (
                       <>
@@ -126,20 +132,25 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
                               type="text"
                               placeholder="First Name"
                               value={firstName}
-                              onChange={(e) => setFirstName(e.target.value)}
+                              onChange={(e) => handleChange("firstName", e.target.value)}
                           />
-                          {errors.firstName && <div className="error">{errors.firstName}</div>}
                         </div>
+                        {errors.firstName && (
+                            <div className="error">{errors.firstName}</div>
+                        )}
+
                         <div className="input">
                           <img src={user_icon} alt="" />
                           <input
                               type="text"
                               placeholder="Last Name"
                               value={lastName}
-                              onChange={(e) => setLastName(e.target.value)}
+                              onChange={(e) => handleChange("lastName", e.target.value)}
                           />
-                          {errors.lastName && <div className="error">{errors.lastName}</div>}
                         </div>
+                        {errors.lastName && (
+                            <div className="error">{errors.lastName}</div>
+                        )}
                       </>
                   )}
 
@@ -149,10 +160,10 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
                         type="email"
                         placeholder="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => handleChange("email", e.target.value)}
                     />
-                    {errors.email && <div className="error">{errors.email}</div>}
                   </div>
+                  {errors.email && <div className="error">{errors.email}</div>}
 
                   <div className="input">
                     <img src={password_icon} alt="" />
@@ -160,32 +171,30 @@ export const LoginSignup: React.FC<LoginSignupProps> = ({
                         type="password"
                         placeholder="Password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => handleChange("password", e.target.value)}
                     />
-                    {errors.password && <div className="error">{errors.password}</div>}
                   </div>
+                  {errors.password && <div className="error">{errors.password}</div>}
                 </div>
 
-                {}
-                {action === "Sign In" && (
-                    <div className="forgot-password">
-                      Forgot password? <span>Click here</span>
-                    </div>
-                )}
-
-                {}
                 <div className="submit-container">
-                  <div className="submit" onClick={submit}>
+                  <button
+                      className="submit"
+                      onClick={submit}
+                      disabled={
+                        action === "Sign In"
+                            ? errors.email !== "" || errors.password !== ""
+                            : Object.values(errors).some((error) => error !== "")
+                      }
+                  >
                     {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
         )}
-        ;
       </>
   );
 };
 
 export default LoginSignup;
-
