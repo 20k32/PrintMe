@@ -16,7 +16,7 @@ public class Startup
         services.AddRouting(options => options.LowercaseUrls = true);
         
         services.AddDbContext<PrintMeDbContext>(options =>
-            options.UseNpgsql("Host=localhost;Port=5432;Database=printme_db;Username=postgres;Password=superuser",
+            options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING_PRINTME_DB"),
                 builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)), ServiceLifetime.Singleton);
 
         services.AddRepositories().AddDatabaseServices();
