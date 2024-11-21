@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Models.Authentication;
+using PrintMe.Server.Persistence;
 
 namespace PrintMe.Server.Controllers;
 
@@ -16,18 +17,15 @@ public sealed class TestController : ControllerBase
     }
     
     /// <summary>
-    /// Get data "Hell to world"
+    /// This may took a lot of time and definitely will take a lot of memory
     /// </summary>
     /// <returns>"Hell to"</returns>
-    [HttpGet("TestGetData")]
+    [HttpGet("getAllUsersFromDb")]
     public IResult GetData()
     {
-        var dataObject =
-        new {
-            Value = "Hell to"
-        };
-
-        var json = Results.Json(dataObject);
+        var context = _provider.GetService<PrintMeDbContext>();
+        var allUsers = context.Users.ToArray();
+        var json = Results.Json(allUsers);
 
         return json;
     }
