@@ -1,13 +1,14 @@
 
 using System.Text.RegularExpressions;
-using PrintMe.Server.Models.Registration;
-using PrintMe.Server.Persistence.Models;
+using PrintMe.Server.Logic.Helpers;
+using PrintMe.Server.Models.Api.ApiRequest;
+using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Logic.Registration;
 
-internal static class UserRegistrationLogic
+internal class UserRegistrationLogic
 {
-    public static User CreateUser(UserRegistrationInfo userRegistration)
+    public User CreateUser(UserRegisterRequest userRegistration)
     {
         if (!Regex.IsMatch(userRegistration.Email, @"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
             // Example Matches
@@ -32,7 +33,6 @@ internal static class UserRegistrationLogic
             FirstName = userRegistration.FirstName,
             LastName = userRegistration.LastName,
             UserStatusId = 1,
-            PhoneNumber = "",
             ShouldHidePhoneNumber = true,
             Description = ""
         };

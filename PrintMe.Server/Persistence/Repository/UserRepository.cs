@@ -9,6 +9,11 @@ namespace PrintMe.Server.Persistence.Repository
 
         public UserRepository(PrintMeDbContext dbContext) => _dbContext = dbContext;
 
+        internal async Task AddUserAsync(User user)
+        {
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
+        }
         internal Task<User> GetUserByEmailAsync(string email) =>
             _dbContext
                 .Users

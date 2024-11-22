@@ -1,16 +1,10 @@
-using System.Security;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.Api.ApiResult.Auth;
-using PrintMe.Server.Models.Authentication;
+
 using PrintMe.Server.Models.Exceptions;
-using PrintMe.Server.Persistence;
-using PrintMe.Server.Persistence.Entities;
-using PrintMe.Server.Persistence.Repository;
+
 
 namespace PrintMe.Server.Controllers;
 
@@ -73,29 +67,36 @@ public sealed class AuthorizationController : ControllerBase
     /// <summary>
     /// Create a new user and save it to the database.
     /// </summary>
-    [HttpPost("registration")]
-    public IResult RegisterUser([FromBody]UserRegistrationInfo userRegistration)
+    [HttpPost("register")]
+    public async Task<IResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
     {
-        var context = _provider.GetService<PrintMeDbContext>();
-        var dbUser = context.Users.FirstOrDefault(u => u.Email == userRegistration.Email);
-        if (dbUser != null)
+        if (userRegistration is null)
         {
-            return Results.Conflict(new { message = "Email already used" });
+            return Results.BadRequest(new { message = "Missing body" });
+        }
+        if (userRegistration.IsNull())
+        {
+            return Results.BadRequest(new { message = "Missing parameters in body" });
         }
         try
         {
-            var userInfo = UserRegistrationLogic.CreateUser(userRegistration);
-            context.Users.Add(userInfo);
+            if (await _userService.GetUserByEmailAsync(userRegistration.Email) != null)
+            {
+                return Results.BadRequest(new { message = "User with this email already exists" });
+            }
         }
-        catch (ArgumentException e)
+        catch(NotFoundUserInDbException ex)
         {
-            return Results.BadRequest(new { message = e.Message });
+            try
+            {
+                await _userService.AddUserAsync(userRegistration);
+                return Results.Ok(new { message = "User registered successfully" });
+            }
+            catch (ArgumentException e)
+            {
+                return Results.BadRequest(new { message = e.Message });
+            }
         }
-
-        var entries = context.ChangeTracker.Entries();
-        context.SaveChanges();
-        var user = context.Users.First();
-        
         return Results.Ok(new { message = "User registered successfully" });
     }
 }

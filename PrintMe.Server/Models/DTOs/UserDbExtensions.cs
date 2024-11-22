@@ -1,3 +1,4 @@
+using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Models.DTOs
