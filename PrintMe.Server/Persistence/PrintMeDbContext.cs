@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using PrintMe.Server.Persistence.Models;
+using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence;
 
@@ -436,9 +436,6 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .HasColumnName("phone_number");
-            entity.Property(e => e.Salt)
-                .IsRequired()
-                .HasColumnName("salt");
             entity.Property(e => e.ShouldHidePhoneNumber)
                 .HasDefaultValue(true)
                 .HasColumnName("should_hide_phone_number");

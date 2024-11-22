@@ -27,7 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Migrations\" />
-      <Folder Include="Persistence\" />
+      <Folder Include="Models\Api\" />
     </ItemGroup>
 </Project>

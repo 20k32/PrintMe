@@ -1,63 +1,75 @@
 using System.Security;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Authentication;
-using PrintMe.Server.Logic.Registration;
-using PrintMe.Server.Models.ApiResult;
-using PrintMe.Server.Models.ApiResult.Common;
+using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Models.Api.ApiRequest;
+using PrintMe.Server.Models.Api.ApiResult.Auth;
 using PrintMe.Server.Models.Authentication;
-using PrintMe.Server.Models.Registration;
+using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence;
-using PrintMe.Server.Persistence.Models;
+using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public sealed class AuthorizationController : ControllerBase
 {
-    private IServiceProvider _provider;
+    private readonly UserService _userService;
     public AuthorizationController(IServiceProvider provider)
     {
-        _provider = provider;
+        _userService = provider.GetService<UserService>();
     }
     
     /// <summary>
-    /// Generate token for user.
+    /// Checks for user in database and generates token with fields: id, email, role.
     /// To view use https://jwt.io/
     /// </summary>
+    [ProducesResponseType(typeof(TokenResult), 200)]
     [HttpPost("login")]
-    public IResult GenerateToken([FromBody] UserAuthRequest user)
+    public async Task<IResult> GenerateToken([FromBody] UserAuthRequest authRequest)
     {
-        ResultBase resultBase = null; 
-        var context = _provider.GetService<PrintMeDbContext>();
+        TokenResult result;
         
-        var dbUser = context.Users
-            .AsQueryable()
-            .FirstOrDefault(existing => existing.Email.Equals(user.Email));
-
-        if (dbUser is null)
+        if (authRequest is null)
         {
-            resultBase = new("There is no such use in database.", StatusCodes.Status403Forbidden);
+            result = new(null, "Missing body.", 
+                StatusCodes.Status403Forbidden);
         }
-        else if (!dbUser.Password.Equals(user.Password))
+        else if (authRequest.IsNull())
         {
-            resultBase = new("Password is incorrect, please, try another one.",
-                StatusCodes.Status401Unauthorized);
+            result = new(null, "Missing parameters in body.", 
+                StatusCodes.Status403Forbidden);
         }
         else
         {
-            var generator = _provider.GetService<TokenGenerator>();
-            var token = generator.GetForUserInfo(user);
-            resultBase = new("There is such user in database.", StatusCodes.Status200OK);
+            try
+            {
+                var token = await _userService.GenerateTokenAsync(authRequest);
+                result = new(token, "Token successfully created.",
+                    StatusCodes.Status200OK);
+            }
+            catch (NotFoundUserInDbException ex)
+            {
+                result = new(null, ex.Message, StatusCodes.Status404NotFound);
+            }
+            catch (IncorrectPasswordException ex)
+            {
+                result = new(null, ex.Message, StatusCodes.Status403Forbidden);
+            }
+            catch (Exception ex)
+            {
+                result = new(null, $"Internal server error while generating token for user.\n{ex.Message}\n{ex.StackTrace}",
+                    StatusCodes.Status500InternalServerError);
+            }
         }
-        
-        var json = Results.Json(resultBase);
-        return json;
+
+        return Results.Json(result);
     }
-    
+
     /// <summary>
     /// Create a new user and save it to the database.
     /// </summary>

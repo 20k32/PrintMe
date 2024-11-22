@@ -1,7 +1,9 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Logic.Authentication;
+using PrintMe.Server.Logic.Services;
 using PrintMe.Server.Persistence;
+using PrintMe.Server.Persistence.Repository;
 
 
 namespace PrintMe.Server;
@@ -15,7 +17,9 @@ public class Startup
         
         services.AddDbContext<PrintMeDbContext>(options =>
             options.UseNpgsql("Host=localhost;Port=5432;Database=printme_db;Username=postgres;Password=superuser",
-                builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)));
+                builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)), ServiceLifetime.Singleton);
+
+        services.AddRepositories().AddDatabaseServices();
         
         services.ConfigureAuthentication(manager)
             .AddEndpointsApiExplorer()
