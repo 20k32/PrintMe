@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../assets/css/filterSection.css"; 
 import { FilterOption } from "../types";
 import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../../../constants";
-import "../assets/css/filterSection.css";
 
 const FilterFold: React.FC<FilterOption> = ({
   label,
@@ -11,21 +12,16 @@ const FilterFold: React.FC<FilterOption> = ({
   isOpen,
   setIsOpen,
 }) => {
-  const [animationState, setAnimationState] = useState(
-    isOpen ? "open" : "closed"
-  );
   const [showContent, setShowContent] = useState(isOpen);
   const selectedCount = state.length;
 
   useEffect(() => {
     if (isOpen) {
       setShowContent(true);
-      setAnimationState("opening");
     } else {
-      setAnimationState("closing");
       const timer = setTimeout(() => {
-        setShowContent(false);
-      }, 200);
+        setShowContent(false); 
+      }, 400);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -47,27 +43,41 @@ const FilterFold: React.FC<FilterOption> = ({
   };
 
   return (
-    <div className={`${animationState}`}>
-      <label onClick={() => setIsOpen(!isOpen)} className="filterLabel">
-        <span className="labelText">{label}</span>
-        {selectedCount > 0 && <span className="counter">{selectedCount}</span>}
-        <span className="arrow">{isOpen ? "↑" : "↓"}</span>
+    <div className="filter-fold border rounded p-2">
+      <label
+        onClick={() => setIsOpen(!isOpen)}
+        className="d-flex justify-content-between align-items-center px-3 py-2 bg-light rounded mb-2"
+        style={{ cursor: "pointer" }}
+      >
+        <span>{label}</span>
+        {selectedCount > 0 && (
+          <span className="badge bg-primary ms-2">{selectedCount}</span>
+        )}
+        <span
+          className={`ms-2 arrow-icon ${isOpen ? "rotate-180" : "rotate-0"}`}
+        >
+          ↑
+        </span>
       </label>
-      {showContent && (
-        <div className="checkboxGroup">
-          {options.map((option) => (
-            <label key={option}>
+      <div
+        className={`content-wrapper ${
+          isOpen ? "content-expanded" : "content-collapsed"
+        }`}
+      >
+        {showContent &&
+          options.map((option) => (
+            <label key={option} className="d-flex align-items-center px-3 py-2">
               <input
                 type="checkbox"
                 value={option}
                 checked={state.includes(option)}
                 onChange={handleCheckboxChange}
+                className="form-check-input me-2"
               />
               {option}
             </label>
           ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -96,9 +106,9 @@ const FilterFoldGroup: React.FC = () => {
     };
 
   return (
-    <div className="filter-section">
-      <h2>Filter by</h2>
-      <div className="filter-options">
+    <div className="bg-white p-4 rounded h-100">
+      <h2 className="fs-4 mb-3">Filter by</h2>
+      <div className="d-flex flex-wrap gap-3">
         <FilterFold
           label="Materials"
           options={FILTER_OPTIONS.materials}
@@ -124,7 +134,9 @@ const FilterFoldGroup: React.FC = () => {
           setIsOpen={updateOpenState("colors")}
         />
       </div>
-      <p className="tip-container">You can add your default address in profile</p>
+      <p className="alert alert-warning mt-4">
+        You can add your default address in profile
+      </p>
     </div>
   );
 };

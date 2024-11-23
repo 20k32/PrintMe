@@ -1,133 +1,245 @@
 import { useState } from "react";
-import "./assets/css/loginSignup.css";
-import user_icon from "./assets/images/person.png";
-import email_icon from "./assets/images/email.png";
-import password_icon from "./assets/images/password.png";
-import { authService } from "../../services/authService";
+import "bootstrap/dist/css/bootstrap.min.css";
+import personIcon from "./assets/images/person.png";
+import emailIcon from "./assets/images/email.png";
+import passwordIcon from "./assets/images/password.png";
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
   showLS: boolean;
-  onClose: () => void; // Функція для закриття модального вікна
+  onClose: () => void;
 }
 
-export const LoginSignup: React.FC<LoginSignupProps> = ({
+const LoginSignup: React.FC<LoginSignupProps> = ({
   onClick,
   showLS,
   onClose,
 }) => {
   const [action, setAction] = useState("Sign In");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const handleChangetrue = () => {
-    onClick(true);
-    onClose(); // Закриває модальне вікно після успішного входу
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (action === "Sign Up") {
+      if (!formData.firstName.trim()) {
+        newErrors.firstName = "First name is required.";
+      }
+      if (!formData.lastName.trim()) {
+        newErrors.lastName = "Last name is required.";
+      }
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)
+    ) {
+      newErrors.email = "Invalid email format.";
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required.";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const submit = async () => {
-    if (action === "Sign In") {
-      try {
-        const token = await authService.login({
-          name: email,
-          role: "user",
-        });
-        localStorage.setItem("token", token);
-        handleChangetrue();
-      } catch (error) {
-        console.error("Login failed:", error);
-      }
-    } else {
-      handleChangetrue();
+  const submit = () => {
+    if (validateFields()) {
+      onClick(true);
+      onClose();
     }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
   };
 
   return (
     <>
       {showLS && (
-        <div onClick={onClose} className="background">
-          <div className="container" onClick={(e) => e.stopPropagation()}>
-            {}
-            <div className="header">
-              <div
-                className={action === "Sign In" ? "text active" : "text"}
+        <div
+          className="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50"
+          style={{ zIndex: 9999 }}
+          onClick={onClose}
+        >
+          <div
+            className="bg-white p-4 rounded shadow-lg"
+            style={{ width: "400px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="d-flex justify-content-center mb-4">
+              <h2
+                className={`me-4 ${
+                  action === "Sign In"
+                    ? "text-primary text-decoration-underline fw-bold"
+                    : "text-muted"
+                }`}
                 onClick={() => setAction("Sign In")}
+                style={{
+                  cursor: "pointer",
+                  color: action === "Sign In" ? "#6c30f3" : "#6c757d",
+                }}
               >
                 SIGN IN
-              </div>
-              <div
-                className={action === "Sign Up" ? "text active" : "text"}
+              </h2>
+              <h2
+                className={`${
+                  action === "Sign Up"
+                    ? "text-primary text-decoration-underline fw-bold"
+                    : "text-muted"
+                }`}
                 onClick={() => setAction("Sign Up")}
+                style={{
+                  cursor: "pointer",
+                  color: action === "Sign Up" ? "#6c30f3" : "#6c757d",
+                }}
               >
                 SIGN UP
-              </div>
+              </h2>
             </div>
-
-            {}
-            <div className="inputs">
+            <form>
               {action === "Sign Up" && (
                 <>
-                  <div className="input">
-                    <img src={user_icon} alt="" />
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
+                  <div className="mb-3 position-relative">
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-0">
+                        <img src={personIcon} alt="First Name" style={{ width: "20px" }} />
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control bg-light border-0 text-dark"
+                        placeholder="First Name"
+                        value={formData.firstName}
+                        onChange={(e) =>
+                          handleInputChange("firstName", e.target.value)
+                        }
+                        style={{
+                          boxShadow: "none",
+                          backgroundColor: "#d3d3d3",
+                        }}
+                      />
+                    </div>
+                    {errors.firstName && (
+                      <small className="text-danger position-absolute">
+                        {errors.firstName}
+                      </small>
+                    )}
                   </div>
-                  <div className="input">
-                    <img src={user_icon} alt="" />
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
+                  <div className="mb-3 position-relative">
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-0">
+                        <img src={personIcon} alt="Last Name" style={{ width: "20px" }} />
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control bg-light border-0 text-dark"
+                        placeholder="Last Name"
+                        value={formData.lastName}
+                        onChange={(e) =>
+                          handleInputChange("lastName", e.target.value)
+                        }
+                        style={{
+                          boxShadow: "none",
+                          backgroundColor: "#d3d3d3",
+                        }}
+                      />
+                    </div>
+                    {errors.lastName && (
+                      <small className="text-danger position-absolute">
+                        {errors.lastName}
+                      </small>
+                    )}
                   </div>
                 </>
               )}
-
-              <div className="input">
-                <img src={email_icon} alt="" />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+              <div className="mb-3 position-relative">
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0">
+                    <img src={emailIcon} alt="Email" style={{ width: "20px" }} />
+                  </span>
+                  <input
+                    type="email"
+                    className="form-control bg-light border-0 text-dark"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    style={{
+                      boxShadow: "none",
+                      backgroundColor: "#d3d3d3",
+                    }}
+                  />
+                </div>
+                {errors.email && (
+                  <small className="text-danger position-absolute">
+                    {errors.email}
+                  </small>
+                )}
               </div>
-
-              <div className="input">
-                <img src={password_icon} alt="" />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div className="mb-3 position-relative">
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0">
+                    <img
+                      src={passwordIcon}
+                      alt="Password"
+                      style={{ width: "20px" }}
+                    />
+                  </span>
+                  <input
+                    type="password"
+                    className="form-control bg-light border-0 text-dark"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
+                    style={{
+                      boxShadow: "none",
+                      backgroundColor: "#d3d3d3",
+                    }}
+                  />
+                </div>
+                {errors.password && (
+                  <small className="text-danger position-absolute">
+                    {errors.password}
+                  </small>
+                )}
               </div>
-            </div>
-
-            {}
-            {action === "Sign In" && (
-              <div className="forgot-password">
-                Forgot password? <span>Click here</span>
-              </div>
-            )}
-
-            {}
-            <div className="submit-container">
-              <div className="submit" onClick={submit}>
+              {action === "Sign In" && (
+                <div className="text-center mb-3">
+                  <small>
+                    Forgot password?{" "}
+                    <a href="#" className="text-primary">
+                      Click here
+                    </a>
+                  </small>
+                </div>
+              )}
+              <button
+                type="button"
+                className="btn btn-primary w-100 py-2 fw-bold"
+                onClick={submit}
+                style={{
+                  backgroundColor: "#6c30f3",
+                  borderRadius: "20px",
+                }}
+              >
                 {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
-              </div>
-            </div>
+              </button>
+            </form>
           </div>
         </div>
       )}
-      ;
     </>
   );
 };
