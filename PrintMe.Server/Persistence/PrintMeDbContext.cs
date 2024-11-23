@@ -14,6 +14,7 @@ public partial class PrintMeDbContext : DbContext
     public PrintMeDbContext(DbContextOptions<PrintMeDbContext> options)
         : base(options)
     {
+        
     }
 
     public virtual DbSet<Chat> Chats { get; set; }
@@ -41,10 +42,10 @@ public partial class PrintMeDbContext : DbContext
     public virtual DbSet<RequestStatusReason> RequestStatusReasons { get; set; }
 
     public virtual DbSet<RequestType> RequestTypes { get; set; }
-
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserStatus> UserStatuses { get; set; }
+    public virtual DbSet<UserRole> UserRoles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -415,6 +416,8 @@ public partial class PrintMeDbContext : DbContext
             entity.HasIndex(e => e.Email, "user_email_key").IsUnique();
 
             entity.HasIndex(e => e.PhoneNumber, "user_phone_number_key").IsUnique();
+
+            entity.HasIndex(e => e.UserRoleId, "idx_user_role_id");
             
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.Description).HasColumnName("description");
@@ -440,7 +443,14 @@ public partial class PrintMeDbContext : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("should_hide_phone_number");
             entity.Property(e => e.UserStatusId).HasColumnName("user_status_id");
+            entity.Property(e => e.UserRoleId).HasColumnName("user_role_id");
 
+
+            entity.HasOne(d => d.UserRole).WithMany(p => p.Users)
+                .HasForeignKey(d => d.UserRoleId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("user_user_role_id_fkey");
+            
             entity.HasOne(d => d.UserStatus).WithMany(p => p.Users)
                 .HasForeignKey(d => d.UserStatusId)
                 .OnDelete(DeleteBehavior.SetNull)
@@ -476,6 +486,15 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+        });
+        
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.HasKey(e => e.UserRoleId).HasName("user_role_pkey");
+            entity.ToTable("user_role");
+            entity.Property(e => e.UserRoleName)
+                .IsRequired()
+                .HasColumnName("user_role_name");
         });
 
         OnModelCreatingPartial(modelBuilder);
