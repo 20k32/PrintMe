@@ -12,6 +12,7 @@ public partial class User
     public string Description { get; set; }
     public string Password { get; set; }
     public string PasswordSalt { get; set; }
+    public int UserRoleId { get; set; }
 
     public virtual ICollection<Chat> ChatUser1s { get; set; } = new List<Chat>();
 
@@ -34,6 +35,7 @@ public partial class User
     public virtual ICollection<Request> RequestUserSenders { get; set; } = new List<Request>();
 
     public virtual UserStatus UserStatus { get; set; }
-
+    
+    public virtual UserRole UserRole { get; set; }
     public virtual ICollection<Printer> Printers { get; set; } = new List<Printer>();
 }

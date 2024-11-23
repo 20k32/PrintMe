@@ -12,7 +12,7 @@ using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal class UserService
+    internal sealed class UserService
     {
         private readonly UserRepository _repository;
         private readonly TokenGenerator _tokenGenerator;
