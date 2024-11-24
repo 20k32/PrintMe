@@ -1,6 +1,8 @@
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api.ApiRequest;
+using PrintMe.Server.Models.Api.ApiResult;
 using PrintMe.Server.Models.Api.ApiResult.Auth;
 
 using PrintMe.Server.Models.Exceptions;
@@ -70,33 +72,42 @@ public sealed class AuthorizationController : ControllerBase
     [HttpPost("register")]
     public async Task<IResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
     {
+        ResultBase result = null;
         if (userRegistration is null)
         {
-            return Results.BadRequest(new { message = "Missing body" });
+            result = new("Missing body.", StatusCodes.Status403Forbidden);
         }
-        if (userRegistration.IsNull())
+        else if (userRegistration.IsNull())
         {
-            return Results.BadRequest(new { message = "Missing parameters in body" });
+            result = new("Missing parameters in body.", StatusCodes.Status403Forbidden);
         }
-        try
-        {
-            if (await _userService.GetUserByEmailAsync(userRegistration.Email) != null)
-            {
-                return Results.BadRequest(new { message = "User with this email already exists" });
-            }
-        }
-        catch(NotFoundUserInDbException ex)
+        else
         {
             try
             {
-                await _userService.AddUserAsync(userRegistration);
-                return Results.Ok(new { message = "User registered successfully" });
+                if (await _userService.GetUserByEmailAsync(userRegistration.Email) != null)
+                {
+                    result = new("User with this email already exists.", StatusCodes.Status409Conflict);
+                }
             }
-            catch (ArgumentException e)
+            catch (NotFoundUserInDbException ex)
             {
-                return Results.BadRequest(new { message = e.Message });
+                try
+                {
+                    await _userService.AddUserAsync(userRegistration);
+                    result = new("User registered successfully.", StatusCodes.Status200OK);
+                }
+                catch (InvalidEmailFormatException e)
+                {
+                    result = new(e.Message, StatusCodes.Status409Conflict);
+                }
+            }
+            catch(Exception ex)
+            {
+                result = new($"Internal server error while registering user.\n{ex.Message}\n{ex.StackTrace}",
+                    StatusCodes.Status500InternalServerError);
             }
         }
-        return Results.Ok(new { message = "User registered successfully" });
+        return Results.Json(result);
     }
 }

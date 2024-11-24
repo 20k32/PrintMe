@@ -1,15 +1,14 @@
 using System.Data;
+using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Helpers;
-using PrintMe.Server.Logic.Registration;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.Api.ApiResult.Auth;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
-using PrintMe.Server.Logic.Registration;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
@@ -17,14 +16,29 @@ namespace PrintMe.Server.Logic.Services.Database
     {
         private readonly UserRepository _repository;
         private readonly TokenGenerator _tokenGenerator;
-        private readonly UserRegistrationLogic _registrationLogic;
 
-        public UserService(UserRepository repository, TokenGenerator tokenGenerator, UserRegistrationLogic registrationLogic) => 
-            (_repository, _tokenGenerator, _registrationLogic) = (repository, tokenGenerator, registrationLogic);
+        public UserService(UserRepository repository, TokenGenerator tokenGenerator) => 
+            (_repository, _tokenGenerator) = (repository, tokenGenerator);
         
         public async Task AddUserAsync(UserRegisterRequest user)
         {
-            var userRaw = _registrationLogic.CreateUser(user);
+            if (!Regex.IsMatch(user.Email, @"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            {
+                throw new InvalidEmailFormatException();
+            }
+            var salt = SecurityHelper.GenerateSalt();
+            var hashedPassword = SecurityHelper.HashPassword(user.Password, salt);
+            var userRaw = new User
+            {
+                Email = user.Email.ToLower(),
+                Password = hashedPassword,
+                PasswordSalt = salt,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserStatusId = 1,
+                ShouldHidePhoneNumber = true,
+                Description = ""
+            };
             await _repository.AddUserAsync(userRaw);
         }
         public async Task<PasswordUserDto> GetUserByEmailAsync(string email)

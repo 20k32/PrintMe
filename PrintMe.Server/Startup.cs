@@ -1,7 +1,6 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Logic.Authentication;
-using PrintMe.Server.Logic.Registration;
 using PrintMe.Server.Logic.Services;
 using PrintMe.Server.Persistence;
 using PrintMe.Server.Persistence.Repository;
@@ -38,8 +37,6 @@ public class Startup
                 c.IncludeXmlComments(filePath);
             })
             .AddControllers();
-        
-        services.ConfigureRegistration();
     }
 
     public void Configure(IApplicationBuilder builder, IWebHostEnvironment environment)
