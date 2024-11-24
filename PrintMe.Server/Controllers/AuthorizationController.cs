@@ -1,16 +1,12 @@
-using System.Security;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
-using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api.ApiRequest;
+using PrintMe.Server.Models.Api.ApiResult;
 using PrintMe.Server.Models.Api.ApiResult.Auth;
-using PrintMe.Server.Models.Authentication;
+
 using PrintMe.Server.Models.Exceptions;
-using PrintMe.Server.Persistence;
-using PrintMe.Server.Persistence.Entities;
-using PrintMe.Server.Persistence.Repository;
+
 
 namespace PrintMe.Server.Controllers;
 
@@ -69,33 +65,49 @@ public sealed class AuthorizationController : ControllerBase
 
         return Results.Json(result);
     }
-    
+
     /// <summary>
     /// Create a new user and save it to the database.
     /// </summary>
-    [HttpPost("registration")]
-    public IResult RegisterUser()
+    [HttpPost("register")]
+    public async Task<IResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
     {
-        /*var context = _provider.GetService<PrintMeDbContext>();
-
-        var userInfo = new User()
+        ResultBase result = null;
+        if (userRegistration is null)
         {
-            FirstName = "1",
-            LastName = "2",
-            Email = "123@123.com",
-            PhoneNumber = "3",
-            UserStatusId = 1,
-            ShouldHidePhoneNumber = false,
-            Description = "1",
-            Password = "31"
-        };
-        context.Users.Add(userInfo);
-        context.SaveChanges();
-
-        var user = context.Users.First();
-        
-        return Results.Ok(new { message = "User registered successfully" });*/
-
-        return Results.Empty;
+            result = new("Missing body.", StatusCodes.Status403Forbidden);
+        }
+        else if (userRegistration.IsNull())
+        {
+            result = new("Missing parameters in body.", StatusCodes.Status403Forbidden);
+        }
+        else
+        {
+            try
+            {
+                if (await _userService.GetUserByEmailAsync(userRegistration.Email) != null)
+                {
+                    result = new("User with this email already exists.", StatusCodes.Status409Conflict);
+                }
+            }
+            catch (NotFoundUserInDbException ex)
+            {
+                try
+                {
+                    await _userService.AddUserAsync(userRegistration);
+                    result = new("User registered successfully.", StatusCodes.Status200OK);
+                }
+                catch (InvalidEmailFormatException e)
+                {
+                    result = new(e.Message, StatusCodes.Status409Conflict);
+                }
+            }
+            catch(Exception ex)
+            {
+                result = new($"Internal server error while registering user.\n{ex.Message}\n{ex.StackTrace}",
+                    StatusCodes.Status500InternalServerError);
+            }
+        }
+        return Results.Json(result);
     }
 }

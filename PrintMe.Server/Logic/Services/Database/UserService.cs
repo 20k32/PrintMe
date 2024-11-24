@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Helpers;
@@ -6,6 +7,7 @@ using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.Api.ApiResult.Auth;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.Exceptions;
+using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database
@@ -17,7 +19,28 @@ namespace PrintMe.Server.Logic.Services.Database
 
         public UserService(UserRepository repository, TokenGenerator tokenGenerator) => 
             (_repository, _tokenGenerator) = (repository, tokenGenerator);
-
+        
+        public async Task AddUserAsync(UserRegisterRequest user)
+        {
+            if (!Regex.IsMatch(user.Email, @"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            {
+                throw new InvalidEmailFormatException();
+            }
+            var salt = SecurityHelper.GenerateSalt();
+            var hashedPassword = SecurityHelper.HashPassword(user.Password, salt);
+            var userRaw = new User
+            {
+                Email = user.Email.ToLower(),
+                Password = hashedPassword,
+                PasswordSalt = salt,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserStatusId = 1,
+                ShouldHidePhoneNumber = true,
+                Description = ""
+            };
+            await _repository.AddUserAsync(userRaw);
+        }
         public async Task<PasswordUserDto> GetUserByEmailAsync(string email)
         {
             var userRaw = await _repository.GetUserByEmailAsync(email);
