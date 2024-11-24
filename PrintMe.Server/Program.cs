@@ -1,4 +1,4 @@
-
+using DotNetEnv;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Models.Authentication;
 
@@ -8,6 +8,8 @@ public static class Program
 {
     private static void Main(string[] args)
     {
+        Env.Load();
+        
         var builder = WebApplication.CreateBuilder(args);
         
         var startup = new Startup();
