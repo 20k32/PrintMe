@@ -6,7 +6,6 @@ import {
   Libraries,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../../../constants";
-import "../assets/css/mapSection.css";
 
 const libraries: Libraries = ["places"];
 
@@ -44,35 +43,48 @@ const MapSection: React.FC = () => {
   };
 
   return (
-    <div className="map-section">
-      <h2>Map of printers</h2>
-      <div className="map-container">
-        <LoadScript
-          googleMapsApiKey={GOOGLE_MAPS_API_KEY}
-          libraries={libraries}
-        >
-          <div className="map-controls">
+    <div
+      className="h-100 d-flex flex-column justify-content-between"
+      style={{ overflow: "hidden" }}
+    >
+      <div className="bg-white shadow-sm p-4 rounded-start flex-grow-1">
+        <h2 className="fs-3 mb-3">Map of printers</h2>
+        <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
+          <div
+            className="border border-dark rounded shadow-sm mx-auto"
+            style={{
+              height: "80%",
+              minHeight: "400px", 
+              flex: 1,
+            }}
+          >
+            <GoogleMap
+              mapContainerStyle={{
+                width: "100%",
+                height: "100%",
+              }}
+              center={MAP_CONFIG.center}
+              zoom={MAP_CONFIG.zoom}
+              onLoad={onLoad}
+            />
+          </div>
+          <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
             <StandaloneSearchBox
               onLoad={onSearchBoxLoad}
               onPlacesChanged={onPlacesChanged}
             >
               <input
                 type="text"
+                className="form-control w-100"
                 placeholder="Search location..."
-                className="map-search-input"
+                style={{
+                  boxShadow: "none",
+                }}
               />
             </StandaloneSearchBox>
-            <button onClick={resetPosition} className="reset-button">
+            <button className="btn btn-primary px-4" onClick={resetPosition}>
               Reset position
             </button>
-          </div>
-          <div className="map">
-            <GoogleMap
-              mapContainerStyle={MAP_CONFIG.containerStyle}
-              center={MAP_CONFIG.center}
-              zoom={MAP_CONFIG.zoom}
-              onLoad={onLoad}
-            />
           </div>
         </LoadScript>
       </div>
