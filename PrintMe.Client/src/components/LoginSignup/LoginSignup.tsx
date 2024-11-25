@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import personIcon from "./assets/images/person.png";
 import emailIcon from "./assets/images/email.png";
 import passwordIcon from "./assets/images/password.png";
+import { authService } from "../../services/authService";
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
@@ -54,10 +55,18 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (validateFields()) {
-      onClick(true);
-      onClose();
+      try {
+        if (action === "Sign In") {
+          await authService.login({ email: formData.email, password: formData.password });
+        }
+        onClick(true);
+        onClose();
+      } catch (error) {
+        // setErrors({ general: (error as Error).message || "Login failed. Please try again." });
+        console.error(error);
+      }
     }
   };
 

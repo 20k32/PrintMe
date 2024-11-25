@@ -15,6 +15,8 @@ public class Startup
     {
         services.AddRouting(options => options.LowercaseUrls = true);
         
+        services.AddAutoMapper(typeof(Startup).Assembly);
+        
         services.AddDbContext<PrintMeDbContext>(options =>
             options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING_PRINTME_DB"),
                 builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)), ServiceLifetime.Singleton);

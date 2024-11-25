@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/header.css";
 import chats from "../../assets/images/chats.png";
@@ -51,6 +52,11 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
                 <a href="#" className="nav-link px-3 text-white fs-5">
                   Orders
                 </a>
+              </li>
+              <li>
+                <Link to="/requests" className="nav-link px-3 text-white fs-5">
+                  Requests
+                </Link>
               </li>
             </>
           )}
