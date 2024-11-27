@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header/Header.tsx";
 import MainPage from "./components/MainPage/MainPage.tsx";
 import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
+import Requests from "./components/Requests/Requests.tsx";
+import { authService } from "./services/authService";
 
 function App() {
   const [isLogined, setIsLogined] = useState<boolean>(false);
@@ -14,6 +17,7 @@ function App() {
 
   const handleLogout = () => {
     setIsLogined(false);
+    authService.logout();
   };
 
   return (
@@ -28,7 +32,10 @@ function App() {
         showLS={showLogin}
         onClose={handleCloseLogin}
       />      
-      <MainPage />
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/requests" element={<Requests />} />
+      </Routes>
     </>
   );
 }
