@@ -1,10 +1,7 @@
-using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Persistence.Entities;
 
-namespace PrintMe.Server.Models.DTOs
+namespace PrintMe.Server.Models.DTOs.UserDto
 {
-    //todo: deside wich mapper to use
-    
     public static class UserDbExtensions
     {
         public static PasswordUserDto MapToPasswordUserDto(this NoPasswordUserDto noPasswordUser, string password, string salt) => new()
@@ -18,7 +15,8 @@ namespace PrintMe.Server.Models.DTOs
             ShouldHidePhoneNumber = noPasswordUser.ShouldHidePhoneNumber,
             Description = noPasswordUser.Description,
             Password = password,
-            PasswordSalt = salt
+            PasswordSalt = salt,
+            UserRole = noPasswordUser.UserRole,
         };
         
         public static NoPasswordUserDto MapToNoPasswordUserDto(this User user) => new()
@@ -30,7 +28,8 @@ namespace PrintMe.Server.Models.DTOs
             PhoneNumber = user.PhoneNumber,
             UserStatusId = user.UserStatusId,
             ShouldHidePhoneNumber = user.ShouldHidePhoneNumber,
-            Description = user.Description
+            Description = user.Description,
+            UserRole = user.UserRole.UserRoleName
         };
         
         public static PasswordUserDto MapToPasswordUserDto(this User user) => new()
@@ -44,7 +43,8 @@ namespace PrintMe.Server.Models.DTOs
             ShouldHidePhoneNumber = user.ShouldHidePhoneNumber,
             Description = user.Description,
             Password = user.Password,
-            PasswordSalt = user.PasswordSalt
+            PasswordSalt = user.PasswordSalt,
+            UserRole = user?.UserRole?.UserRoleName ?? string.Empty
         };
 
         public static User MapToUser(this NoPasswordUserDto noPasswordUser) => new()
@@ -56,10 +56,10 @@ namespace PrintMe.Server.Models.DTOs
             PhoneNumber = noPasswordUser.PhoneNumber,
             UserStatusId = noPasswordUser.UserStatusId,
             ShouldHidePhoneNumber = noPasswordUser.ShouldHidePhoneNumber,
-            Description = noPasswordUser.Description
+            Description = noPasswordUser.Description,
         };
         
-        public static User MapToUser(this PasswordUserDto passwordUserDto) => new()
+        public static User MapToUser(this PasswordUserDto passwordUserDto, UserRole role) => new()
         {
             UserId = passwordUserDto.UserId,
             FirstName = passwordUserDto.FirstName,
@@ -70,7 +70,8 @@ namespace PrintMe.Server.Models.DTOs
             ShouldHidePhoneNumber = passwordUserDto.ShouldHidePhoneNumber,
             Description = passwordUserDto.Description,
             Password = passwordUserDto.Password,
-            PasswordSalt = passwordUserDto.PasswordSalt
+            PasswordSalt = passwordUserDto.PasswordSalt,
+            UserRole = role
         };
     }
 }

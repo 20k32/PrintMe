@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
-using PrintMe.Server.Models.Api.ApiResult.Common;
+using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
@@ -17,18 +17,18 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     /// <summary>
     /// Checks for request in database and returns if it is present.
     /// </summary>
-    [ProducesResponseType(typeof(RequestResult), 200)]
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRequest(int id)
     {
         try
         {
             var request = await _requestService.GetRequestByIdAsync(id);
-            return Ok(new RequestResult(new List<RequestDto> { request }, "Request found successfully", StatusCodes.Status200OK));
+            return Ok(new ApiResult<IEnumerable<RequestDto>>(new List<RequestDto> { request }, "Request found successfully", StatusCodes.Status200OK));
         }
         catch (NotFoundRequestInDbException)
         {
-            return NotFound(new RequestResult(null, "Request not found", StatusCodes.Status404NotFound));
+            return NotFound(new PlainResult("Request not found", StatusCodes.Status404NotFound));
         }
     }
 
@@ -36,14 +36,14 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     /// Gets all requests for the authenticated user.
     /// </summary>
     [Authorize]
-    [ProducesResponseType(typeof(RequestResult), 200)]
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
     [HttpGet("my")]
     public async Task<IActionResult> GetMyRequests()
     {
-        var id = Request.TryUserGetId();
+        var id = Request.TryGetUserId();
         if (id is null || !int.TryParse(id, out int userId))
         {
-            return Unauthorized(new RequestResult(null, "Unable to get user id from token", StatusCodes.Status401Unauthorized));
+            return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
         }
 
         try
@@ -51,13 +51,13 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             var requests = (await _requestService.GetRequestsByUserIdAsync(userId)).ToList();
             if (requests.Count == 0)
             {
-                return NotFound(new RequestResult(null, "No requests found", StatusCodes.Status404NotFound));
+                return NotFound(new PlainResult("No requests found", StatusCodes.Status404NotFound));
             }
-            return Ok(new RequestResult(requests, "Requests found successfully", StatusCodes.Status200OK));
+            return Ok(new PlainResult( "Requests found successfully", StatusCodes.Status200OK));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new RequestResult(null, $"Internal server error while getting requests: {ex.Message}", StatusCodes.Status500InternalServerError));
+            return StatusCode(500, new PlainResult($"Internal server error while getting requests: {ex.Message}", StatusCodes.Status500InternalServerError));
         }
     }
 }

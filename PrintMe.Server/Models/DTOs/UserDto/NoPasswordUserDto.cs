@@ -1,6 +1,4 @@
-using PrintMe.Server.Persistence.Entities;
-
-namespace PrintMe.Server.Models.DTOs
+namespace PrintMe.Server.Models.DTOs.UserDto
 {
     public class NoPasswordUserDto : INullCheck
     {
@@ -12,12 +10,14 @@ namespace PrintMe.Server.Models.DTOs
         public int? UserStatusId { get; init; }
         public bool? ShouldHidePhoneNumber { get; init; }
         public string Description { get; init; }
+        public string UserRole { get; init; }
 
-        public bool IsNull() => UserId == default
+        public virtual bool IsNull() => UserId == default
                                 || string.IsNullOrWhiteSpace(FirstName)
                                 || string.IsNullOrWhiteSpace(LastName)
                                 || string.IsNullOrWhiteSpace(Email)
                                 || string.IsNullOrWhiteSpace(PhoneNumber)
-                                || string.IsNullOrWhiteSpace(Description);
+                                || string.IsNullOrWhiteSpace(Description)
+                                || string.IsNullOrWhiteSpace(UserRole);
     }
 }

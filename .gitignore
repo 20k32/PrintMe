@@ -7,6 +7,7 @@ node_modules/
 .[Vv]s/
 [Pp]roperties/
 [Rr]esources/
+*.bat
 *.json
 *.user
 *.png

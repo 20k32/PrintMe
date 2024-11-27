@@ -1,4 +1,5 @@
 using PrintMe.Server.Models.DTOs;
+using PrintMe.Server.Models.DTOs.UserDto;
 
 namespace PrintMe.Server.Models.Api.ApiRequest
 {

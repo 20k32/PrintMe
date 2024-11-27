@@ -4,8 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Helpers;
 using PrintMe.Server.Models.Api.ApiRequest;
-using PrintMe.Server.Models.Api.ApiResult.Auth;
+using PrintMe.Server.Models.Authentication;
 using PrintMe.Server.Models.DTOs;
+using PrintMe.Server.Models.DTOs.UserDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
@@ -181,7 +182,12 @@ namespace PrintMe.Server.Logic.Services.Database
         
         public async Task<string> GenerateTokenAsync(UserAuthRequest authRequest)
         {
-            // todo: add role field to db
+            var isRoleCorrect = await _repository.CheckIfRoleExistsAsync(authRequest.Role);
+
+            if (!isRoleCorrect)
+            {
+                throw new NoRoleAvailableException();
+            }
             
             string tokenResult = null;
             
@@ -198,7 +204,7 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new IncorrectPasswordException();
             }
             
-            var loginResult = new SuccessLoginResult(dbUser.UserId, authRequest.Email, "stubRole");
+            var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, dbUser.UserRole.UserRoleName);
             tokenResult = _tokenGenerator.GetForSuccessLoginResult(loginResult);
 
             return tokenResult;
