@@ -1,9 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import personIcon from "./assets/images/person.png";
 import emailIcon from "./assets/images/email.png";
 import passwordIcon from "./assets/images/password.png";
 import { authService } from "../../services/authService";
+import { registrationService } from "../../services/registrationService";
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
@@ -35,6 +36,9 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
       if (!formData.lastName.trim()) {
         newErrors.lastName = "Last name is required.";
       }
+      if (formData.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters.";
+      }
     }
 
     if (!formData.email.trim()) {
@@ -47,8 +51,6 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
 
     if (!formData.password.trim()) {
       newErrors.password = "Password is required.";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
     }
 
     setErrors(newErrors);
@@ -58,13 +60,18 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
   const submit = async () => {
     if (validateFields()) {
       try {
+        let token;
         if (action === "Sign In") {
-          await authService.login({ email: formData.email, password: formData.password });
+          token = await authService.login({ email: formData.email, password: formData.password });
+        } else if (action === "Sign Up") {
+          token = await registrationService.register(formData);
         }
-        onClick(true);
-        onClose();
+        if (token) {
+          onClick(true);
+          onClose();
+        }
       } catch (error) {
-        setErrors({ general: (error as Error).message || "Login failed. Please try again." });
+        setErrors({ general: (error as Error).message || "Action failed. Please try again." });
       }
     }
   };
