@@ -1,17 +1,15 @@
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
-using PrintMe.Server.Models.Api.ApiResult;
-using PrintMe.Server.Models.Api.ApiResult.Auth;
-
 using PrintMe.Server.Models.Exceptions;
 
 
 namespace PrintMe.Server.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("api/Auth")]
 public sealed class AuthorizationController : ControllerBase
 {
     private readonly UserService _userService;
@@ -24,20 +22,20 @@ public sealed class AuthorizationController : ControllerBase
     /// Checks for user in database and generates token with fields: id, email, role.
     /// To view use https://jwt.io/
     /// </summary>
-    [ProducesResponseType(typeof(TokenResult), 200)]
-    [HttpPost("login")]
-    public async Task<IResult> GenerateToken([FromBody] UserAuthRequest authRequest)
+    [ProducesResponseType(typeof(ApiResult<string>), 200)]
+    [HttpPost("Login")]
+    public async Task<IActionResult> GenerateToken([FromBody] UserAuthRequest authRequest)
     {
-        TokenResult result;
+        PlainResult result;
         
         if (authRequest is null)
         {
-            result = new(null, "Missing body.", 
+            result = new("Missing body.", 
                 StatusCodes.Status403Forbidden);
         }
         else if (authRequest.IsNull())
         {
-            result = new(null, "Missing parameters in body.", 
+            result = new("Missing parameters in body.", 
                 StatusCodes.Status403Forbidden);
         }
         else
@@ -45,25 +43,29 @@ public sealed class AuthorizationController : ControllerBase
             try
             {
                 var token = await _userService.GenerateTokenAsync(authRequest);
-                result = new(token, "Token successfully created.",
+                result = new ApiResult<string>(token, "Token successfully created.",
                     StatusCodes.Status200OK);
+            }
+            catch (NoRoleAvailableException ex)
+            {
+                result = new(ex.Message, StatusCodes.Status405MethodNotAllowed);
             }
             catch (NotFoundUserInDbException ex)
             {
-                result = new(null, ex.Message, StatusCodes.Status404NotFound);
+                result = new(ex.Message, StatusCodes.Status404NotFound);
             }
             catch (IncorrectPasswordException ex)
             {
-                result = new(null, ex.Message, StatusCodes.Status403Forbidden);
+                result = new(ex.Message, StatusCodes.Status403Forbidden);
             }
             catch (Exception ex)
             {
-                result = new(null, $"Internal server error while generating token for user.\n{ex.Message}\n{ex.StackTrace}",
+                result = new($"Internal server error while generating token for user.\n{ex.Message}\n{ex.StackTrace}",
                     StatusCodes.Status500InternalServerError);
             }
         }
 
-        return Results.Json(result);
+        return result.ToObjectResult();
     }
 
     /// <summary>
@@ -72,7 +74,7 @@ public sealed class AuthorizationController : ControllerBase
     [HttpPost("register")]
     public async Task<IResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
     {
-        ResultBase result = null;
+        PlainResult result = null;
         if (userRegistration is null)
         {
             result = new("Missing body.", StatusCodes.Status403Forbidden);

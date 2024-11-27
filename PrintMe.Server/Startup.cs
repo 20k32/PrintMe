@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Services;
 using PrintMe.Server.Persistence;
@@ -10,7 +11,6 @@ namespace PrintMe.Server;
 
 public class Startup
 {
-    public IConfiguration Configuration { get; }
     public void ConfigureServices(IServiceCollection services, ConfigurationManager manager)
     {
         services.AddRouting(options => options.LowercaseUrls = true);
@@ -37,8 +37,12 @@ public class Startup
 
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "PrintMeAPI.xml");
                 c.IncludeXmlComments(filePath);
-            })
-            .AddControllers();
+            });
+            
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            });
     }
 
     public void Configure(IApplicationBuilder builder, IWebHostEnvironment environment)

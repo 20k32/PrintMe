@@ -6,7 +6,7 @@ namespace PrintMe.Server.Models.Extensions
 {
     public static class ClaimsExtensions
     {
-        public static string TryUserGetId(this HttpRequest request)
+        public static string TryGetUserId(this HttpRequest request)
         {
             var jwtRaw = request.Headers.Authorization;
             var jwtToken = jwtRaw.First().Substring(7);

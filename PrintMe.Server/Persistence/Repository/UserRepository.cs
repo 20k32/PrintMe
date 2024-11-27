@@ -5,22 +5,25 @@ namespace PrintMe.Server.Persistence.Repository
 {
     internal class UserRepository
     {
+        private readonly RolesRepository _rolesRepository;
         private readonly PrintMeDbContext _dbContext;
 
-        public UserRepository(PrintMeDbContext dbContext) => _dbContext = dbContext;
-
+        public UserRepository(PrintMeDbContext dbContext, RolesRepository rolesRepository) 
+            => (_dbContext, _rolesRepository) = (dbContext, rolesRepository);
+        
         internal async Task AddUserAsync(User user)
         {
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
         }
-        internal Task<User> GetUserByEmailAsync(string email) =>
+
+        public Task<User> GetUserByEmailAsync(string email) =>
             _dbContext
                 .Users
                 .AsQueryable()
                 .FirstOrDefaultAsync(user => user.Email.Equals(email));
 
-        internal async Task<User> UpdateUserByEmailAsync(string email, User newEntity)
+        public async Task<User> UpdateUserByEmailAsync(string email, User newEntity)
         {
             var existingUser = await _dbContext
                 .Users
@@ -46,13 +49,13 @@ namespace PrintMe.Server.Persistence.Repository
         }
         
         
-        internal Task<User> GetUserByIdAsync(int id) =>
+        public Task<User> GetUserByIdAsync(int id) =>
             _dbContext
                 .Users
                 .AsQueryable()
                 .FirstOrDefaultAsync(user => user.UserId ==  id);
 
-        internal async Task<User> UpdateUserByIdAsync(int id, User newEntity)
+        public async Task<User> UpdateUserByIdAsync(int id, User newEntity)
         {
             var existingUser = await _dbContext
                 .Users
@@ -77,5 +80,8 @@ namespace PrintMe.Server.Persistence.Repository
 
             return existingUser;
         }
+
+        public async Task<bool> CheckIfRoleExistsAsync(string roleName)
+            => await _rolesRepository.GetByRoleNameAsync(roleName) is not null;
     }
 }
