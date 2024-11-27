@@ -1,10 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import personIcon from "./assets/images/person.png";
 import emailIcon from "./assets/images/email.png";
 import passwordIcon from "./assets/images/password.png";
 import { authService } from "../../services/authService";
-import { registerService } from "../../services/registrationService";
+import { registrationService } from "../../services/registrationService";
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
@@ -64,7 +64,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
         if (action === "Sign In") {
           token = await authService.login({ email: formData.email, password: formData.password });
         } else if (action === "Sign Up") {
-          token = await registerService.register(formData);
+          token = await registrationService.register(formData);
         }
         if (token) {
           onClick(true);

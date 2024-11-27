@@ -9,14 +9,12 @@ interface RegistrationRequest {
   password: string;
 }
 
-export const register = async (credentials: RegistrationRequest): Promise<string> => {
-  const response = await axios.post(`${API_BASE_URL}/auth/register`, credentials);
-  if (response.status !== 200) {
-    throw new Error("Registration failed");
+export const registrationService = {
+  async register (credentials: RegistrationRequest): Promise<string> {
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, credentials);
+    if (response.status !== 200) {
+      throw new Error("Registration failed");
+    }
+    return await authService.login({ email: credentials.email, password: credentials.password });
   }
-  return await authService.login({ email: credentials.email, password: credentials.password });
-};
-
-export const registerService = {
-  register
 };
