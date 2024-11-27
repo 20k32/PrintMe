@@ -18,6 +18,7 @@ export const authService = {
   },
   logout() {
     localStorage.removeItem("token");
+    window.location.href = "/";
   },
   getToken() {
     return localStorage.getItem("token");

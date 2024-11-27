@@ -64,8 +64,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
         onClick(true);
         onClose();
       } catch (error) {
-        // setErrors({ general: (error as Error).message || "Login failed. Please try again." });
-        console.error(error);
+        setErrors({ general: (error as Error).message || "Login failed. Please try again." });
       }
     }
   };
