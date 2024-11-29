@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Persistence;
 
@@ -14,7 +15,16 @@ public partial class PrintMeDbContext : DbContext
     public PrintMeDbContext(DbContextOptions<PrintMeDbContext> options)
         : base(options)
     {
-        
+        try
+        {
+            var deleted = Database.EnsureDeleted();
+            var created = Database.EnsureCreated();
+        }
+        catch (Exception ex)
+        {
+            
+        }
+       
     }
 
     public virtual DbSet<Chat> Chats { get; set; }
@@ -496,6 +506,17 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("user_role_name");
         });
 
+        modelBuilder.GenerateForUserStatuses();
+        modelBuilder.GenerateForUserRoles();
+        modelBuilder.GenerateForUsers(15);
+        
+        modelBuilder.GenerateForPrintMaterial(15);
+        modelBuilder.GenerateForPrinterModels(15);
+        modelBuilder.GenerateForPrinters(15);
+
+        //admin is set by system
+        modelBuilder.Entity<UserRole>().HasData(new UserRole() { UserRoleId = 3, UserRoleName = "Admin"});
+        
         OnModelCreatingPartial(modelBuilder);
     }
 
