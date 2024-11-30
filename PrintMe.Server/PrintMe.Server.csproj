@@ -30,8 +30,4 @@
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\Auth\" />
-    </ItemGroup>
 </Project>

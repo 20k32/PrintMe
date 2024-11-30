@@ -9,6 +9,7 @@ namespace PrintMe.Server.Logic.Services
             collection
                 .AddSingleton<UserService>()
                 .AddSingleton<RequestService>()
-                .AddSingleton<PrinterService>();
+                .AddSingleton<PrinterService>()
+                .AddSingleton<OrderService>();
     }
 }

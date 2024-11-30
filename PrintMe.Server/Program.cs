@@ -1,6 +1,7 @@
 using DotNetEnv;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Models.Authentication;
+using PrintMe.Server.Persistence;
 
 namespace PrintMe.Server;
 

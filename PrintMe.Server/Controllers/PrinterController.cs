@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters.Xml;
+using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.DTOs.PrinterDto;
@@ -13,6 +14,7 @@ namespace PrintMe.Server.Controllers
 {
     [ApiController]
     [Route("api/Printers")]
+    [Authorize]
     public class PrinterController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -190,7 +192,6 @@ namespace PrintMe.Server.Controllers
         /// </summary>
         [HttpGet("/my")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
-        [Authorize]
         public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool detailed)
         {
             PlainResult result;

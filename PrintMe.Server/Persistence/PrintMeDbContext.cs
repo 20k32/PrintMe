@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
 
@@ -15,18 +17,24 @@ public partial class PrintMeDbContext : DbContext
     public PrintMeDbContext(DbContextOptions<PrintMeDbContext> options)
         : base(options)
     {
-        try
-        {
-            var deleted = Database.EnsureDeleted();
-            var created = Database.EnsureCreated();
-        }
-        catch (Exception ex)
-        {
-            
-        }
-       
+#if DEBUG
+        
+        Database.EnsureDeleted();
+        Database.EnsureCreated();
+#endif
+        
     }
 
+    public async Task LoadTestDataAsync()
+    {
+        await UserRoles.GenerateForUserRolesAsync();
+        await UserStatuses.GenerateForUserStatusesAsync(); 
+        await Users.GenerateForUsersAsync(15);
+        await Printers.GenerateForPrintersAsync(PrintMaterials1, PrinterModels, 15, 4, 10);
+        
+        await SaveChangesAsync();
+    }
+    
     public virtual DbSet<Chat> Chats { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
@@ -123,10 +131,14 @@ public partial class PrintMeDbContext : DbContext
             entity.HasKey(e => e.PrintMaterialId).HasName("print_material_id");
 
             entity.ToTable("print_material");
-            
+
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasColumnName("name");
+
+            entity.HasIndex(e => e.Name, "idx_print_material_name")
+                .IsUnique();
+            
         });
 
         modelBuilder.Entity<PrintOrder>(entity =>
@@ -505,17 +517,6 @@ public partial class PrintMeDbContext : DbContext
                 .IsRequired()
                 .HasColumnName("user_role_name");
         });
-
-        modelBuilder.GenerateForUserStatuses();
-        modelBuilder.GenerateForUserRoles();
-        modelBuilder.GenerateForUsers(15);
-        
-        modelBuilder.GenerateForPrintMaterial(15);
-        modelBuilder.GenerateForPrinterModels(15);
-        modelBuilder.GenerateForPrinters(15);
-
-        //admin is set by system
-        modelBuilder.Entity<UserRole>().HasData(new UserRole() { UserRoleId = 3, UserRoleName = "Admin"});
         
         OnModelCreatingPartial(modelBuilder);
     }

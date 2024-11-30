@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
@@ -10,7 +11,8 @@ using PrintMe.Server.Models.Extensions;
 namespace PrintMe.Server.Controllers;
 
 [ApiController]
-[Route("api/request")]
+[Route("api/[controller]")]
+[Authorize]
 public class RequestController(IServiceProvider provider) : ControllerBase
 {
     private readonly RequestService _requestService = provider.GetRequiredService<RequestService>();
@@ -37,7 +39,6 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     /// <summary>
     /// Gets all requests for the authenticated user.
     /// </summary>
-    [Authorize]
     [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
     [HttpGet("my")]
     public async Task<IActionResult> GetMyRequests()

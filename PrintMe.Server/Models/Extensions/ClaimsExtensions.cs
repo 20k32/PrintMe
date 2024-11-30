@@ -18,5 +18,18 @@ namespace PrintMe.Server.Models.Extensions
 
             return id;
         }
+        
+        public static string TryGetUserRole(this HttpRequest request)
+        {
+            var jwtRaw = request.Headers.Authorization;
+            var jwtToken = jwtRaw.First().Substring(7);
+
+            var jwtHandler = new JwtSecurityTokenHandler();
+            var securityToken = (JwtSecurityToken)jwtHandler.ReadToken(jwtToken);
+            var id = securityToken.Claims.FirstOrDefault(existing
+                => existing.Type.Equals(ClaimTypes.Role))?.Value;
+
+            return id;
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace PrintMe.Server.Controllers
 {
     [ApiController]
     [Route("api/Users")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;

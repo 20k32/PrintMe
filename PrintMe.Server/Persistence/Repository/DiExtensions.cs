@@ -8,6 +8,7 @@ namespace PrintMe.Server.Persistence.Repository
                 .AddSingleton<RolesRepository>()
                 .AddSingleton<UserRepository>()
                 .AddSingleton<RequestRepository>()
-                .AddSingleton<PrinterRepository>();
+                .AddSingleton<PrinterRepository>()
+                .AddSingleton<OrderRepository>();
     }
 }

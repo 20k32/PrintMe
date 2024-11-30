@@ -20,7 +20,8 @@ public class Startup
         services.AddDbContext<PrintMeDbContext>(options =>
             options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING_PRINTME_DB"),
                 builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)), ServiceLifetime.Singleton);
-
+        
+        
         services.AddRepositories().AddDatabaseServices();
         
         services.ConfigureAuthentication(manager)
