@@ -37,6 +37,7 @@ namespace PrintMe.Server.Logic.Services.Database
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 UserStatusId = 1,
+                UserRoleId = 1,
                 ShouldHidePhoneNumber = true,
                 Description = ""
             };

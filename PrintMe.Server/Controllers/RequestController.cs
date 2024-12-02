@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
+using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
@@ -59,5 +60,29 @@ public class RequestController(IServiceProvider provider) : ControllerBase
         {
             return StatusCode(500, new PlainResult($"Internal server error while getting requests: {ex.Message}", StatusCodes.Status500InternalServerError));
         }
+    }
+    
+    /// <summary>
+    /// Request for adding new printer to the database.
+    /// </summary>
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResult<RequestDto>), 200)]
+    [HttpPost("add")]
+    public async Task<IActionResult> AddRequest([FromBody] AddPrinterRequest request)
+    {
+        var id = Request.TryGetUserId();
+        if (id is null || !int.TryParse(id, out int userId))
+        {
+            return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
+        }
+        try
+        {
+            await _requestService.AddPrinterRequestAsync(request, userId);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new PlainResult($"Internal server error while adding request: {ex.Message}", StatusCodes.Status500InternalServerError));
+        }
+        return Ok(new PlainResult("Request added successfully", StatusCodes.Status200OK));
     }
 }

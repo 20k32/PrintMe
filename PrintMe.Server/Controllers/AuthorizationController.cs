@@ -72,7 +72,7 @@ public sealed class AuthorizationController : ControllerBase
     /// Create a new user and save it to the database.
     /// </summary>
     [HttpPost("register")]
-    public async Task<IResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
+    public async Task<IActionResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
     {
         PlainResult result = null;
         if (userRegistration is null)
@@ -110,6 +110,6 @@ public sealed class AuthorizationController : ControllerBase
                     StatusCodes.Status500InternalServerError);
             }
         }
-        return Results.Json(result);
+        return result.ToObjectResult();
     }
 }

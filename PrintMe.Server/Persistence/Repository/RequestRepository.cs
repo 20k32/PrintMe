@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence.Repository;
@@ -20,5 +21,11 @@ public class RequestRepository(PrintMeDbContext context)
             .AsQueryable()
             .Where(request => request.UserSenderId == userId)
             .ToListAsync();
+    }
+    
+    public async Task AddPrinterAsync(Request request)
+    {
+        await context.Requests.AddAsync(request);
+        await context.SaveChangesAsync();
     }
 }
