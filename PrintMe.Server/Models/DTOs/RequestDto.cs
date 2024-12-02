@@ -21,8 +21,8 @@ public class RequestDto : INullCheck
     public double? MinModelWidth { get; init; }
     public double? MaxModelHeight { get; init; }
     public double? MaxModelWidth { get; init; }
-    public int RequestStatusId { get; init; }
-    public int? RequestStatusReasonId { get; init; }
+    public int RequestStatusId { get; set; }
+    public int? RequestStatusReasonId { get; set; }
 
     public bool IsNull() => RequestId == default
                             || UserId == default

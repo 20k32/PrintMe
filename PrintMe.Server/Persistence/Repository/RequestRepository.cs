@@ -5,6 +5,14 @@ namespace PrintMe.Server.Persistence.Repository;
 
 public class RequestRepository(PrintMeDbContext context)
 {
+    public async Task<IEnumerable<Request>> GetAllRequestsAsync()
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .ToListAsync();
+    }
+
     public async Task<object> GetRequestByIdAsync(int requestId)
     {
         return await context
@@ -20,5 +28,46 @@ public class RequestRepository(PrintMeDbContext context)
             .AsQueryable()
             .Where(request => request.UserSenderId == userId)
             .ToListAsync();
+    }
+
+    public async Task<int> GetRequestStatusIdByNameAsync(string status)
+    {
+      var requestStatus = await context
+          .RequestStatuses
+          .AsQueryable()
+          .FirstOrDefaultAsync(requestStatus => requestStatus.Status == status);
+
+      return requestStatus.RequestStatusId;
+    }
+
+    public async Task<IEnumerable<Request>> GetRequestsByStatusIdAsync(int statusId)
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .Where(request => request.RequestStatusId == statusId)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
+    {
+        var requestStatusReason = await context
+            .RequestStatusReasons
+            .AsQueryable()
+            .FirstOrDefaultAsync(requestStatusReason => requestStatusReason.Reason == reason);
+
+        return requestStatusReason.RequestStatusReasonId;
+    }
+
+    public async Task UpdateRequestAsync(Request request)
+    {
+        var existingEntity = await context.Requests.FindAsync(request.RequestId);
+        if (existingEntity != null)
+        {
+            context.Entry(existingEntity).State = EntityState.Detached;
+        }
+
+        context.Requests.Update(request);
+        await context.SaveChangesAsync();
     }
 }

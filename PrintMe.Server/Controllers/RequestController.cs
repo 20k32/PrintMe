@@ -18,7 +18,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     /// Checks for request in database and returns if it is present.
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetRequest(int id)
     {
         try
@@ -26,9 +26,9 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             var request = await _requestService.GetRequestByIdAsync(id);
             return Ok(new ApiResult<IEnumerable<RequestDto>>(new List<RequestDto> { request }, "Request found successfully", StatusCodes.Status200OK));
         }
-        catch (NotFoundRequestInDbException)
+        catch (NotFoundRequestInDbException ex)
         {
-            return NotFound(new PlainResult("Request not found", StatusCodes.Status404NotFound));
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
     }
 
@@ -41,7 +41,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     public async Task<IActionResult> GetMyRequests()
     {
         var id = Request.TryGetUserId();
-        if (id is null || !int.TryParse(id, out int userId))
+        if (id is null || !int.TryParse(id, out var userId))
         {
             return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
         }
@@ -58,6 +58,119 @@ public class RequestController(IServiceProvider provider) : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new PlainResult($"Internal server error while getting requests: {ex.Message}", StatusCodes.Status500InternalServerError));
+        }
+    }
+
+    /// <summary>
+    /// Gets all requests.
+    /// Requests can be filtered by status.
+    /// </summary>
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllRequests([FromQuery] string status)
+    {
+        try
+        {
+            IEnumerable<RequestDto> requests;
+            if (string.IsNullOrEmpty(status))
+            {
+                requests = await _requestService.GetAllRequestsAsync();
+            }
+            else
+            {
+                status = status.ToUpper();
+                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status);
+                requests = (await _requestService.GetRequestsByStatusIdAsync(statusId)).ToList();
+            }
+
+            if (!requests.Any())
+            {
+                return NotFound(new PlainResult("No requests found", StatusCodes.Status404NotFound));
+            }
+
+            return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully", StatusCodes.Status200OK));
+        }
+        catch (NotFoundRequestInDbException ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+        }
+        catch (NotFoundStatusInDb ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+        }
+    }
+
+    /// <summary>
+    /// Approves a request.
+    /// </summary>
+    /// <param name="id">Request id.</param>
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
+    [HttpPost("request/{id:int}/approve")]
+    public async Task<IActionResult> ApproveRequest(int id)
+    {
+        try
+        {
+            var request = await _requestService.GetRequestByIdAsync(id);
+            var statusId = await _requestService.GetRequestStatusIdByNameAsync("APPROVED");
+            if (request.RequestStatusId == statusId)
+            {
+                return BadRequest(new PlainResult("Request already approved", StatusCodes.Status400BadRequest));
+            }
+
+            request.RequestStatusId = statusId;
+            request.RequestStatusReasonId = null;
+            await _requestService.UpdateRequestAsync(request);
+            return Ok(new PlainResult("Request approved successfully",
+                StatusCodes.Status200OK));
+        }
+        catch (NotFoundRequestInDbException ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+        }
+        catch (NotFoundStatusInDb ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+        }
+    }
+
+    /// <summary>
+    /// Declines a request.
+    /// </summary>
+    /// <param name="id">Request id.</param>
+    /// <param name="reason">Decline reason.</param>
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
+    [HttpPost("request/{id:int}, {reason}/decline")]
+    public async Task<IActionResult> DeclineRequest(int id, string reason)
+    {
+        try
+        {
+            var request = await _requestService.GetRequestByIdAsync(id);
+            var statusId = await _requestService.GetRequestStatusIdByNameAsync("DECLINED");
+            var reasonId = await _requestService.GetRequestStatusReasonIdByNameAsync(reason.ToUpper());
+
+            if (request.RequestStatusId == statusId)
+            {
+                return BadRequest(new PlainResult("Request already declined", StatusCodes.Status400BadRequest));
+            }
+
+            if (request.RequestStatusReasonId == reasonId)
+            {
+                return BadRequest(new PlainResult("Request already declined with this reason", StatusCodes.Status400BadRequest));
+            }
+
+            request.RequestStatusId = statusId;
+            request.RequestStatusReasonId = reasonId;
+            await _requestService.UpdateRequestAsync(request);
+            return Ok(new PlainResult("Request declined successfully",
+                StatusCodes.Status200OK));
+        }
+        catch (NotFoundRequestInDbException ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+        }
+        catch (NotFoundStatusInDb ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
     }
 }

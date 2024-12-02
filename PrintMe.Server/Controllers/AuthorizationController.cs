@@ -97,14 +97,14 @@ public sealed class AuthorizationController : ControllerBase
                 try
                 {
                     await _userService.AddUserAsync(userRegistration);
-                    result = new("User registered successfully.", StatusCodes.Status200OK);
+                    result = new(ex.Message, StatusCodes.Status200OK);
                 }
                 catch (InvalidEmailFormatException e)
                 {
                     result = new(e.Message, StatusCodes.Status409Conflict);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result = new($"Internal server error while registering user.\n{ex.Message}\n{ex.StackTrace}",
                     StatusCodes.Status500InternalServerError);
