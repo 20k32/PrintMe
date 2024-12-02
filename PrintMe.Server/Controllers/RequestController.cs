@@ -173,4 +173,53 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
     }
+
+    /// <summary>
+    /// Request for adding new printer to the database.
+    /// </summary>
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResult<RequestDto>), 200)]
+    [HttpPost("add")]
+    public async Task<IActionResult> AddPrinterRequest([FromBody] AddPrinterRequest request)
+    {
+        var id = Request.TryGetUserId();
+        if (id is null || !int.TryParse(id, out int userId))
+        {
+            return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
+        }
+        try
+        {
+            await _requestService.AddPrinterRequestAsync(request, userId);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new PlainResult($"Internal server error while adding request: {ex.Message}", StatusCodes.Status500InternalServerError));
+        }
+        return Ok(new PlainResult("Request added successfully", StatusCodes.Status200OK));
+    }
+
+    /// <summary>
+    /// Request for editing printer in the database.
+    /// </summary>
+
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResult<RequestDto>), 200)]
+    [HttpPost("edit")]
+    public async Task<IActionResult> EditPrinterRequest([FromBody] EditPrinterRequest request)
+    {
+        var id = Request.TryGetUserId();
+        if (id is null || !int.TryParse(id, out int userId))
+        {
+            return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
+        }
+        try
+        {
+            await _requestService.EditPrinterRequestAsync(request, userId);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new PlainResult($"Internal server error while editing request: {ex.Message}", StatusCodes.Status500InternalServerError));
+        }
+        return Ok(new PlainResult("Request edited successfully", StatusCodes.Status200OK));
+    }
 }

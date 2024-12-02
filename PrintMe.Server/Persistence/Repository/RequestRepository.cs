@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence.Repository;
@@ -67,6 +68,18 @@ public class RequestRepository(PrintMeDbContext context)
             context.Entry(existingEntity).State = EntityState.Detached;
         }
 
+        context.Requests.Update(request);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task AddPrinterAsync(Request request)
+    {
+        await context.Requests.AddAsync(request);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task EditPrinterAsync(Request request)
+    {
         context.Requests.Update(request);
         await context.SaveChangesAsync();
     }
