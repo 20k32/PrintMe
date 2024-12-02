@@ -28,4 +28,10 @@ public class RequestRepository(PrintMeDbContext context)
         await context.Requests.AddAsync(request);
         await context.SaveChangesAsync();
     }
+    
+    public async Task EditPrinterAsync(Request request)
+    {
+        context.Requests.Update(request);
+        await context.SaveChangesAsync();
+    }
 }

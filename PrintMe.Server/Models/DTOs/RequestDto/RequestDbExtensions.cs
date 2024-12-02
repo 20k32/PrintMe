@@ -14,7 +14,6 @@ public static class RequestDbExtensions
             UserTextData = string.Join(", ", request.Materials.Select(m => $"{m.PrintMaterialId}:{m.Name}")),
             UserSenderId = request.UserId,
             RequestTypeId = 2,
-            ModelId = 1,
             LocationX = request.LocationX,
             LocationY = request.LocationY,
             MinModelHeight = request.MinModelHeight,
@@ -23,7 +22,19 @@ public static class RequestDbExtensions
             MaxModelWidth = request.MaxModelWidth,
             RequestStatusId = 1
         };
-    public static Request MapDtoToRequest(this RequestDto request) =>
+    public static RequestDto MapEditPrinterRequestToDto(this EditPrinterRequest request) =>
+        new()
+        {
+            UserId = request.UserId,
+            Title = "Editing printer request",
+            Description = request.Description,
+            UserTextData = string.Join(", ", request.Materials.Select(m => $"{m.PrintMaterialId}:{m.Name}")),
+            UserSenderId = request.UserId,
+            RequestTypeId = 4,
+            RequestStatusId = 1,
+            ModelId = request.PrinterID // here ModelId is a printer ID
+        };
+    public static Request MapDtoToAddRequest(this RequestDto request) =>
         new()
         {
             Description = request.Description,
@@ -37,6 +48,16 @@ public static class RequestDbExtensions
             MinModelWidth = request.MinModelWidth,
             MaxModelHeight = request.MaxModelHeight,
             MaxModelWidth = request.MaxModelWidth,
+            RequestStatusId = request.RequestStatusId
+        };
+    public static Request MapDtoToEditRequest(this RequestDto request) =>
+        new()
+        {
+            UserTextData = request.UserTextData,
+            UserSenderId = request.UserSenderId,
+            RequestTypeId = request.RequestTypeId,
+            ModelId = request.ModelId,
+            Description = request.Description,
             RequestStatusId = request.RequestStatusId
         };
 }

@@ -30,7 +30,14 @@ public class RequestService(RequestRepository repository, IMapper mapper)
     public async Task AddPrinterRequestAsync(AddPrinterRequest addRequest, int id)
     {
         addRequest.UserId = id;
-        var request = addRequest.MapAddPrinterRequestToDto().MapDtoToRequest();
+        var request = addRequest.MapAddPrinterRequestToDto().MapDtoToAddRequest();
         await repository.AddPrinterAsync(request);
+    }
+    
+    public async Task EditPrinterRequestAsync(EditPrinterRequest editRequest, int id)
+    {
+        editRequest.UserId = id;
+        var request = editRequest.MapEditPrinterRequestToDto().MapDtoToEditRequest();
+        await repository.EditPrinterAsync(request);
     }
 }
