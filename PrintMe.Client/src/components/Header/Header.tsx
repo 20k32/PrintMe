@@ -21,20 +21,19 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
     <div className="container-fluid" style={{ backgroundColor: "#090126" }}>
       <header className="d-flex align-items-center py-4">
         {/* Логотип */}
-        <a
-          href="/"
+        <Link to="/"
           className="d-flex align-items-center flex-grow-1 text-white text-decoration-none fw-bold"
           style={{ fontSize: "1.8rem", padding: "6px 12px" }}
         >
           PrintMe
-        </a>
+        </Link>
 
         {/* Навигация */}
         <ul className="nav justify-content-center flex-grow-1 fw-bold">
           <li>
-            <a href="#" className="nav-link px-3 text-white fs-5">
+            <Link to="/" className="nav-link px-3 text-white fs-5">
               Main Page
-            </a>
+            </Link>
           </li>
           <li>
             <a href="#" className="nav-link px-3 text-white fs-5">

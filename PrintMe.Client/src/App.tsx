@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header/Header.tsx";
@@ -8,8 +8,13 @@ import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
 
 function App() {
-  const [isLogined, setIsLogined] = useState<boolean>(false);
+  const [isLogined, setIsLogined] = useState<boolean>(authService.isLoggedIn());
   const [showLogin, setShowLogin] = useState<boolean>(false);
+
+  useEffect(() => {
+    const loginState = authService.isLoggedIn();
+    setIsLogined(loginState);
+  }, []);
 
   const handleCloseLogin = () => {
     setShowLogin(false);

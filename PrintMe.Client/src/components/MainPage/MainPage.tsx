@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FilterFoldGroup from "./components/FilterSection";
 import MapSection from "./components/MapSection";
 import backgroundImage from "./assets/images/background.png";
 
-const CombinedSection: React.FC = () => {
+const MainPage: React.FC = () => {
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    setKey((prev) => prev + 1);
+  }, []);
+
   return (
     <div
       style={{
@@ -30,7 +36,7 @@ const CombinedSection: React.FC = () => {
           height: "90vh",
         }}
       >
-        <MapSection />
+        <MapSection key={key} />
       </div>
 
       {}
@@ -65,4 +71,4 @@ const CombinedSection: React.FC = () => {
   );
 };
 
-export default CombinedSection;
+export default MainPage;
