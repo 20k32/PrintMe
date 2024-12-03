@@ -15,7 +15,7 @@ export interface RequestDto {
 }
 
 interface ApiResponse {
-    requestDtos: RequestDto[];
+    value: RequestDto[];
     message: string;
     statusCode: number;
 }
@@ -30,8 +30,8 @@ export const requestsService = {
             withCredentials: true
         });
 
-        if (response.data.statusCode === 200 && response.data.requestDtos) {
-            return response.data.requestDtos;
+        if (response.data.statusCode === 200 && response.data.value) {
+            return response.data.value;
         }
         throw new Error(response.data.message || 'Failed to load requests');
     }
