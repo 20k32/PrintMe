@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence.Repository;
@@ -82,5 +81,15 @@ public class RequestRepository(PrintMeDbContext context)
     {
         context.Requests.Update(request);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)
+    {
+        var requestType = await context
+            .RequestTypes
+            .AsQueryable()
+            .FirstOrDefaultAsync(requestType => requestType.RequestTypeId == requestTypeId);
+
+        return requestType.Type;
     }
 }

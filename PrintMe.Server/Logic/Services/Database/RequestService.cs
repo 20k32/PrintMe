@@ -1,6 +1,7 @@
 using AutoMapper;
 using PrintMe.Server.Models.Api.ApiRequest;
-using PrintMe.Server.Models.DTOs;
+using PrintMe.Server.Models.DTOs.PrinterDto;
+using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
@@ -29,7 +30,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         {
             throw new NotFoundRequestInDbException();
         }
-        
+
         return mapper.Map<RequestDto>(request);
     }
 
@@ -59,7 +60,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         }
         catch (Exception)
         {
-            throw new NotFoundStatusInDb();
+            throw new NotFoundRequestStatusInDb();
         }
     }
 
@@ -71,7 +72,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         }
         catch (Exception)
         {
-            throw new NotFoundStatusReasonInDb();
+            throw new NotFoundRequestStatusReasonInDb();
         }
     }
 
@@ -83,14 +84,34 @@ public class RequestService(RequestRepository repository, IMapper mapper)
     public async Task AddPrinterRequestAsync(AddPrinterRequest addRequest, int id)
     {
         addRequest.UserId = id;
-        var request = addRequest.MapAddPrinterRequestToDto().MapDtoToAddRequest();
+        var requestDto = mapper.Map<RequestDto>(addRequest);
+        var request = mapper.Map<Request>(requestDto);
         await repository.AddPrinterAsync(request);
     }
 
     public async Task EditPrinterRequestAsync(EditPrinterRequest editRequest, int id)
     {
         editRequest.UserId = id;
-        var request = editRequest.MapEditPrinterRequestToDto().MapDtoToEditRequest();
+        var requestDto = mapper.Map<RequestDto>(editRequest);
+        var request = mapper.Map<Request>(requestDto);
         await repository.EditPrinterAsync(request);
+    }
+
+    public async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)
+    {
+        try
+        {
+            return await repository.GetRequestTypeNameByIdAsync(requestTypeId);
+        }
+        catch (Exception)
+        {
+            throw new NotFoundRequestTypeInDb();
+        }
+    }
+
+    public async Task<PrinterDto> ToPrinterDtoAsync(int id)
+    {
+        var request = await repository.GetRequestByIdAsync(id);
+        return mapper.Map<PrinterDto>(request);
     }
 }

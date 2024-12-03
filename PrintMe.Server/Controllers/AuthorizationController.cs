@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
@@ -13,11 +12,12 @@ namespace PrintMe.Server.Controllers;
 public sealed class AuthorizationController : ControllerBase
 {
     private readonly UserService _userService;
+
     public AuthorizationController(IServiceProvider provider)
     {
         _userService = provider.GetService<UserService>();
     }
-    
+
     /// <summary>
     /// Checks for user in database and generates token with fields: id, email, role.
     /// To view use https://jwt.io/
@@ -27,15 +27,15 @@ public sealed class AuthorizationController : ControllerBase
     public async Task<IActionResult> GenerateToken([FromBody] UserAuthRequest authRequest)
     {
         PlainResult result;
-        
+
         if (authRequest is null)
         {
-            result = new("Missing body.", 
+            result = new("Missing body.",
                 StatusCodes.Status403Forbidden);
         }
         else if (authRequest.IsNull())
         {
-            result = new("Missing parameters in body.", 
+            result = new("Missing parameters in body.",
                 StatusCodes.Status403Forbidden);
         }
         else
@@ -72,7 +72,7 @@ public sealed class AuthorizationController : ControllerBase
     /// Create a new user and save it to the database.
     /// </summary>
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser([FromBody]UserRegisterRequest userRegistration)
+    public async Task<IActionResult> RegisterUser([FromBody] UserRegisterRequest userRegistration)
     {
         PlainResult result = null;
         if (userRegistration is null)
@@ -92,12 +92,12 @@ public sealed class AuthorizationController : ControllerBase
                     result = new("User with this email already exists.", StatusCodes.Status409Conflict);
                 }
             }
-            catch (NotFoundUserInDbException ex)
+            catch (NotFoundUserInDbException)
             {
                 try
                 {
                     await _userService.AddUserAsync(userRegistration);
-                    result = new(ex.Message, StatusCodes.Status200OK);
+                    result = new("Successfully created", StatusCodes.Status200OK);
                 }
                 catch (InvalidEmailFormatException e)
                 {
@@ -110,6 +110,14 @@ public sealed class AuthorizationController : ControllerBase
                     StatusCodes.Status500InternalServerError);
             }
         }
-        return result.ToObjectResult();
+
+        if (result != null)
+        {
+            return result.ToObjectResult();
+        }
+
+        return new PlainResult("Internal server error while registering user.",
+                StatusCodes.Status500InternalServerError)
+            .ToObjectResult();
     }
 }

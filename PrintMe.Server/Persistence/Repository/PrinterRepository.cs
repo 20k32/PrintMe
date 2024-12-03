@@ -86,5 +86,17 @@ namespace PrintMe.Server.Persistence.Repository
                 .Include(printer => printer.PrinterModel)
                 .Include(printer => printer.Materials)
                 .Where(printer => printer.UserId == userId).ToListAsync();
+
+        public async Task AddPrinterAsync(Printer printer)
+        {
+            var existingEntity = await _dbContext.Printers.FindAsync(printer.PrinterId);
+            if (existingEntity != null)
+            {
+                _dbContext.Entry(existingEntity).State = EntityState.Detached;
+            }
+
+            await _dbContext.Printers.AddAsync(printer);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

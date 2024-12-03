@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Strategies;
 using PrintMe.Server.Models.Api;
-using PrintMe.Server.Models.DTOs;
+using PrintMe.Server.Models.Api.ApiRequest;
+using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
 
@@ -24,7 +26,8 @@ public class RequestController(IServiceProvider provider) : ControllerBase
         try
         {
             var request = await _requestService.GetRequestByIdAsync(id);
-            return Ok(new ApiResult<IEnumerable<RequestDto>>(new List<RequestDto> { request }, "Request found successfully", StatusCodes.Status200OK));
+            return Ok(new ApiResult<IEnumerable<RequestDto>>(new List<RequestDto> { request },
+                "Request found successfully", StatusCodes.Status200OK));
         }
         catch (NotFoundRequestInDbException ex)
         {
@@ -53,11 +56,15 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             {
                 return NotFound(new PlainResult("No requests found", StatusCodes.Status404NotFound));
             }
-            return Ok(new PlainResult( "Requests found successfully", StatusCodes.Status200OK));
+
+            return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully",
+                StatusCodes.Status200OK));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new PlainResult($"Internal server error while getting requests: {ex.Message}", StatusCodes.Status500InternalServerError));
+            return StatusCode(500,
+                new PlainResult($"Internal server error while getting requests: {ex.Message}",
+                    StatusCodes.Status500InternalServerError));
         }
     }
 
@@ -78,8 +85,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             }
             else
             {
-                status = status.ToUpper();
-                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status);
+                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status.ToUpper());
                 requests = (await _requestService.GetRequestsByStatusIdAsync(statusId)).ToList();
             }
 
@@ -88,13 +94,14 @@ public class RequestController(IServiceProvider provider) : ControllerBase
                 return NotFound(new PlainResult("No requests found", StatusCodes.Status404NotFound));
             }
 
-            return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully", StatusCodes.Status200OK));
+            return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully",
+                StatusCodes.Status200OK));
         }
         catch (NotFoundRequestInDbException ex)
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
-        catch (NotFoundStatusInDb ex)
+        catch (NotFoundRequestStatusInDb ex)
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
@@ -105,31 +112,45 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     /// </summary>
     /// <param name="id">Request id.</param>
     [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
-    [HttpPost("request/{id:int}/approve")]
+    [HttpPost("{id:int}/approve")]
     public async Task<IActionResult> ApproveRequest(int id)
     {
         try
         {
             var request = await _requestService.GetRequestByIdAsync(id);
-            var statusId = await _requestService.GetRequestStatusIdByNameAsync("APPROVED");
-            if (request.RequestStatusId == statusId)
+            var approvedStatusId = await _requestService.GetRequestStatusIdByNameAsync("APPROVED");
+            if (request.RequestStatusId == approvedStatusId)
             {
                 return BadRequest(new PlainResult("Request already approved", StatusCodes.Status400BadRequest));
             }
 
-            request.RequestStatusId = statusId;
+            var requestType = await _requestService.GetRequestTypeNameByIdAsync(request.RequestTypeId);
+            var strategyFactory = new RequestApprovalStrategyFactory();
+            
+            try
+            {
+                var strategy = strategyFactory.GetStrategy(requestType);
+                await strategy.ApproveRequestAsync(request, provider);
+            }
+            catch (ArgumentException)
+            {
+                return BadRequest(new PlainResult("Unknown request type", StatusCodes.Status400BadRequest));
+            }
+
+            request.RequestStatusId = approvedStatusId;
             request.RequestStatusReasonId = null;
+
             await _requestService.UpdateRequestAsync(request);
-            return Ok(new PlainResult("Request approved successfully",
-                StatusCodes.Status200OK));
+
+            return Ok(new PlainResult("Request approved successfully", StatusCodes.Status200OK));
         }
         catch (NotFoundRequestInDbException ex)
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
-        catch (NotFoundStatusInDb ex)
+        catch (NotFoundRequestStatusInDb ex)
         {
-            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+            return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
         }
     }
 
@@ -139,28 +160,33 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     /// <param name="id">Request id.</param>
     /// <param name="reason">Decline reason.</param>
     [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
-    [HttpPost("request/{id:int}, {reason}/decline")]
+    [HttpPost("{id:int}/decline")]
     public async Task<IActionResult> DeclineRequest(int id, string reason)
     {
         try
         {
             var request = await _requestService.GetRequestByIdAsync(id);
-            var statusId = await _requestService.GetRequestStatusIdByNameAsync("DECLINED");
-            var reasonId = await _requestService.GetRequestStatusReasonIdByNameAsync(reason.ToUpper());
+            var declinedStatusId = await _requestService.GetRequestStatusIdByNameAsync("DECLINED");
+            int reasonId;
+            try
+            {
+                reasonId = await _requestService.GetRequestStatusReasonIdByNameAsync(reason);
+            }
+            catch (NotFoundRequestStatusReasonInDb ex)
+            {
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
 
-            if (request.RequestStatusId == statusId)
+            if (request.RequestStatusId == declinedStatusId)
             {
                 return BadRequest(new PlainResult("Request already declined", StatusCodes.Status400BadRequest));
             }
 
-            if (request.RequestStatusReasonId == reasonId)
-            {
-                return BadRequest(new PlainResult("Request already declined with this reason", StatusCodes.Status400BadRequest));
-            }
-
-            request.RequestStatusId = statusId;
+            request.RequestStatusId = declinedStatusId;
             request.RequestStatusReasonId = reasonId;
+
             await _requestService.UpdateRequestAsync(request);
+
             return Ok(new PlainResult("Request declined successfully",
                 StatusCodes.Status200OK));
         }
@@ -168,7 +194,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
-        catch (NotFoundStatusInDb ex)
+        catch (NotFoundRequestStatusInDb ex)
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
@@ -183,43 +209,50 @@ public class RequestController(IServiceProvider provider) : ControllerBase
     public async Task<IActionResult> AddPrinterRequest([FromBody] AddPrinterRequest request)
     {
         var id = Request.TryGetUserId();
-        if (id is null || !int.TryParse(id, out int userId))
+        if (id is null || !int.TryParse(id, out var userId))
         {
             return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
         }
+
         try
         {
             await _requestService.AddPrinterRequestAsync(request, userId);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new PlainResult($"Internal server error while adding request: {ex.Message}", StatusCodes.Status500InternalServerError));
+            return StatusCode(500,
+                new PlainResult($"Internal server error while adding request: {ex.Message}",
+                    StatusCodes.Status500InternalServerError));
         }
+
         return Ok(new PlainResult("Request added successfully", StatusCodes.Status200OK));
     }
 
     /// <summary>
     /// Request for editing printer in the database.
     /// </summary>
-
     [Authorize]
     [ProducesResponseType(typeof(ApiResult<RequestDto>), 200)]
     [HttpPost("edit")]
     public async Task<IActionResult> EditPrinterRequest([FromBody] EditPrinterRequest request)
     {
         var id = Request.TryGetUserId();
-        if (id is null || !int.TryParse(id, out int userId))
+        if (id is null || !int.TryParse(id, out var userId))
         {
             return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
         }
+
         try
         {
             await _requestService.EditPrinterRequestAsync(request, userId);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new PlainResult($"Internal server error while editing request: {ex.Message}", StatusCodes.Status500InternalServerError));
+            return StatusCode(500,
+                new PlainResult($"Internal server error while editing request: {ex.Message}",
+                    StatusCodes.Status500InternalServerError));
         }
+
         return Ok(new PlainResult("Request edited successfully", StatusCodes.Status200OK));
     }
 }

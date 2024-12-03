@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Npgsql;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
@@ -85,6 +83,12 @@ namespace PrintMe.Server.Logic.Services.Database
             var printersDto = printers.MapToDtos();
 
             return printersDto;
+        }
+
+        public async Task AddPrinterAsync(PrinterDto printerDto)
+        {
+            var printer = printerDto.MapToEntity();
+            await _repository.AddPrinterAsync(printer);
         }
         
     }
