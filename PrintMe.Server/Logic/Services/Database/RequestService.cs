@@ -1,4 +1,6 @@
 using AutoMapper;
+using PrintMe.Server.Logic.Strategies;
+using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.DTOs.RequestDto;
@@ -64,15 +66,15 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         }
     }
 
-    public async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
+    private async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
     {
         try
         {
-            return await repository.GetRequestStatusReasonIdByNameAsync(reason);
+            return await repository.GetRequestStatusReasonIdByNameAsync(reason.ToUpper());
         }
         catch (Exception)
         {
-            throw new NotFoundRequestStatusReasonInDb();
+            throw new NotFoundRequestStatusReasonInDbException();
         }
     }
 
@@ -97,7 +99,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         await repository.EditPrinterAsync(request);
     }
 
-    public async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)
+    private async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)
     {
         try
         {
@@ -113,5 +115,32 @@ public class RequestService(RequestRepository repository, IMapper mapper)
     {
         var request = await repository.GetRequestByIdAsync(id);
         return mapper.Map<PrinterDto>(request);
+    }
+
+    public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
+    {
+        var requestService = provider.GetRequiredService<RequestService>();
+
+        var requestType = await requestService.GetRequestTypeNameByIdAsync(request.RequestTypeId);
+        var strategyFactory = new RequestApprovalStrategyFactory();
+
+        var strategy = strategyFactory.GetStrategy(requestType);
+        await strategy.ApproveRequestAsync(request, provider);
+    }
+
+    public async Task DeclineRequestAsync(RequestDto request, string reason)
+    {
+        var declinedStatusId = await GetRequestStatusIdByNameAsync("DECLINED");
+        var reasonId = await GetRequestStatusReasonIdByNameAsync(reason);
+
+        if (request.RequestStatusId == declinedStatusId)
+        {
+            throw new AlreadyApprovedRequestException();
+        }
+
+        request.RequestStatusId = declinedStatusId;
+        request.RequestStatusReasonId = reasonId;
+
+        await UpdateRequestAsync(request);
     }
 }

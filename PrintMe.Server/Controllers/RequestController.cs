@@ -118,29 +118,24 @@ public class RequestController(IServiceProvider provider) : ControllerBase
         try
         {
             var request = await _requestService.GetRequestByIdAsync(id);
-            var approvedStatusId = await _requestService.GetRequestStatusIdByNameAsync("APPROVED");
-            if (request.RequestStatusId == approvedStatusId)
-            {
-                return BadRequest(new PlainResult("Request already approved", StatusCodes.Status400BadRequest));
-            }
 
-            var requestType = await _requestService.GetRequestTypeNameByIdAsync(request.RequestTypeId);
-            var strategyFactory = new RequestApprovalStrategyFactory();
-            
             try
             {
-                var strategy = strategyFactory.GetStrategy(requestType);
-                await strategy.ApproveRequestAsync(request, provider);
+                await _requestService.ApproveRequestAsync(request, provider);
             }
-            catch (ArgumentException)
+            catch (NotFoundStrategy ex)
             {
-                return BadRequest(new PlainResult("Unknown request type", StatusCodes.Status400BadRequest));
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+            catch (AlreadyApprovedRequestException ex)
+            {
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+            catch (NotFoundRequestTypeInDb ex)
+            {
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
             }
 
-            request.RequestStatusId = approvedStatusId;
-            request.RequestStatusReasonId = null;
-
-            await _requestService.UpdateRequestAsync(request);
 
             return Ok(new PlainResult("Request approved successfully", StatusCodes.Status200OK));
         }
@@ -166,29 +161,20 @@ public class RequestController(IServiceProvider provider) : ControllerBase
         try
         {
             var request = await _requestService.GetRequestByIdAsync(id);
-            var declinedStatusId = await _requestService.GetRequestStatusIdByNameAsync("DECLINED");
-            int reasonId;
-            try
+
+            if (string.IsNullOrEmpty(reason))
             {
-                reasonId = await _requestService.GetRequestStatusReasonIdByNameAsync(reason);
-            }
-            catch (NotFoundRequestStatusReasonInDb ex)
-            {
-                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
+                reason = "NO_REASON";
             }
 
-            if (request.RequestStatusId == declinedStatusId)
-            {
-                return BadRequest(new PlainResult("Request already declined", StatusCodes.Status400BadRequest));
-            }
-
-            request.RequestStatusId = declinedStatusId;
-            request.RequestStatusReasonId = reasonId;
-
-            await _requestService.UpdateRequestAsync(request);
+            await _requestService.DeclineRequestAsync(request, reason);
 
             return Ok(new PlainResult("Request declined successfully",
                 StatusCodes.Status200OK));
+        }
+        catch (AlreadyApprovedRequestException ex)
+        {
+            return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
         }
         catch (NotFoundRequestInDbException ex)
         {

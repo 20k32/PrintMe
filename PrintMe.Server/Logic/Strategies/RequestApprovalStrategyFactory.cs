@@ -1,3 +1,5 @@
+using PrintMe.Server.Models.Exceptions;
+
 namespace PrintMe.Server.Logic.Strategies;
 
 public class RequestApprovalStrategyFactory
@@ -16,6 +18,6 @@ public class RequestApprovalStrategyFactory
         {
             return strategy;
         }
-        throw new ArgumentException($"No strategy found for request type: {requestType}");
+        throw new AlreadyApprovedRequestException();
     }
 }
