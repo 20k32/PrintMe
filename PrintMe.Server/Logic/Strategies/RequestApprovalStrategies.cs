@@ -3,11 +3,10 @@ using PrintMe.Server.Models.DTOs.RequestDto;
 
 namespace PrintMe.Server.Logic.Strategies;
 
-public class PrinterApplicationStrategy : RequestApprovalStrategyBase
+public class PrinterApplicationStrategy : IRequestApprovalStrategy
 {
-    public override async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
+    public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
-        await base.ApproveRequestAsync(request, provider);
         var requestService = provider.GetRequiredService<RequestService>();
         var printerService = provider.GetRequiredService<PrinterService>();
         await printerService.AddPrinterAsync(await requestService.ToPrinterDtoAsync(request.RequestId));
@@ -15,25 +14,25 @@ public class PrinterApplicationStrategy : RequestApprovalStrategyBase
     }
 }
 
-public class PrinterDescriptionChangeStrategy : RequestApprovalStrategyBase
+public class PrinterDescriptionChangeStrategy : IRequestApprovalStrategy
 {
-    public override Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
+    public Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
         throw new NotImplementedException();
     }
 }
 
-public class UserReportStrategy : RequestApprovalStrategyBase
+public class UserReportStrategy : IRequestApprovalStrategy
 {
-    public override Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
+    public Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
         throw new NotImplementedException();
     }
 }
 
-public class AccountDeletionStrategy : RequestApprovalStrategyBase
+public class AccountDeletionStrategy : IRequestApprovalStrategy
 {
-    public override Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
+    public Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
         throw new NotImplementedException();
     }

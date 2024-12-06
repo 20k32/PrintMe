@@ -1,6 +1,5 @@
 using AutoMapper;
 using PrintMe.Server.Logic.Strategies;
-using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.DTOs.RequestDto;
@@ -119,13 +118,23 @@ public class RequestService(RequestRepository repository, IMapper mapper)
 
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
-        var requestService = provider.GetRequiredService<RequestService>();
 
-        var requestType = await requestService.GetRequestTypeNameByIdAsync(request.RequestTypeId);
+        var approvedStatusId = await GetRequestStatusIdByNameAsync("APPROVED");
+        if (request.RequestStatusId == approvedStatusId)
+        {
+            throw new AlreadyApprovedRequestException();
+        }
+
+        var requestType = await GetRequestTypeNameByIdAsync(request.RequestTypeId);
         var strategyFactory = new RequestApprovalStrategyFactory();
 
         var strategy = strategyFactory.GetStrategy(requestType);
         await strategy.ApproveRequestAsync(request, provider);
+
+        request.RequestStatusId = approvedStatusId;
+        request.RequestStatusReasonId = null;
+
+        await UpdateRequestAsync(request);
     }
 
     public async Task DeclineRequestAsync(RequestDto request, string reason)
@@ -135,7 +144,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
 
         if (request.RequestStatusId == declinedStatusId)
         {
-            throw new AlreadyApprovedRequestException();
+            throw new AlreadyDeclinedRequestException();
         }
 
         request.RequestStatusId = declinedStatusId;

@@ -18,6 +18,6 @@ public class RequestApprovalStrategyFactory
         {
             return strategy;
         }
-        throw new AlreadyApprovedRequestException();
+        throw new NotFoundStrategyException();
     }
 }

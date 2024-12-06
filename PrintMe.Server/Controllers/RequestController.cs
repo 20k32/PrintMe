@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
-using PrintMe.Server.Logic.Strategies;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.RequestDto;
@@ -123,7 +122,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             {
                 await _requestService.ApproveRequestAsync(request, provider);
             }
-            catch (NotFoundStrategy ex)
+            catch (NotFoundStrategyException ex)
             {
                 return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
             }
