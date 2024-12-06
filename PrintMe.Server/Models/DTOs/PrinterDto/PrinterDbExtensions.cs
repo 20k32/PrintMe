@@ -25,7 +25,7 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
                 MinModelHeight = printer.MinModelHeight,
                 MaxModelWidth = printer.MaxModelWidth,
                 MinModelWidth = printer.MinModelWidth,
-                Materials = printer?.Materials?.MapToDtos() ?? Enumerable.Empty<PrintMaterialDto>().ToList(),
+                Materials = printer.Materials?.MapToDtos() ?? Enumerable.Empty<PrintMaterialDto>().ToList(),
                 ModelName = printer.PrinterModel.Name
             };
         
@@ -50,6 +50,23 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
                 Id = printer.PrinterId,
                 Materials = printer.Materials.MapToDtos(),
                 ModelName = printer.PrinterModel.Name
+            };
+
+        public static Printer MapToEntity(this PrinterDto printerDto) =>
+            new()
+            {
+                PrinterId = printerDto.Id,
+                Description = printerDto.Description,
+                LocationX = printerDto.LocationX,
+                LocationY = printerDto.LocationY,
+                MaxModelHeight = printerDto.MaxModelHeight,
+                MinModelHeight = printerDto.MinModelHeight,
+                MaxModelWidth = printerDto.MaxModelWidth,
+                MinModelWidth = printerDto.MinModelWidth,
+                PrinterModel = new PrinterModel
+                {
+                    Name = printerDto.ModelName
+                }
             };
     }
 }

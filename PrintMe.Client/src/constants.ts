@@ -1,3 +1,5 @@
+import { Libraries } from "@react-google-maps/api";
+
 export const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 export const MAP_CONFIG = {
@@ -10,7 +12,7 @@ export const MAP_CONFIG = {
     width: "100%",
     height: "100%",
   },
-  libraries: ["places"] as const,
+  libraries: ['places'] as Libraries,
 };
 
 export const FILTER_OPTIONS = {

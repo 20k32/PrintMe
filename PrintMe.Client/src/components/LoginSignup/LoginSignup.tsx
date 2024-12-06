@@ -62,7 +62,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
       try {
         let token;
         if (action === "Sign In") {
-          token = await authService.login({ email: formData.email, password: formData.password });
+          token = await authService.login({ email: formData.email, password: formData.password, role: "USER" });
         } else if (action === "Sign Up") {
           token = await registrationService.register(formData);
         }

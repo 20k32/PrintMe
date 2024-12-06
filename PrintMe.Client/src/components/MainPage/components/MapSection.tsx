@@ -3,11 +3,9 @@ import {
   GoogleMap,
   LoadScript,
   StandaloneSearchBox,
-  Libraries,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../../../constants";
 
-const libraries: Libraries = ["places"];
 
 const MapSection: React.FC = () => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -49,13 +47,14 @@ const MapSection: React.FC = () => {
     >
       <div className="bg-white shadow-sm p-4 rounded-start flex-grow-1">
         <h2 className="fs-3 mb-3">Map of printers</h2>
-        <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
+        <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={MAP_CONFIG.libraries}>
           <div
             className="border border-dark rounded shadow-sm mx-auto"
             style={{
               height: "80%",
               minHeight: "400px", 
               flex: 1,
+              overflow: "hidden",
             }}
           >
             <GoogleMap
