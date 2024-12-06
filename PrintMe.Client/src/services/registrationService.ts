@@ -15,6 +15,6 @@ export const registrationService = {
     if (response.status !== 200) {
       throw new Error("Registration failed");
     }
-    return await authService.login({ email: credentials.email, password: credentials.password, role: "USER" });
+    return await authService.login({ email: credentials.email, password: credentials.password });
   }
 };

@@ -83,5 +83,9 @@ namespace PrintMe.Server.Persistence.Repository
 
         public async Task<bool> CheckIfRoleExistsAsync(string roleName)
             => await _rolesRepository.GetByRoleNameAsync(roleName) is not null;
+
+        public async Task<UserRole> GetRoleIdByNamesAsync(string roleName)
+            => await _rolesRepository.GetByRoleNameAsync(roleName);
+
     }
 }

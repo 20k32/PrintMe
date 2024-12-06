@@ -4,7 +4,6 @@ import { API_BASE_URL } from "../constants";
 interface LoginRequest {
   email: string;
   password: string;
-  role: string;
 }
 
 export const authService = {

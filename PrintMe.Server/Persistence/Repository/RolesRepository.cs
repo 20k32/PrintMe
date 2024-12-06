@@ -9,7 +9,7 @@ namespace PrintMe.Server.Persistence.Repository
 
         public RolesRepository(PrintMeDbContext dbContext) => _dbContext = dbContext;
         
-        public Task<UserRole> GetByRoleNameAsync(string roleName) => _dbContext.UserRoles
+        public async Task<UserRole> GetByRoleNameAsync(string roleName) => await _dbContext.UserRoles
             .AsQueryable()
             .FirstOrDefaultAsync(existing => existing.UserRoleName.Equals(roleName));
     }
