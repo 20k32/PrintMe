@@ -7,14 +7,15 @@ interface LoginRequest {
 }
 
 export const authService = {
-  async login(credentials: LoginRequest): Promise<string> {
+  async login(credentials: LoginRequest) {
     const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
     const token = response.data.value;
+    
     if (!token) {
-      throw new Error("Invalid token");
+      throw new Error("No token received from server");
     }
+    
     localStorage.setItem("token", token);
-    return token;
   },
   logout() {
     localStorage.removeItem("token");

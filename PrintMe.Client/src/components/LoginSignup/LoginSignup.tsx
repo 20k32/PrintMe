@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import personIcon from "./assets/images/person.png";
 import emailIcon from "./assets/images/email.png";
 import passwordIcon from "./assets/images/password.png";
 import { authService } from "../../services/authService";
 import { registrationService } from "../../services/registrationService";
+import axios from 'axios';
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
@@ -25,59 +26,89 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
     password: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isValid, setIsValid] = useState(false);
 
-  const validateFields = () => {
-    const newErrors: { [key: string]: string } = {};
+  useEffect(() => {
+    const validateFields = () => {
+      const newErrors: { [key: string]: string } = {};
 
-    if (action === "Sign Up") {
-      if (!formData.firstName.trim()) {
-        newErrors.firstName = "First name is required.";
+      if (action === "Sign Up") {
+        if (!formData.firstName.trim()) {
+          newErrors.firstName = "First name is required.";
+        }
+        if (!formData.lastName.trim()) {
+          newErrors.lastName = "Last name is required.";
+        }
       }
-      if (!formData.lastName.trim()) {
-        newErrors.lastName = "Last name is required.";
+
+      const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
+      if (!formData.email.trim()) {
+        newErrors.email = "Email is required.";
+      } else if (
+        !emailRegex.test(formData.email)
+      ) {
+        newErrors.email = "Invalid email format.";
       }
-      if (formData.password.length < 6) {
+
+      if (!formData.password.trim()) {
+        newErrors.password = "Password is required.";
+      } else if (formData.password.length < 6) {
         newErrors.password = "Password must be at least 6 characters.";
       }
-    }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)
-    ) {
-      newErrors.email = "Invalid email format.";
-    }
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
 
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required.";
-    }
+    const isValidForm = validateFields();
+    setIsValid(isValidForm);
+  }, [formData, action]);
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleInputChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
   };
 
   const submit = async () => {
-    if (validateFields()) {
+    if (isValid) {
       try {
-        let token;
         if (action === "Sign In") {
-          token = await authService.login({ email: formData.email, password: formData.password, role: "USER" });
+          await authService.login({ email: formData.email, password: formData.password });
         } else if (action === "Sign Up") {
-          token = await registrationService.register(formData);
+          await registrationService.register(formData);
         }
+
+        const token = authService.getToken();
         if (token) {
           onClick(true);
           onClose();
         }
       } catch (error) {
-        setErrors({ general: (error as Error).message || "Action failed. Please try again." });
+        if (axios.isAxiosError(error)) {
+          switch (error.response?.status) {
+            case 400:
+              setErrors({ general: "Invalid request. Please check your input." });
+              break;
+            case 401:
+            case 403:
+              setErrors({ general: "Invalid email or password." });
+              break;
+            case 404:
+              setErrors({ general: "User not found." });
+              break;
+            case 409:
+              setErrors({ general: "User already exists." });
+              break;
+            default:
+              setErrors({ general: "An error occurred. Please try again." });
+          }
+          console.error('Authentication error:', error);
+        } else {
+          setErrors({ general: "An unexpected error occurred." });
+          console.error('Unexpected error:', error);
+        }
       }
     }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
   };
 
   return (
@@ -240,13 +271,20 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                   </small>
                 </div>
               )}
+              {errors.general && (
+                <div className="alert alert-danger mb-3" role="alert">
+                  {errors.general}
+                </div>
+              )}
               <button
                 type="button"
                 className="btn btn-primary w-100 py-2 fw-bold"
                 onClick={submit}
+                disabled={!isValid}
                 style={{
                   backgroundColor: "#6c30f3",
                   borderRadius: "20px",
+                  opacity: !isValid ? 0.6 : 1,
                 }}
               >
                 {action === "Sign In" ? "SIGN IN" : "SIGN UP"}

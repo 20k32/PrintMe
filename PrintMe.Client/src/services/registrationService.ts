@@ -10,11 +10,8 @@ interface RegistrationRequest {
 }
 
 export const registrationService = {
-  async register (credentials: RegistrationRequest): Promise<string> {
-    const response = await axios.post(`${API_BASE_URL}/auth/register`, credentials);
-    if (response.status !== 200) {
-      throw new Error("Registration failed");
-    }
-    return await authService.login({ email: credentials.email, password: credentials.password });
+  async register(credentials: RegistrationRequest) {
+    await axios.post(`${API_BASE_URL}/auth/register`, credentials);
+    await authService.login({ email: credentials.email, password: credentials.password });
   }
 };
