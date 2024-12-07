@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Authentication;
+using PrintMe.Server.Logic.Helpers;
 using PrintMe.Server.Models.Authentication;
+using PrintMe.Server.Models.DTOs.UserDto;
 using PrintMe.Server.Persistence;
 
 namespace PrintMe.Server.Controllers;
@@ -25,9 +28,25 @@ public sealed class TestController : ControllerBase
     {
         var context = _provider.GetService<PrintMeDbContext>();
         var allUsers = context.Users.ToArray();
-        var json = Results.Json(allUsers);
-
+        
+        var dtos = new List<PasswordUserDto>();
+        
+        foreach (var user in allUsers)
+        {
+            dtos.Add(user.MapToPasswordUserDto());
+        }
+        
+        var json = Results.Json(dtos);
         return json;
+    }
+    
+    [HttpGet("generateTestData")]
+    public async Task<IResult> LoadData()
+    {
+        var context = _provider.GetService<PrintMeDbContext>();
+        await context.LoadTestDataAsync();
+
+        return Results.Text("Data generated (or not)");
     }
     
     /// <summary>
@@ -40,5 +59,14 @@ public sealed class TestController : ControllerBase
     public IResult AuthorizationTest()
     {
         return Results.Json("Some data");
+    }
+    
+    [HttpGet("GenerateJwt")]
+    public IResult GenerateToken()
+    {
+        var loginResult = new SuccessLoginEntity(1, string.Empty, Roles.USER);
+        var tokenGenerator = _provider.GetService<TokenGenerator>();
+        var token = tokenGenerator.GetForSuccessLoginResult(loginResult);
+        return Results.Json(token);
     }
 }
