@@ -13,22 +13,24 @@ using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal sealed class UserService
+    internal sealed partial class UserService
     {
         private readonly UserRepository _repository;
         private readonly TokenGenerator _tokenGenerator;
 
-        public UserService(UserRepository repository, TokenGenerator tokenGenerator) => 
+        public UserService(UserRepository repository, TokenGenerator tokenGenerator) =>
             (_repository, _tokenGenerator) = (repository, tokenGenerator);
-        
+
         public async Task AddUserAsync(UserRegisterRequest user)
         {
-            if (!Regex.IsMatch(user.Email, @"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            if (!EmailRegex().IsMatch(user.Email))
             {
                 throw new InvalidEmailFormatException();
             }
             var salt = SecurityHelper.GenerateSalt();
             var hashedPassword = SecurityHelper.HashPassword(user.Password, salt);
+            var userRole = await _repository.GetRoleIdByNamesAsync("USER");
+
             var userRaw = new User
             {
                 Email = user.Email.ToLower(),
@@ -37,7 +39,8 @@ namespace PrintMe.Server.Logic.Services.Database
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 UserStatusId = 1,
-                UserRoleId = 1,
+                UserRole = userRole,
+                UserRoleId = userRole.UserRoleId,
                 ShouldHidePhoneNumber = true,
                 Description = ""
             };
@@ -51,10 +54,10 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new NotFoundUserInDbException();
             }
-            
+
             return userRaw.MapToPasswordUserDto();
         }
-        
+
         public async Task<PasswordUserDto> GetUserByIdAsync(int id)
         {
             var userRaw = await _repository.GetUserByIdAsync(id);
@@ -63,23 +66,23 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new NotFoundUserInDbException();
             }
-            
+
             return userRaw.MapToPasswordUserDto();
         }
 
         public async Task<PasswordUserDto> UpdateUser(string email, NoPasswordUserDto user)
         {
             PasswordUserDto result;
-            
+
             var userRaw = user.MapToUser();
-            
+
             var updateResult = await _repository.UpdateUserByEmailAsync(email, userRaw);
-            
+
             if (updateResult is null)
             {
                 throw new NotFoundUserInDbException();
             }
-            
+
             result = updateResult.MapToPasswordUserDto();
 
             return result;
@@ -88,25 +91,25 @@ namespace PrintMe.Server.Logic.Services.Database
         public async Task<PasswordUserDto> UpdateUser(int id, NoPasswordUserDto user)
         {
             PasswordUserDto result;
-            
+
             var userRaw = user.MapToUser();
-            
+
             var updateResult = await _repository.UpdateUserByIdAsync(id, userRaw);
-            
+
             if (updateResult is null)
             {
                 throw new NotFoundUserInDbException();
             }
-            
+
             result = updateResult.MapToPasswordUserDto();
 
             return result;
         }
-        
+
         public async Task<PasswordUserDto> UpdateUserPasswordAsync(UpdatePasswordRequest passwordRequest)
         {
             PasswordUserDto result;
-            
+
             var dbUser =
                 await _repository.GetUserByIdAsync(passwordRequest.UserWithNoPassword.UserId);
 
@@ -114,16 +117,16 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new NotFoundUserInDbException();
             }
-            
+
             var oldPasswordHash = SecurityHelper.HashPassword(passwordRequest.OldPassword, dbUser.PasswordSalt);
 
             if (!oldPasswordHash.Equals(dbUser.Password))
             {
                 throw new IncorrectPasswordException();
             }
-            
+
             var newPasswordSalt = SecurityHelper.GenerateSalt();
-                    
+
             var newPasswordHash = SecurityHelper.HashPassword(
                 passwordRequest.NewPassword, newPasswordSalt);
 
@@ -136,16 +139,16 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new DatabaseInternalException();
             }
-            
+
             result = updateResult.MapToPasswordUserDto();
-            
+
             return result;
         }
-        
+
         public async Task<PasswordUserDto> UpdateUserPasswordAsync(int id, MyPasswordUpdateRequest passwordRequest)
         {
             PasswordUserDto result;
-            
+
             var dbUser =
                 await _repository.GetUserByIdAsync(id);
 
@@ -153,16 +156,16 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new NotFoundUserInDbException();
             }
-            
+
             var oldPasswordHash = SecurityHelper.HashPassword(passwordRequest.OldPassword, dbUser.PasswordSalt);
 
             if (!oldPasswordHash.Equals(dbUser.Password))
             {
                 throw new IncorrectPasswordException();
             }
-            
+
             var newPasswordSalt = SecurityHelper.GenerateSalt();
-                    
+
             var newPasswordHash = SecurityHelper.HashPassword(
                 passwordRequest.NewPassword, newPasswordSalt);
 
@@ -175,23 +178,16 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new DatabaseInternalException();
             }
-            
+
             result = updateResult.MapToPasswordUserDto();
-            
+
             return result;
         }
-        
+
         public async Task<string> GenerateTokenAsync(UserAuthRequest authRequest)
         {
-            var isRoleCorrect = await _repository.CheckIfRoleExistsAsync(authRequest.Role);
-
-            if (!isRoleCorrect)
-            {
-                throw new NoRoleAvailableException();
-            }
-            
             string tokenResult = null;
-            
+
             var dbUser = await _repository.GetUserByEmailAsync(authRequest.Email);
 
             if (dbUser is null)
@@ -199,17 +195,19 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new NotFoundUserInDbException();
             }
             var hashedPassword = SecurityHelper.HashPassword(authRequest.Password, dbUser.PasswordSalt);
-            
+
             if (!hashedPassword.Equals(dbUser.Password))
             {
                 throw new IncorrectPasswordException();
             }
-            
+
             var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, dbUser.UserRole.UserRoleName);
             tokenResult = _tokenGenerator.GetForSuccessLoginResult(loginResult);
 
             return tokenResult;
         }
-        
+
+        [GeneratedRegex(@"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
+        private static partial Regex EmailRegex();
     }
 }
