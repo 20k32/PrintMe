@@ -29,7 +29,7 @@ namespace PrintMe.Server.Logic.Services.Database
             }
             var salt = SecurityHelper.GenerateSalt();
             var hashedPassword = SecurityHelper.HashPassword(user.Password, salt);
-            var userRole = await _repository.GetRoleIdByNamesAsync("USER");
+            var userRole = await _repository.GetRoleIdByNamesAsync("User");
 
             var userRaw = new User
             {
@@ -40,7 +40,6 @@ namespace PrintMe.Server.Logic.Services.Database
                 LastName = user.LastName,
                 UserStatusId = 1,
                 UserRole = userRole,
-                UserRoleId = userRole.UserRoleId,
                 ShouldHidePhoneNumber = true,
                 Description = ""
             };
