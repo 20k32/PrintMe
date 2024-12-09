@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   GoogleMap,
-  LoadScript,
+  useJsApiLoader,
   StandaloneSearchBox,
   Marker,
 } from "@react-google-maps/api";
@@ -13,14 +13,23 @@ interface MapSectionProps {
 }
 
 const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false }) => {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries: MAP_CONFIG.libraries,
+  });
+
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [searchBox, setSearchBox] =
     useState<google.maps.places.SearchBox | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
 
-  const onLoad = (map: google.maps.Map) => {
-    setMap(map);
-  };
+  const onLoadMap = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+  }, []);
+
+  const onUnmountMap = useCallback(() => {
+    setMap(null);
+  }, []);
 
   const onSearchBoxLoad = (ref: google.maps.places.SearchBox) => {
     setSearchBox(ref);
@@ -65,55 +74,60 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
     }
   };
 
+  if (!isLoaded) {
+    return <div className="d-flex justify-content-center align-items-center h-100">
+      Loading...
+      </div>;
+  }
+
   return (
     <div className="d-flex flex-column justify-content-between h-100">
       <div className="bg-white shadow-sm p-3 rounded-start flex-grow-1">
         <h2 className="fs-3 mb-3">
           {selectionMode ? "Select Printer Location" : "Map of printers"}
         </h2>
-        <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={MAP_CONFIG.libraries}>
-          <div
-            className="border border-dark rounded shadow-sm mx-auto"
-            style={{
-              height: selectionMode ? "400px" : "80%",
+        <div
+          className="border border-dark rounded shadow-sm mx-auto"
+          style={{
+            height: selectionMode ? "400px" : "80%",
+            width: "100%",
+            overflow: "hidden",
+          }}
+        >
+          <GoogleMap
+            mapContainerStyle={{
               width: "100%",
-              overflow: "hidden",
+              height: "100%",
             }}
+            center={MAP_CONFIG.center}
+            zoom={MAP_CONFIG.zoom}
+            onLoad={onLoadMap}
+            onUnmount={onUnmountMap}
+            onClick={handleMapClick}
           >
-            <GoogleMap
-              mapContainerStyle={{
-                width: "100%",
-                height: "100%",
+            {selectedLocation && selectionMode && (
+              <Marker position={selectedLocation} />
+            )}
+          </GoogleMap>
+        </div>
+        <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
+          <StandaloneSearchBox
+            onLoad={onSearchBoxLoad}
+            onPlacesChanged={onPlacesChanged}
+          >
+            <input
+              type="text"
+              className="form-control w-100"
+              placeholder="Search location..."
+              style={{
+                boxShadow: "none",
               }}
-              center={MAP_CONFIG.center}
-              zoom={MAP_CONFIG.zoom}
-              onLoad={onLoad}
-              onClick={handleMapClick}
-            >
-              {selectedLocation && selectionMode && (
-                <Marker position={selectedLocation} />
-              )}
-            </GoogleMap>
-          </div>
-          <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
-            <StandaloneSearchBox
-              onLoad={onSearchBoxLoad}
-              onPlacesChanged={onPlacesChanged}
-            >
-              <input
-                type="text"
-                className="form-control w-100"
-                placeholder="Search location..."
-                style={{
-                  boxShadow: "none",
-                }}
-              />
-            </StandaloneSearchBox>
-            <button className="btn btn-primary px-4" onClick={resetPosition}>
-              Reset position
-            </button>
-          </div>
-        </LoadScript>
+            />
+          </StandaloneSearchBox>
+          <button className="btn btn-primary px-4" onClick={resetPosition}>
+            Reset position
+          </button>
+        </div>
       </div>
     </div>
   );
