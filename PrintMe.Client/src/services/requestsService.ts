@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { authService } from './authService';
 import { API_BASE_URL } from "../constants";
@@ -20,6 +19,21 @@ interface ApiResponse {
     statusCode: number;
 }
 
+export enum RequestType {
+    PrinterApplication = 1
+}
+
+export interface PrinterApplicationDto {
+    description: string;
+    minModelHeight: number;
+    minModelWidth: number;
+    maxModelHeight: number;
+    maxModelWidth: number;
+    locationX: number;
+    locationY: number;
+    materials: { materialId: number }[];
+}
+
 export const requestsService = {
     async getMyRequests(): Promise<RequestDto[]> {
         const token = authService.getToken();
@@ -30,9 +44,16 @@ export const requestsService = {
             withCredentials: true
         });
 
-        if (response.data.statusCode === 200 && response.data.value) {
-            return response.data.value;
-        }
-        throw new Error(response.data.message || 'Failed to load requests');
+        return response.data.value;
+   
+    },
+    async submitPrinterApplication(printer: PrinterApplicationDto) {
+        const token = authService.getToken();
+        await axios.post(`${API_BASE_URL}/request/add`, printer, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            withCredentials: true
+        });
     }
 };

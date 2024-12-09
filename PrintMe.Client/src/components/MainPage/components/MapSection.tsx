@@ -3,14 +3,20 @@ import {
   GoogleMap,
   LoadScript,
   StandaloneSearchBox,
+  Marker,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../../../constants";
 
+interface MapSectionProps {
+  onLocationSelect?: (location: { x: number; y: number }) => void;
+  selectionMode?: boolean;
+}
 
-const MapSection: React.FC = () => {
+const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [searchBox, setSearchBox] =
     useState<google.maps.places.SearchBox | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
 
   const onLoad = (map: google.maps.Map) => {
     setMap(map);
@@ -28,6 +34,14 @@ const MapSection: React.FC = () => {
         if (place.geometry?.location) {
           map.setCenter(place.geometry.location);
           map.setZoom(12);
+
+          if (selectionMode && onLocationSelect) {
+            setSelectedLocation(place.geometry.location);
+            onLocationSelect({
+              x: place.geometry.location.lat(),
+              y: place.geometry.location.lng()
+            });
+          }
         }
       }
     }
@@ -40,20 +54,29 @@ const MapSection: React.FC = () => {
     }
   };
 
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (selectionMode && onLocationSelect && e.latLng) {
+      const location = e.latLng;
+      setSelectedLocation(location);
+      onLocationSelect({
+        x: location.lat(),
+        y: location.lng()
+      });
+    }
+  };
+
   return (
-    <div
-      className="h-100 d-flex flex-column justify-content-between"
-      style={{ overflow: "hidden" }}
-    >
-      <div className="bg-white shadow-sm p-4 rounded-start flex-grow-1">
-        <h2 className="fs-3 mb-3">Map of printers</h2>
+    <div className="d-flex flex-column justify-content-between h-100">
+      <div className="bg-white shadow-sm p-3 rounded-start flex-grow-1">
+        <h2 className="fs-3 mb-3">
+          {selectionMode ? "Select Printer Location" : "Map of printers"}
+        </h2>
         <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={MAP_CONFIG.libraries}>
           <div
             className="border border-dark rounded shadow-sm mx-auto"
             style={{
-              height: "80%",
-              minHeight: "400px", 
-              flex: 1,
+              height: selectionMode ? "400px" : "80%",
+              width: "100%",
               overflow: "hidden",
             }}
           >
@@ -65,7 +88,12 @@ const MapSection: React.FC = () => {
               center={MAP_CONFIG.center}
               zoom={MAP_CONFIG.zoom}
               onLoad={onLoad}
-            />
+              onClick={handleMapClick}
+            >
+              {selectedLocation && selectionMode && (
+                <Marker position={selectedLocation} />
+              )}
+            </GoogleMap>
           </div>
           <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
             <StandaloneSearchBox
