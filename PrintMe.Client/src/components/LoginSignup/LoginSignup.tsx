@@ -5,7 +5,7 @@ import emailIcon from "./assets/images/email.png";
 import passwordIcon from "./assets/images/password.png";
 import { authService } from "../../services/authService";
 import { registrationService } from "../../services/registrationService";
-import axios from 'axios';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
@@ -53,7 +53,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
 
       if (!formData.password.trim()) {
         newErrors.password = "Password is required.";
-      } else if (formData.password.length < 6) {
+      } else if (formData.password.length < 6 && action === "Sign Up") {
         newErrors.password = "Password must be at least 6 characters.";
       }
 
@@ -84,29 +84,14 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
           onClose();
         }
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          switch (error.response?.status) {
-            case 400:
-              setErrors({ general: "Invalid request. Please check your input." });
-              break;
-            case 401:
-            case 403:
-              setErrors({ general: "Invalid email or password." });
-              break;
-            case 404:
-              setErrors({ general: "User not found." });
-              break;
-            case 409:
-              setErrors({ general: "User already exists." });
-              break;
-            default:
-              setErrors({ general: "An error occurred. Please try again." });
-          }
-          console.error('Authentication error:', error);
-        } else {
-          setErrors({ general: "An unexpected error occurred." });
-          console.error('Unexpected error:', error);
-        }
+        setErrors({ 
+          general: handleApiError(error, {
+            unauthorized: "Invalid email or password.",
+            notFound: "User not found.",
+            conflict: "User already exists.",
+            badRequest: "Invalid request. Please check your input."
+          })
+        });
       }
     }
   };
@@ -170,6 +155,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                         onChange={(e) =>
                           handleInputChange("firstName", e.target.value)
                         }
+                        autoComplete="given-name"
                         style={{
                           boxShadow: "none",
                           backgroundColor: "#d3d3d3",
@@ -182,7 +168,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                       </small>
                     )}
                   </div>
-                  <div className="mb-3 position-relative">
+                  <div className="pt-2 mb-3 position-relative">
                     <div className="input-group">
                       <span className="input-group-text bg-light border-0">
                         <img src={personIcon} alt="Last Name" style={{ width: "20px" }} />
@@ -195,6 +181,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                         onChange={(e) =>
                           handleInputChange("lastName", e.target.value)
                         }
+                        autoComplete="family-name"
                         style={{
                           boxShadow: "none",
                           backgroundColor: "#d3d3d3",
@@ -209,7 +196,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                   </div>
                 </>
               )}
-              <div className="mb-3 position-relative">
+              <div className="mb-3 pt-2 position-relative">
                 <div className="input-group">
                   <span className="input-group-text bg-light border-0">
                     <img src={emailIcon} alt="Email" style={{ width: "20px" }} />
@@ -220,6 +207,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
+                    autoComplete="email"
                     style={{
                       boxShadow: "none",
                       backgroundColor: "#d3d3d3",
@@ -232,7 +220,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                   </small>
                 )}
               </div>
-              <div className="mb-3 position-relative">
+              <div className="mb-3 pt-2 position-relative">
                 <div className="input-group">
                   <span className="input-group-text bg-light border-0">
                     <img
@@ -249,6 +237,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
                     onChange={(e) =>
                       handleInputChange("password", e.target.value)
                     }
+                    autoComplete={action === "Sign In" ? "current-password" : "new-password"}
                     style={{
                       boxShadow: "none",
                       backgroundColor: "#d3d3d3",
@@ -278,7 +267,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
               )}
               <button
                 type="button"
-                className="btn btn-primary w-100 py-2 fw-bold"
+                className="btn btn-primary w-100 py-2 fw-bol mt-2"
                 onClick={submit}
                 disabled={!isValid}
                 style={{

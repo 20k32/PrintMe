@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { requestsService } from "../../../services/requestsService";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import MapSection from "../../MainPage/components/MapSection";
-import { authService } from "../../../services/authService";
+import { handleApiError } from '../../../utils/apiErrorHandler';
 
 interface Material {
   materialId: number;
@@ -52,19 +51,9 @@ export const AddPrinter = () => {
       await requestsService.submitPrinterApplication(printer);
       navigate("/requests");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          if (authService.getToken()) {
-            setError("Your session has expired, please log in again");
-          } else {
-            setError("You must be logged in to view this page");
-          }
-        } else {
-          setError("Failed to submit printer application. Please try again.");
-        }
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(handleApiError(error, {
+        badRequest: "Failed to submit printer application. Please check your input."
+      }));
     } finally {
       setIsLoading(false);
     }

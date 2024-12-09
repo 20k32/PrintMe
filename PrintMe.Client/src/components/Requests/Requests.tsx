@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RequestDto, RequestType, requestsService } from '../../services/requestsService';
-import axios from 'axios';
-import { authService } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
 const Requests = () => {
     const navigate = useNavigate();
@@ -17,23 +16,9 @@ const Requests = () => {
                 setRequests(data);
             })
             .catch((error) => {
-                if (axios.isAxiosError(error)) {
-                    switch (error.response?.status) {
-                        case 401:
-                            if (authService.getToken()) {
-                                setError("Your session has expired, please log in again");
-                            }
-                            else {
-                                setError("You must be logged in to view this page");
-                            }
-                            break;
-                        case 500:
-                            setError("An error occurred, please try again later");
-                            break;
-                    }
-                } else {
-                    setError("Unknown error occurred");
-                }
+              if (error.response?.status !== 404) {
+                setError(handleApiError(error));
+              }
             })
             .finally(() => {
                 setIsLoading(false);
