@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
@@ -90,6 +92,13 @@ namespace PrintMe.Server.Logic.Services.Database
             var printer = printerDto.MapToEntity();
             await _repository.AddPrinterAsync(printer);
         }
-        
+
+        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double maxHeight, double maxWidth)
+        {
+            await foreach (var printer in _repository.GetPrinterLocationAsync(material, maxHeight, maxWidth))
+            {
+                yield return printer;
+            }
+        }
     }
 }
