@@ -3,21 +3,7 @@ import { requestsService } from "../../../services/requestsService";
 import { useNavigate } from "react-router-dom";
 import MapSection from "../../MainPage/components/MapSection";
 import { handleApiError } from '../../../utils/apiErrorHandler';
-
-interface Material {
-  materialId: number;
-}
-
-interface PrinterApplication {
-  description: string;
-  minModelHeight: number;
-  minModelWidth: number;
-  maxModelHeight: number;
-  maxModelWidth: number;
-  locationX: number;
-  locationY: number;
-  materials: Material[];
-}
+import { PrinterApplicationDto } from "../../../services/requestsService";
 
 const Materials = [
   { id: 1, name: "PLA" },
@@ -28,7 +14,7 @@ const Materials = [
 
 export const AddPrinter = () => {
   const navigate = useNavigate();
-  const [printer, setPrinter] = useState<PrinterApplication>({
+  const [printer, setPrinter] = useState<PrinterApplicationDto>({
     description: "",
     minModelHeight: 0,
     minModelWidth: 0,
@@ -96,6 +82,7 @@ export const AddPrinter = () => {
       {error && <div className="alert alert-danger">{error}</div>}
 
       <form onSubmit={handleSubmit}>
+
         <div className="mb-3">
           <label className="form-label">Description</label>
           <input
@@ -104,7 +91,6 @@ export const AddPrinter = () => {
             name="description"
             value={printer.description}
             onChange={handleInputChange}
-            required
           />
         </div>
 
@@ -158,11 +144,17 @@ export const AddPrinter = () => {
           </div>
         </div>
 
+        {(printer.maxModelHeight <= 0 || printer.maxModelWidth <= 0) && (
+          <div className="alert alert-warning mb-2">
+            Maximum height and width must be greater than 0
+          </div>
+        )}
+
         <div className="mb-3">
           <label className="form-label">Materials</label>
           {selectedMaterials.length === 0 && (
             <div className="alert alert-warning">
-              Select materials your printer can work with:
+              Select materials your printer can work with
             </div>
           )}
           <div className="d-flex flex-wrap gap-2">
@@ -203,12 +195,14 @@ export const AddPrinter = () => {
 
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary mb-5"
           disabled={
             !isLoading ||
             !printer.locationX ||
             !printer.locationY ||
-            printer.materials.length === 0
+            printer.materials.length === 0 ||
+            printer.maxModelHeight <= 0 ||
+            printer.maxModelWidth <= 0
           }
         >
           {!isLoading ? "Submitting..." : "Submit Printer"}
