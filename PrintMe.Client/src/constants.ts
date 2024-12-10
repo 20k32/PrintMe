@@ -12,7 +12,7 @@ export const MAP_CONFIG = {
     width: "100%",
     height: "100%",
   },
-  libraries: ['places'] as Libraries,
+  libraries: ['places', 'geometry', 'drawing'] as Libraries,
 };
 
 export const FILTER_OPTIONS = {
