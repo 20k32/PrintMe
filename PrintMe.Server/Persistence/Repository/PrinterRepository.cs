@@ -98,5 +98,24 @@ namespace PrintMe.Server.Persistence.Repository
             await _dbContext.Printers.AddAsync(printer);
             await _dbContext.SaveChangesAsync();
         }
+        
+        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double maxHeight, double maxWidth)
+        {
+            await foreach (var printerRaw in _dbContext.Printers
+                               .AsNoTracking()
+                               .Where(printer => printer.Materials.Any(material => printer.Materials.Select(m => m.PrintMaterialId).Contains(material.PrintMaterialId)))
+                               .Where(printer => printer.MaxModelHeight >= maxHeight && printer.MaxModelWidth >= maxWidth)
+                               .Select(printer => new PrinterLocationDto()
+                               {
+                                   Id = printer.PrinterId,
+                                   LocationX = printer.LocationX,
+                                   LocationY = printer.LocationY
+                               })
+                               .OrderBy(printer => printer.Id)
+                               .AsAsyncEnumerable())
+            {
+                yield return printerRaw;
+            }
+        }
     }
 }

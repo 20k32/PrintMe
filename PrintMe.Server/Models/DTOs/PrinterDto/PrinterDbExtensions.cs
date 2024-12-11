@@ -51,6 +51,8 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
                 Materials = printer.Materials.MapToDtos(),
                 ModelName = printer.PrinterModel.Name
             };
+        
+        
 
         public static Printer MapToEntity(this PrinterDto printerDto) =>
             new()
