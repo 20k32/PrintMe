@@ -53,8 +53,8 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
 
       if (!formData.password.trim()) {
         newErrors.password = "Password is required.";
-      } else if (formData.password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters.";
+      } else if (formData.password.length < 4) {
+        newErrors.password = "Password must be at least 4 characters.";
       }
 
       setErrors(newErrors);

@@ -2,6 +2,7 @@ using PrintMe.Server.Models.Exceptions;
 
 namespace PrintMe.Server.Logic.Strategies;
 
+// todo: inject to di as singleton
 public class RequestApprovalStrategyFactory
 {
     private readonly Dictionary<string, IRequestApprovalStrategy> _strategies = new()

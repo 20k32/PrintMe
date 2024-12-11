@@ -1,5 +1,6 @@
 using AutoMapper;
 using PrintMe.Server.Logic.Strategies;
+using PrintMe.Server.Models;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.DTOs.RequestDto;
@@ -64,6 +65,18 @@ public class RequestService(RequestRepository repository, IMapper mapper)
             throw new NotFoundRequestStatusInDb();
         }
     }
+    
+    public async Task<RequestStatus> GetRequestStatusByNameAsync(string status)
+    {
+        try
+        {
+            return await repository.GetRequestStatusByNameAsync(status);
+        }
+        catch (Exception)
+        {
+            throw new NotFoundRequestStatusInDb();
+        }
+    }
 
     private async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
     {
@@ -87,6 +100,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         addRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(addRequest);
         var request = mapper.Map<Request>(requestDto);
+
         await repository.AddPrinterAsync(request);
     }
 
@@ -118,37 +132,31 @@ public class RequestService(RequestRepository repository, IMapper mapper)
 
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
-
-        var approvedStatusId = await GetRequestStatusIdByNameAsync("APPROVED");
-        if (request.RequestStatusId == approvedStatusId)
+        if (request.RequestStatus.Status.Equals(RequestStatuses.APPROVED, StringComparison.InvariantCultureIgnoreCase))
         {
             throw new AlreadyApprovedRequestException();
         }
-
-        var requestType = await GetRequestTypeNameByIdAsync(request.RequestTypeId);
+        
         var strategyFactory = new RequestApprovalStrategyFactory();
 
-        var strategy = strategyFactory.GetStrategy(requestType);
+        var strategy = strategyFactory.GetStrategy(request.RequestType.Type);
         await strategy.ApproveRequestAsync(request, provider);
-
-        request.RequestStatusId = approvedStatusId;
-        request.RequestStatusReasonId = null;
+        
+        request.RequestStatus.Id = await GetRequestStatusIdByNameAsync(RequestStatuses.APPROVED);
 
         await UpdateRequestAsync(request);
     }
 
     public async Task DeclineRequestAsync(RequestDto request, string reason)
     {
-        var declinedStatusId = await GetRequestStatusIdByNameAsync("DECLINED");
-        var reasonId = await GetRequestStatusReasonIdByNameAsync(reason);
-
-        if (request.RequestStatusId == declinedStatusId)
+        if (request.RequestStatus.Status.Equals(RequestStatuses.DECLINED, StringComparison.InvariantCultureIgnoreCase))
         {
             throw new AlreadyDeclinedRequestException();
         }
 
-        request.RequestStatusId = declinedStatusId;
-        request.RequestStatusReasonId = reasonId;
+        request.RequestStatus.Id = await GetRequestStatusIdByNameAsync(RequestStatuses.DECLINED);
+        //todo: refactor reason as example above
+        request.RequestStatusReasonId = await GetRequestStatusReasonIdByNameAsync(reason);
 
         await UpdateRequestAsync(request);
     }

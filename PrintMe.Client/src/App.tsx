@@ -6,6 +6,7 @@ import MainPage from "./components/MainPage/MainPage.tsx";
 import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
+import AdminRequests from "./components/AdminRequests/AdminRequests.tsx";
 
 function App() {
   const [isLogined, setIsLogined] = useState<boolean>(authService.isLoggedIn());
@@ -40,6 +41,7 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/requests" element={<Requests />} />
+          <Route path="/adminrequests" element={<AdminRequests />} />
       </Routes>
     </>
   );

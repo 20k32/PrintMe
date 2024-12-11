@@ -41,30 +41,35 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
             </a>
           </li>
           {isLogined && (
-            <>
-              <li>
-                <a href="#" className="nav-link px-3 text-white fs-5">
-                  Printers
-                </a>
-              </li>
-              <li>
-                <a href="#" className="nav-link px-3 text-white fs-5">
-                  Orders
-                </a>
-              </li>
-              <li>
-                <Link to="/requests" className="nav-link px-3 text-white fs-5">
-                  Requests
-                </Link>
-              </li>
-            </>
+              <>
+                <li>
+                  <a href="#" className="nav-link px-3 text-white fs-5">
+                    Printers
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="nav-link px-3 text-white fs-5">
+                    Orders
+                  </a>
+                </li>
+                <li>
+                  <Link to="/requests" className="nav-link px-3 text-white fs-5">
+                    Requests
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/adminrequests" className="nav-link px-3 text-white fs-5">
+                    Admin requests
+                  </Link>
+                </li>
+              </>
           )}
         </ul>
 
         {}
         <div className="d-flex align-items-center flex-grow-1 justify-content-end">
           {isLogined ? (
-            <div className="d-flex align-items-center gap-4">
+              <div className="d-flex align-items-center gap-4">
               <a href="#">
                 <img src={chats} alt="Chats" width="30" height="30" />
               </a>

@@ -40,8 +40,8 @@ const Requests = () => {
                             {request.userTextData && (
                                 <p className="mb-1"><strong>Additional Info:</strong> {request.userTextData}</p>
                             )}
-                            <p className="mb-1"><strong>Status:</strong> {request.requestStatusId}</p>
-                            <p className="mb-1"><strong>Type:</strong> {request.requestTypeId}</p>
+                            <p className="mb-1"><strong>Status:</strong> {request.requestStatus.status}</p>
+                            <p className="mb-1"><strong>Type:</strong> {request.requestType.type}</p>
                         </div>
                     ))}
                 </div>

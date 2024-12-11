@@ -21,6 +21,7 @@ namespace PrintMe.Server.Persistence.Repository
             _dbContext
                 .Users
                 .AsQueryable()
+                .Include(user => user.UserRole)
                 .FirstOrDefaultAsync(user => user.Email.Equals(email));
 
         public async Task<User> UpdateUserByEmailAsync(string email, User newEntity)
