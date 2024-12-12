@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import "./assets/css/profile.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import profileIcon from "./assets/images/image.png";
 import { profileService } from "../../services/profileService";
+import backgroundImage from "./assets/images/background.png";
+
 
 interface UserInfo {
   userId: number;
@@ -38,29 +40,33 @@ const Profile = () => {
     }
   };
 
-  const validateFields = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!userInfo.firstName.trim()) {
-      newErrors.firstName = "First name is required.";
-    }
-    if (!userInfo.lastName.trim()) {
-      newErrors.lastName = "Last name is required.";
-    }
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    if (!userInfo.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!emailRegex.test(userInfo.email)) {
-      newErrors.email = "Invalid email format.";
-    }
-    if (userInfo.phoneNumber && !/^\d{10,15}$/.test(userInfo.phoneNumber)) {
-      newErrors.phoneNumber = "Phone number must contain only digits (10-15 characters).";
-    }
-    if (userInfo.description.length > 500) {
-      newErrors.description = "Description cannot exceed 500 characters.";
+  const validateField = (field: string, value: string) => {
+    let error = "";
+    if (field === "firstName" && !value.trim()) {
+      error = "First name is required.";
+    } else if (field === "lastName" && !value.trim()) {
+      error = "Last name is required.";
+    } else if (field === "email") {
+      const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+      if (!value.trim()) {
+        error = "Email is required.";
+      } else if (!emailRegex.test(value)) {
+        error = "Invalid email format.";
+      }
+    } else if (field === "phoneNumber" && value) {
+      if (!/^\d{10,15}$/.test(value)) {
+        error = "Phone number must contain only digits (10-15 characters).";
+      }
+    } else if (field === "description" && value.length > 500) {
+      error = "Description cannot exceed 500 characters.";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const handleInputChange = (field: keyof UserInfo, value: string) => {
+    setUserInfo((prev) => ({ ...prev, [field]: value }));
+    validateField(field, value);
   };
 
   // Завантаження даних користувача
@@ -80,8 +86,10 @@ const Profile = () => {
     }
   }, []);
 
+
   const handleSave = async () => {
-    if (!validateFields()) return;
+    const hasErrors = Object.values(errors).some((error) => error);
+    if (hasErrors) return;
 
     const token = localStorage.getItem("token");
     if (!token) {
@@ -124,149 +132,144 @@ const Profile = () => {
   };
 
   return (
-    <div className="main-content">
-      <div className="profile-page-container">
-        <form onSubmit={handleFormSubmit}>
-          <div className="header">PROFILE</div>
-          <div className="content-container">
-            <div className="profile-image">
-              <img src={profileIcon} alt="Profile Icon" />
-            </div>
-            <div className="profile-info">
-              <div className="profile-main-info">
-                <div className="left-info">
-                  <div className="info-in">
-                    <span>First Name:<br /></span>
+    <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100" style={{backgroundImage: `url(${backgroundImage})`}}>
+      <div className="card shadow-lg p-5 " style={{ height: "1000px", width: "1500px", borderRadius: "25px" }}>
+        <form onSubmit={handleFormSubmit} className="d-flex flex-column flex-grow-1">
+          <div className="fs-2 fw-bold mb-5">
+            PROFILE
+          </div>
+          <div className="row mt-2">
+            {/* Image Section */}
+            <div className="col-md-4 d-flex justify-content-center">
+          <img 
+            src={profileIcon} 
+            alt="Profile Icon" 
+            className="img-fluid" 
+            style={{ width: "150px", height: "150px"}} // Фіксований розмір
+          />
+        </div>
+            {/* Info Section */}
+            <div className="col-md-8 fs-3">
+              <div className="row">
+                {/* Left Info */}
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label className="fw-bold"><span>First Name:</span></label>
                     {isEditing ? (
                       <>
-                        <input
-                          value={userInfo.firstName}
-                          onChange={(e) =>
-                            setUserInfo((prev) => ({
-                              ...prev,
-                              firstName: e.target.value,
-                            }))
-                          }
-                        />
+                    <input
+                      type="text"
+                      className="form-control w-75"
+                      value={userInfo.firstName}
+                      onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    />
                         {errors.firstName && (
-                          <div className="error-message">{errors.firstName}</div>
+                          <div className="text-danger">{errors.firstName}</div>
                         )}
                       </>
                     ) : (
-                      <label>{userInfo.firstName}</label>
+                      <p>{userInfo.firstName}</p>
                     )}
                   </div>
-                  <div className="info-in">
-                    <span>Last Name:<br /></span>
+                  <div className="mb-3">
+                    <label className="fw-bold"><span>Last Name:</span></label>
                     {isEditing ? (
                       <>
-                        <input
-                          value={userInfo.lastName}
-                          onChange={(e) =>
-                            setUserInfo((prev) => ({
-                              ...prev,
-                              lastName: e.target.value,
-                            }))
-                          }
-                        />
+                    <input
+                      type="text"
+                      className="form-control w-75"
+                      value={userInfo.lastName}
+                      onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    />
                         {errors.lastName && (
-                          <div className="error-message">{errors.lastName}</div>
+                          <div className="text-danger">{errors.lastName}</div>
                         )}
                       </>
                     ) : (
-                      <label>{userInfo.lastName}</label>
+                      <p>{userInfo.lastName}</p>
                     )}
                   </div>
                 </div>
-                <div className="right-info">
-                  <div className="info-in">
-                    <span>Email:<br /></span>
+                {/* Right Info */}
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label className="fw-bold"><span>Email:</span></label>
                     {isEditing ? (
                       <>
                         <input
                           type="email"
+                          className="form-control w-75"
                           value={userInfo.email}
-                          onChange={(e) =>
-                            setUserInfo((prev) => ({
-                              ...prev,
-                              email: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => handleInputChange("email", e.target.value)}
                         />
                         {errors.email && (
-                          <div className="error-message">{errors.email}</div>
+                          <div className="text-danger">{errors.email}</div>
                         )}
                       </>
                     ) : (
-                      <label>{userInfo.email}</label>
+                      <p>{userInfo.email}</p>
                     )}
                   </div>
-                  <div className="info-in">
-                    <span>Phone Number:<br /></span>
+                  <div className="mb-3">
+                    <label className="fw-bold"><span>Phone Number:</span></label>
                     {isEditing ? (
                       <>
-                        <input
-                          type="checkbox"
-                          checked={userInfo.shouldHidePhoneNumber}
-                          onChange={(e) =>
-                            setUserInfo((prev) => ({
-                              ...prev,
-                              shouldHidePhoneNumber: e.target.checked,
-                            }))
-                          }
-                        />{" "}
-                        Hide Phone Number
-                        <br />
+                        <div className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            checked={userInfo.shouldHidePhoneNumber}
+                            onChange={(e) =>
+                              setUserInfo((prev) => ({
+                                ...prev,
+                                shouldHidePhoneNumber: e.target.checked,
+                              }))
+                            }
+                          />
+                          <label className="form-check-label fs-5">Hide Phone Number</label>
+                        </div>
                         <input
                           type="text"
+                          className="form-control w-75"
                           value={userInfo.phoneNumber || ""}
-                          onChange={(e) =>
-                            setUserInfo((prev) => ({
-                              ...prev,
-                              phoneNumber: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
                         />
                         {errors.phoneNumber && (
-                          <div className="error-message">{errors.phoneNumber}</div>
+                          <div className="text-danger">{errors.phoneNumber}</div>
                         )}
                       </>
                     ) : (
-                      <label>{userInfo.phoneNumber}</label>
+                      <p>{userInfo.phoneNumber}</p>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="about-me">
-                <span>About me:<br /></span>
+              <div className="mb-3">
+                <label className="fw-bold"><span>About me:</span></label>
                 {isEditing ? (
                   <>
                     <textarea
+                      className="form-control w-75"
                       value={userInfo.description}
-                      onChange={(e) =>
-                        setUserInfo((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
+                      onChange={(e) => handleInputChange("description", e.target.value)}
                     />
                     {errors.description && (
-                      <div className="error-message">{errors.description}</div>
+                      <div className="text-danger">{errors.description}</div>
                     )}
                   </>
                 ) : (
-                  <label>{userInfo.description || "No description"}</label>
+                  <p>{userInfo.description || "No description"}</p>
                 )}
               </div>
             </div>
           </div>
-          <div className="submit-button">
-            <button type="submit">
+          <div className="mt-auto text-end ">
+          <button type="submit" className="btn btn-primary w-20 fs-3 bg" style={{ backgroundColor: "#6c30f3", width: "200px" }}>
               {isEditing ? "Save" : "Edit profile"}
             </button>
           </div>
           {errors.general && (
-            <div className="error-message">{errors.general}</div>
+            <div className="text-danger text-center mt-3">{errors.general}</div>
           )}
         </form>
       </div>
