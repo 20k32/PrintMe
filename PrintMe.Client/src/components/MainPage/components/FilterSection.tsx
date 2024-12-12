@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../assets/css/filterSection.css"; 
 import { FilterOption } from "../types";
 import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../../../constants";
 
@@ -107,7 +106,6 @@ const FilterFoldGroup: React.FC = () => {
 
   return (
     <div className="bg-white p-4 rounded h-100">
-      <h2 className="fs-4 mb-3">Filter by</h2>
       <div className="d-flex flex-wrap gap-3">
         <FilterFold
           label="Materials"
