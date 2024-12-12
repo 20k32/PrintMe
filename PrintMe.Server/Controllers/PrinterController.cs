@@ -262,13 +262,14 @@ namespace PrintMe.Server.Controllers
         
         /// <summary>
         /// <para>Start streaming printers locations.</para>
-        /// accepts 'materials' and 'maxModelHeight' and 'maxModelWidth' parameters from body
+        /// accepts 'materials', 'maxModelHeight' and 'maxModelWidth' parameters from query
         /// </summary>
         [HttpGet("markers")]
         [ProducesResponseType(typeof(List<PrinterLocationDto>), 200)]
         public IAsyncEnumerable<PrinterLocationDto> GetPrinterLocations([FromQuery] GetPrinterLocationRequest request)
         {
             IAsyncEnumerable<PrinterLocationDto> result;
+
             var materials = request.Materials;
             var maxHeight = request.MaxModelHeight;
             var maxWidth = request.MaxModelWidth;
