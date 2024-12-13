@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -6,6 +6,7 @@ import {
   Marker,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../../../constants";
+import { markersService } from "../../../services/markersService";
 
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
@@ -16,6 +17,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: MAP_CONFIG.libraries,
+    mapIds: ["7dabcc41eef25214"],
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -74,6 +76,14 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
     }
   };
 
+  useEffect(() => {
+    if (map && !selectionMode) {
+      (async () => {
+        await markersService.getGoogleMapsMarkers(map, {});
+      })();
+    }
+  }, [map, selectionMode]);
+
   if (!isLoaded) {
     return <div className="d-flex justify-content-center align-items-center h-100">
       Loading...
@@ -104,6 +114,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
             onLoad={onLoadMap}
             onUnmount={onUnmountMap}
             onClick={handleMapClick}
+            options={{ mapId: MAP_CONFIG.mapId }}
           >
             {selectedLocation && selectionMode && (
               <Marker position={selectedLocation} />
