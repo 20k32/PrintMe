@@ -21,5 +21,9 @@ export const printerService = {
     async getPrinterMinimalInfo(id: number): Promise<SimplePrinterDto> {
         const response = await axios.get<ApiResponseMin>(`http://localhost:5193/${id}?detailed=false`);
         return response.data.value;
+    },
+    async getMaterials(): Promise<Material[]> {
+        const response = await axios.get(`http://localhost:5193/api/Printers/materials`);
+        return response.data;
     }
 }

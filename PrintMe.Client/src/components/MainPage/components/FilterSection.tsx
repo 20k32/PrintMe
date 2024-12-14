@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FilterOption } from "../types";
 import { FILTER_OPTIONS, INITIAL_FILTER_STATE, FilterKey } from "../../../constants";
+import { printerService } from "../../../services/printerService";
 
 const FilterFold: React.FC<FilterOption> = ({
   label,
@@ -81,13 +82,34 @@ const FilterFold: React.FC<FilterOption> = ({
   );
 };
 
-const FilterFoldGroup: React.FC = () => {
+interface FilterFoldGroupProps {
+  onFiltersChange: (filters: Record<string, string[]>) => void;
+}
+
+const FilterFoldGroup: React.FC<FilterFoldGroupProps> = ({ onFiltersChange }) => {
   const [filters, setFilters] = useState(INITIAL_FILTER_STATE);
   const [openStates, setOpenStates] = useState({
     materials: true,
     sizes: true,
     colors: true,
   });
+  const [materialOptions, setMaterialOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const materials = await printerService.getMaterials();
+        setMaterialOptions(materials.map(material => material.name));
+      } catch (error) {
+        console.error("Failed to fetch materials", error);
+      }
+    };
+    fetchMaterials();
+  }, []);
+
+  useEffect(() => {
+    onFiltersChange(filters);
+  }, [filters, onFiltersChange]);
 
   const updateFilter = (key: FilterKey) => (value: string[]) => {
     setFilters((prev) => ({
@@ -109,7 +131,7 @@ const FilterFoldGroup: React.FC = () => {
       <div className="d-flex flex-wrap gap-3">
         <FilterFold
           label="Materials"
-          options={FILTER_OPTIONS.materials}
+          options={materialOptions}
           state={filters.materials}
           setState={updateFilter("materials")}
           isOpen={openStates.materials}

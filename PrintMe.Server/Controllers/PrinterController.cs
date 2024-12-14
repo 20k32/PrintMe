@@ -15,7 +15,6 @@ namespace PrintMe.Server.Controllers
 {
     [ApiController]
     [Route("api/Printers")]
-    [Authorize]
     public class PrinterController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -193,6 +192,7 @@ namespace PrintMe.Server.Controllers
         /// </summary>
         [HttpGet("/my")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
+        [Authorize]
         public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool detailed)
         {
             PlainResult result;
@@ -279,6 +279,25 @@ namespace PrintMe.Server.Controllers
             result = printerService.GetPrinterLocationAsync(materials, maxHeight, maxWidth);
 
             return result;
+        }
+
+        /// <summary>
+        /// Get all materials
+        /// </summary>
+        [HttpGet("materials")]
+        [ProducesResponseType(typeof(List<PrintMaterialDto>), 200)]
+        public async Task<IActionResult> GetMaterials()
+        {
+            var printerService = _provider.GetService<PrinterService>();
+            try 
+            {
+                var materials = await printerService.GetMaterialsAsync();
+                return Ok(materials);
+            }
+            catch (NotFoundMaterialInDbException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

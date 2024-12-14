@@ -131,5 +131,8 @@ namespace PrintMe.Server.Persistence.Repository
                 yield return printerRaw;
             }
         }
+
+        public Task<List<PrintMaterial>> GetAllMaterialsAsync() =>
+            _dbContext.PrintMaterials1.AsNoTracking().ToListAsync();
     }
 }

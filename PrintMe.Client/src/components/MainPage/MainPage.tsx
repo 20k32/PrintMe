@@ -5,10 +5,15 @@ import backgroundImage from "./assets/images/background.png";
 
 const MainPage: React.FC = () => {
   const [key, setKey] = useState(0);
+  const [filters, setFilters] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, []);
+
+  const handleFiltersChange = (newFilters: Record<string, string[]>) => {
+    setFilters(newFilters);
+  };
 
   return (
     <div
@@ -25,7 +30,6 @@ const MainPage: React.FC = () => {
         padding: "40px",
       }}
     >
-      {}
       <div
         style={{
           flex: 3,
@@ -36,10 +40,9 @@ const MainPage: React.FC = () => {
           height: "90vh",
         }}
       >
-        <MapSection key={key} />
+        <MapSection key={key} filters={filters} />
       </div>
 
-      {}
       <div
         style={{
           flex: 1,
@@ -64,7 +67,7 @@ const MainPage: React.FC = () => {
             flexWrap: "wrap",
           }}
         >
-          <FilterFoldGroup />
+          <FilterFoldGroup onFiltersChange={handleFiltersChange} />
         </div>
       </div>
     </div>

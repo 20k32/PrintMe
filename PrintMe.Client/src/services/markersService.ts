@@ -19,12 +19,21 @@ const getPrinters = async (params: FetchParams): Promise<MarkerDto[]> => {
     return response.data;
 };
 
+let markers: google.maps.marker.AdvancedMarkerElement[] = [];
+
+const clearAllMarkers = () => {
+    markers.forEach(marker => marker.map = null);
+    markers = [];
+};
+
 export const markersService = {
     async getGoogleMapsMarkers(map: google.maps.Map, params: FetchParams): Promise<google.maps.marker.AdvancedMarkerElement[]> {
+        clearAllMarkers();
+
         const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
-        const markers = await getPrinters(params);
+        const markersData = await getPrinters(params);
         
-        return Promise.all(markers.map(async marker => {
+        const newMarkers = await Promise.all(markersData.map(async marker => {
 
             const position = { lat: marker.locationY, lng: marker.locationX };
             const printerInfo = await printerService.getPrinterMinimalInfo(marker.id);
@@ -57,5 +66,9 @@ export const markersService = {
 
             return advancedMarker;
         }));
-    }
+
+        markers = newMarkers;
+        return newMarkers;
+    },
+    clearMarkers: clearAllMarkers
 };

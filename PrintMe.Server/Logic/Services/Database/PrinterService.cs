@@ -100,5 +100,15 @@ namespace PrintMe.Server.Logic.Services.Database
                 yield return printer;
             }
         }
+
+        public async Task<List<PrintMaterialDto>> GetMaterialsAsync()
+        {
+            var materials = await _repository.GetAllMaterialsAsync();
+            if (materials is null || materials.Count == 0)
+            {
+                throw new NotFoundMaterialInDbException();
+            }
+            return materials.Select(material => material.MapToDto()).ToList();
+        }
     }
 }

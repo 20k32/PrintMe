@@ -11,9 +11,10 @@ import { markersService } from "../../../services/markersService";
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
   selectionMode?: boolean;
+  filters?: Record<string, string[]>;
 }
 
-const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false }) => {
+const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false, filters = {} }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: MAP_CONFIG.libraries,
@@ -79,10 +80,10 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
   useEffect(() => {
     if (map && !selectionMode) {
       (async () => {
-        await markersService.getGoogleMapsMarkers(map, {});
+        await markersService.getGoogleMapsMarkers(map, filters);
       })();
     }
-  }, [map, selectionMode]);
+  }, [map, selectionMode, filters]);
 
   if (!isLoaded) {
     return <div className="d-flex justify-content-center align-items-center h-100">
