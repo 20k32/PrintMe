@@ -44,8 +44,8 @@ namespace PrintMe.Server.Persistence.Repository
             }
         }
 
-        public Task<SimplePrinter> GetPrinterBasicInfoByIdAsync(int id) =>
-            _dbContext.Printers
+        public async Task<SimplePrinter> GetPrinterBasicInfoByIdAsync(int id) =>
+            await _dbContext.Printers
                 .AsNoTracking()
                 .Select(printer => new SimplePrinter()
                 {
@@ -55,8 +55,8 @@ namespace PrintMe.Server.Persistence.Repository
                 })
                 .FirstOrDefaultAsync(printer => printer.PrinterId == id);
 
-        public Task<Printer> GetPrinterDetailedInfoAsync(int id) =>
-            _dbContext.Printers
+        public async Task<Printer> GetPrinterDetailedInfoAsync(int id) =>
+            await _dbContext.Printers
                 .AsNoTracking()
                 .Include(printer => printer.PrinterModel)
                 .Include(printer => printer.Materials)

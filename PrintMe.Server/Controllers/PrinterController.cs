@@ -162,7 +162,7 @@ namespace PrintMe.Server.Controllers
                         if (printer is not null && printer.Count() != 0) // no multiple enumeration
                         {
                             result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer, "There is some printers in database", 
-                                StatusCodes.Status404NotFound);
+                                StatusCodes.Status200OK);
                         }
                         else
                         {
@@ -264,9 +264,9 @@ namespace PrintMe.Server.Controllers
         /// <para>Start streaming printers locations.</para>
         /// accepts 'materials', 'maxModelHeight' and 'maxModelWidth' parameters from query
         /// </summary>
-        [HttpGet("markers")]
+        [HttpPut("markers")]
         [ProducesResponseType(typeof(List<PrinterLocationDto>), 200)]
-        public IAsyncEnumerable<PrinterLocationDto> GetPrinterLocations([FromQuery] GetPrinterLocationRequest request)
+        public IAsyncEnumerable<PrinterLocationDto> GetPrinterLocations([FromBody] GetPrinterLocationRequest request)
         {
             IAsyncEnumerable<PrinterLocationDto> result;
 
