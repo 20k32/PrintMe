@@ -19,8 +19,8 @@ public partial class PrintMeDbContext : DbContext
     {
 #if DEBUG
         
-        Database.EnsureDeleted();
-        Database.EnsureCreated();
+        //Database.EnsureDeleted();
+        //Database.EnsureCreated();
 #endif
         
     }
