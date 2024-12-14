@@ -19,8 +19,8 @@ public partial class PrintMeDbContext : DbContext
     {
 #if DEBUG
         
-        Database.EnsureDeleted();
-        Database.EnsureCreated();
+        // Database.EnsureDeleted();
+        // Database.EnsureCreated();
 #endif
         
     }
@@ -436,7 +436,7 @@ public partial class PrintMeDbContext : DbContext
 
             entity.HasIndex(e => e.Email, "user_email_key").IsUnique();
 
-            entity.HasIndex(e => e.PhoneNumber, "user_phone_number_key").IsUnique();
+            // entity.HasIndex(e => e.PhoneNumber, "user_phone_number_key").IsUnique();
 
             entity.HasIndex(e => e.UserRoleId, "idx_user_role_id");
             
