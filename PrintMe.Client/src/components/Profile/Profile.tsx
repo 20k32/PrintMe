@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import profileIcon from "./assets/images/image.png";
 import { profileService } from "../../services/profileService";
-import backgroundImage from "./assets/images/background.png";
-
+import "./assets/profile.css";
 
 interface UserInfo {
   userId: number;
@@ -29,14 +27,13 @@ const Profile = () => {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const decodeToken = (token: string): any => {
+  const decodeToken = (token: string): string | undefined => {
     try {
       const payload = token.split(".")[1];
       const decodedPayload = atob(payload);
       return JSON.parse(decodedPayload);
     } catch (err) {
       console.error("Failed to decode token:", err);
-      return null;
     }
   };
 
@@ -69,14 +66,13 @@ const Profile = () => {
     validateField(field, value);
   };
 
-  // Завантаження даних користувача
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       const decoded = decodeToken(token);
       if (decoded) {
         profileService
-          .fetchUserData(token)
+          .fetchUserData()
           .then((data) => setUserInfo(data))
           .catch((error) => {
             console.error("Failed to load user data", error);
@@ -85,7 +81,6 @@ const Profile = () => {
       }
     }
   }, []);
-
 
   const handleSave = async () => {
     const hasErrors = Object.values(errors).some((error) => error);
@@ -98,21 +93,17 @@ const Profile = () => {
     }
 
     try {
-      const updatedProfile = await profileService.updateProfile(
-        {
-          userId: userInfo.userId,
-          firstName: userInfo.firstName,
-          lastName: userInfo.lastName,
-          email: userInfo.email,
-          phoneNumber: userInfo.phoneNumber || "",
-          userStatusId: 1,
-          shouldHidePhoneNumber: userInfo.shouldHidePhoneNumber,
-          description: userInfo.description,
-          userRole: "USER",
-        },
-        token
-      );
-      console.log("Profile updated successfully:", updatedProfile);
+      await profileService.updateProfile({
+        userId: userInfo.userId,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        email: userInfo.email,
+        phoneNumber: userInfo.phoneNumber || "",
+        userStatusId: 1,
+        shouldHidePhoneNumber: userInfo.shouldHidePhoneNumber,
+        description: userInfo.description,
+        userRole: "USER",
+      });
       setIsEditing(false);
     } catch (error) {
       console.error("Update failed:", error);
@@ -132,146 +123,162 @@ const Profile = () => {
   };
 
   return (
-    <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100" style={{backgroundImage: `url(${backgroundImage})`}}>
-      <div className="card shadow-lg p-5 " style={{ height: "1000px", width: "1500px", borderRadius: "25px" }}>
-        <form onSubmit={handleFormSubmit} className="d-flex flex-column flex-grow-1">
-          <div className="fs-2 fw-bold mb-5">
-            PROFILE
-          </div>
-          <div className="row mt-2">
-            {/* Image Section */}
-            <div className="col-md-4 d-flex justify-content-center">
-          <img 
-            src={profileIcon} 
-            alt="Profile Icon" 
-            className="img-fluid" 
-            style={{ width: "150px", height: "150px"}} // Фіксований розмір
-          />
-        </div>
-            {/* Info Section */}
-            <div className="col-md-8 fs-3">
-              <div className="row">
-                {/* Left Info */}
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="fw-bold"><span>First Name:</span></label>
-                    {isEditing ? (
-                      <>
-                    <input
-                      type="text"
-                      className="form-control w-75"
-                      value={userInfo.firstName}
-                      onChange={(e) => handleInputChange("firstName", e.target.value)}
-                    />
-                        {errors.firstName && (
-                          <div className="text-danger">{errors.firstName}</div>
-                        )}
-                      </>
-                    ) : (
-                      <p>{userInfo.firstName}</p>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <label className="fw-bold"><span>Last Name:</span></label>
-                    {isEditing ? (
-                      <>
-                    <input
-                      type="text"
-                      className="form-control w-75"
-                      value={userInfo.lastName}
-                      onChange={(e) => handleInputChange("lastName", e.target.value)}
-                    />
-                        {errors.lastName && (
-                          <div className="text-danger">{errors.lastName}</div>
-                        )}
-                      </>
-                    ) : (
-                      <p>{userInfo.lastName}</p>
-                    )}
-                  </div>
+    <div className="profile-container">
+      <div className="profile-content">
+        <div className="profile-card">
+          <form onSubmit={handleFormSubmit}>
+            <div className="fs-2 fw-bold mb-5 text-white">Profile</div>
+            <div className="row mt-2">
+              <div className="col-md-4 d-flex justify-content-center align-items-start">
+                <div className="profile-avatar">
+                  <i className="bi bi-person-circle"></i>
                 </div>
-                {/* Right Info */}
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="fw-bold"><span>Email:</span></label>
-                    {isEditing ? (
-                      <>
-                        <input
-                          type="email"
-                          className="form-control w-75"
-                          value={userInfo.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
-                        />
-                        {errors.email && (
-                          <div className="text-danger">{errors.email}</div>
-                        )}
-                      </>
-                    ) : (
-                      <p>{userInfo.email}</p>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <label className="fw-bold"><span>Phone Number:</span></label>
-                    {isEditing ? (
-                      <>
-                        <div className="form-check">
+              </div>
+              <div className="col-md-8">
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group mb-4">
+                      <label className="profile-label">First Name:</label>
+                      {isEditing ? (
+                        <>
                           <input
-                            type="checkbox"
-                            className="form-check-input"
-                            checked={userInfo.shouldHidePhoneNumber}
+                            type="text"
+                            className="form-control profile-input"
+                            value={userInfo.firstName}
                             onChange={(e) =>
-                              setUserInfo((prev) => ({
-                                ...prev,
-                                shouldHidePhoneNumber: e.target.checked,
-                              }))
+                              handleInputChange("firstName", e.target.value)
                             }
                           />
-                          <label className="form-check-label fs-5">Hide Phone Number</label>
-                        </div>
-                        <input
-                          type="text"
-                          className="form-control w-75"
-                          value={userInfo.phoneNumber || ""}
-                          onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                        />
-                        {errors.phoneNumber && (
-                          <div className="text-danger">{errors.phoneNumber}</div>
-                        )}
-                      </>
-                    ) : (
-                      <p>{userInfo.phoneNumber}</p>
-                    )}
+                          {errors.firstName && (
+                            <div className="text-danger mt-1">{errors.firstName}</div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="profile-text">{userInfo.firstName}</p>
+                      )}
+                    </div>
+                    <div className="form-group mb-4">
+                      <label className="profile-label">Last Name:</label>
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="text"
+                            className="form-control profile-input"
+                            value={userInfo.lastName}
+                            onChange={(e) =>
+                              handleInputChange("lastName", e.target.value)
+                            }
+                          />
+                          {errors.lastName && (
+                            <div className="text-danger mt-1">{errors.lastName}</div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="profile-text">{userInfo.lastName}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group mb-4">
+                      <label className="profile-label">Email:</label>
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="email"
+                            className="form-control profile-input"
+                            value={userInfo.email}
+                            onChange={(e) =>
+                              handleInputChange("email", e.target.value)
+                            }
+                          />
+                          {errors.email && (
+                            <div className="text-danger mt-1">{errors.email}</div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="profile-text">{userInfo.email}</p>
+                      )}
+                    </div>
+                    <div className="form-group mb-4">
+                      <label className="profile-label">Phone Number:</label>
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="text"
+                            className="form-control profile-input"
+                            value={userInfo.phoneNumber || ""}
+                            onChange={(e) =>
+                              handleInputChange("phoneNumber", e.target.value)
+                            }
+                          />
+                          <div className="form-check mt-2">
+                            <input
+                              type="checkbox"
+                              className="form-check-input"
+                              checked={userInfo.shouldHidePhoneNumber}
+                              onChange={(e) =>
+                                setUserInfo((prev) => ({
+                                  ...prev,
+                                  shouldHidePhoneNumber: e.target.checked,
+                                }))
+                              }
+                            />
+                            <label className="form-check-label">
+                              Hide Phone Number
+                            </label>
+                          </div>
+                          {errors.phoneNumber && (
+                            <div className="text-danger mt-1">{errors.phoneNumber}</div>
+                          )}
+                        </>
+                      ) : (
+                        <p className="profile-text">{userInfo.phoneNumber || <p className="text-opacity-25 text-white">No number</p>}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="mb-3">
-                <label className="fw-bold"><span>About me:</span></label>
-                {isEditing ? (
-                  <>
-                    <textarea
-                      className="form-control w-75"
-                      value={userInfo.description}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
-                    />
-                    {errors.description && (
-                      <div className="text-danger">{errors.description}</div>
-                    )}
-                  </>
-                ) : (
-                  <p>{userInfo.description || "No description"}</p>
-                )}
+                <div className="form-group mb-4">
+                  <label className="profile-label">About me:</label>
+                  {isEditing ? (
+                    <>
+                      <textarea
+                        className="form-control profile-input"
+                        value={userInfo.description}
+                        rows={4}
+                        onChange={(e) =>
+                          handleInputChange("description", e.target.value)
+                        }
+                      />
+                      {errors.description && (
+                        <div className="text-danger mt-1">{errors.description}</div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="profile-text">{userInfo.description || <p className="text-opacity-25 text-white">No description</p>}</p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="mt-auto text-end ">
-          <button type="submit" className="btn btn-primary w-20 fs-3 bg" style={{ backgroundColor: "#6c30f3", width: "200px" }}>
-              {isEditing ? "Save" : "Edit profile"}
-            </button>
-          </div>
-          {errors.general && (
-            <div className="text-danger text-center mt-3">{errors.general}</div>
-          )}
-        </form>
+            <div className="text-end mt-4">
+              <button type="submit" className="profile-button">
+                {isEditing ? (
+                  <>
+                    <i className="bi bi-check-circle me-2"></i>
+                    Save Changes
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-pencil me-2"></i>
+                    Edit Profile
+                  </>
+                )}
+              </button>
+            </div>
+            {errors.general && (
+              <div className="alert alert-danger mt-3">{errors.general}</div>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );

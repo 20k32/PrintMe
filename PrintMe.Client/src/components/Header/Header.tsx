@@ -62,10 +62,10 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
               <a href="#" className="text-white header-icon">
                 <i className="bi bi-chat-dots-fill fs-2"></i>
               </a>
-              <Link to="/profile">
+              <Link to="/profile" className="text-white header-icon">
                   <i className="bi bi-person-circle fs-2"></i>
               </Link>
-              <a href="#" onClick={onLogout}>
+              <a href="#" onClick={onLogout} className="text-white header-icon">
                   <i className="bi bi-box-arrow-right fs-2"></i>
               </a>
             </div>

@@ -1,7 +1,7 @@
-import axios from "axios";
-import { API_BASE_URL } from "../constants";
+import { baseApiService } from './baseApiService';
+import { RequestData } from '../types/api';
 
-interface UpdateProfileRequest {
+interface UpdateProfileRequest extends RequestData {
   userId: number;
   firstName: string;
   lastName: string;
@@ -11,6 +11,7 @@ interface UpdateProfileRequest {
   shouldHidePhoneNumber: boolean;
   description: string;
   userRole: string;
+  [key: string]: unknown;
 }
 
 interface UserInfo {
@@ -23,52 +24,12 @@ interface UserInfo {
   description: string;
 }
 
-interface PlainResponse {
-  message: string;
-  statusCode: number;
-}
-interface ApiResponse<T> extends PlainResponse{
-  value: T;
-}
-
 export const profileService = {
-  async updateProfile(credentials: UpdateProfileRequest, token: string) {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/users/user`,credentials,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json-patch+json",
-          },
-        }
-      );
-      console.log("Response data:", response.data);
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("API error:", error.response?.data || error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-      throw new Error("Profile update failed");
-    }
+  async updateProfile(credentials: UpdateProfileRequest) {
+    return baseApiService.put<void>('/users/user', credentials, true);
   },
 
-  async fetchUserData(token: string): Promise<UserInfo> {
-    try {
-      const response = await axios.get<ApiResponse<UserInfo>>(`${API_BASE_URL}/users/my`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data.value;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("API error:", error.response?.data || error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-      throw new Error("Error fetching user data");
-    }
-  },
+  async fetchUserData(): Promise<UserInfo> {
+    return baseApiService.get<UserInfo>('/users/my', true);
+  }
 };

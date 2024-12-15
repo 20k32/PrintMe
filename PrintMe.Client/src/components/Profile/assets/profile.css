@@ -1,0 +1,80 @@
+.profile-container {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+  padding: 40px;
+}
+
+.profile-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem;
+  color: white;
+}
+
+.profile-avatar {
+  font-size: 10rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.profile-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+  display: block;
+  font-size: 1.25rem;
+}
+
+.profile-text {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  padding: 0.375rem 0;
+  font-size: 1.1rem;
+}
+
+.profile-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
+  padding: 0.75rem;
+}
+
+.profile-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  box-shadow: none;
+}
+
+.profile-button {
+  background: rgba(108, 48, 243, 0.9);
+  border: none;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.profile-button:hover {
+  background: rgba(108, 48, 243, 1);
+  transform: translateY(-1px);
+}
+
+.form-check-input:checked {
+  background-color: #6c30f3;
+  border-color: #6c30f3;
+}
+
+.form-check-label {
+  color: rgba(255, 255, 255, 0.9);
+  padding-left: 0.5rem;
+  font-size: 1.1rem;
+}
