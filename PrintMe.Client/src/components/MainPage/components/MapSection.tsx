@@ -129,7 +129,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
             console.error('Error loading markers:', error);
           }
         }
-      }, 500); // Increased debounce time
+      }, 500);
     }
 
     return () => {
@@ -138,7 +138,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
         clearTimeout(debounceTimeout);
       }
     };
-  }, [filters, map, selectionMode]); // Use JSON.stringify to properly compare filters
+  }, [filters, map, selectionMode]);
 
   if (!isLoaded) {
     return <div className="d-flex justify-content-center align-items-center h-100">
@@ -154,7 +154,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
       <div
         className="map-wrapper mb-3"
         style={{
-          height: selectionMode ? "400px" : "calc(100vh - 350px)", // Changed from 250px to 300px
+          height: selectionMode ? "400px" : "calc(100vh - 350px)",
           width: "100%",
           borderRadius: "10px",
           overflow: "hidden",
@@ -171,7 +171,15 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
           onLoad={onLoadMap}
           onUnmount={onUnmountMap}
           onClick={handleMapClick}
-          options={{ mapId: MAP_CONFIG.mapId }}
+          options={{ 
+            mapId: MAP_CONFIG.mapId,
+            minZoom: MAP_CONFIG.minZoom,
+            restriction: {
+              latLngBounds: MAP_CONFIG.maxBounds,
+              strictBounds: true,
+            },
+            streetViewControl: false,
+          }}
         >
           {selectedLocation && selectionMode && map && (
             <AdvancedMarker position={selectedLocation} map={map} />

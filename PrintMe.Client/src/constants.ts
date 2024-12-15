@@ -12,6 +12,13 @@ export const MAP_CONFIG = {
     lng: 31.1656,
   },
   zoom: 6,
+  minZoom: 1,
+  maxBounds: {
+    north: 85,
+    south: -85,
+    west: -180,
+    east: 180,
+  },
   containerStyle: {
     width: "100%",
     height: "100%",
