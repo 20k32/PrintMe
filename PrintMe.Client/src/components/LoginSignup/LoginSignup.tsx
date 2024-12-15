@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import personIcon from "./assets/images/person.png";
-import emailIcon from "./assets/images/email.png";
-import passwordIcon from "./assets/images/password.png";
+import "./assets/loginsignup.css";
 import { authService } from "../../services/authService";
 import { registrationService } from "../../services/registrationService";
 import { handleApiError } from '../../utils/apiErrorHandler';
@@ -99,182 +97,131 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
   return (
     <>
       {showLS && (
-        <div
-          className="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50"
-          style={{ zIndex: 9999 }}
-          onClick={onClose}
-        >
-          <div
-            className="bg-white p-4 rounded shadow-lg"
-            style={{ width: "400px" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="d-flex justify-content-center mb-4">
-              <h2
-                className={`me-4 ${
-                  action === "Sign In"
-                    ? "text-primary text-decoration-underline fw-bold"
-                    : "text-muted"
-                }`}
-                onClick={() => setAction("Sign In")}
-                style={{
-                  cursor: "pointer",
-                  color: action === "Sign In" ? "#6c30f3" : "#6c757d",
-                }}
-              >
+        <div className="login-modal d-flex align-items-center justify-content-center position-fixed w-100 h-100"
+             style={{ zIndex: 9999 }}
+             onClick={onClose}>
+          <div className="login-container p-4" 
+               style={{ width: "400px" }}
+               onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex justify-content-center gap-4 mb-5">
+              <h2 className={`login-tab ${action === "Sign In" ? "active" : ""}`}
+                  onClick={() => setAction("Sign In")}>
                 SIGN IN
               </h2>
-              <h2
-                className={`${
-                  action === "Sign Up"
-                    ? "text-primary text-decoration-underline fw-bold"
-                    : "text-muted"
-                }`}
-                onClick={() => setAction("Sign Up")}
-                style={{
-                  cursor: "pointer",
-                  color: action === "Sign Up" ? "#6c30f3" : "#6c757d",
-                }}
-              >
+              <h2 className={`login-tab ${action === "Sign Up" ? "active" : ""}`}
+                  onClick={() => setAction("Sign Up")}>
                 SIGN UP
               </h2>
             </div>
-            <form>
+
+            <form className="d-flex flex-column gap-3">
               {action === "Sign Up" && (
                 <>
-                  <div className="mb-3 position-relative">
+                  <div className="position-relative">
                     <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <img src={personIcon} alt="First Name" style={{ width: "20px" }} />
+                      <span className="input-group-text input-icon">
+                        <i className="bi bi-person-fill"></i>
                       </span>
                       <input
                         type="text"
-                        className="form-control bg-light border-0 text-dark"
+                        className="form-control form-input"
                         placeholder="First Name"
                         value={formData.firstName}
-                        onChange={(e) =>
-                          handleInputChange("firstName", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("firstName", e.target.value)}
                         autoComplete="given-name"
-                        style={{
-                          boxShadow: "none",
-                          backgroundColor: "#d3d3d3",
-                        }}
                       />
                     </div>
                     {errors.firstName && (
-                      <small className="text-danger position-absolute">
+                      <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                         {errors.firstName}
                       </small>
                     )}
                   </div>
-                  <div className="pt-2 mb-3 position-relative">
+
+                  <div className="position-relative">
                     <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <img src={personIcon} alt="Last Name" style={{ width: "20px" }} />
+                      <span className="input-group-text input-icon">
+                        <i className="bi bi-person-fill"></i>
                       </span>
                       <input
                         type="text"
-                        className="form-control bg-light border-0 text-dark"
+                        className="form-control form-input"
                         placeholder="Last Name"
                         value={formData.lastName}
-                        onChange={(e) =>
-                          handleInputChange("lastName", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("lastName", e.target.value)}
                         autoComplete="family-name"
-                        style={{
-                          boxShadow: "none",
-                          backgroundColor: "#d3d3d3",
-                        }}
                       />
                     </div>
                     {errors.lastName && (
-                      <small className="text-danger position-absolute">
+                      <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                         {errors.lastName}
                       </small>
                     )}
                   </div>
                 </>
               )}
-              <div className="mb-3 pt-2 position-relative">
+
+              <div className="position-relative">
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-0">
-                    <img src={emailIcon} alt="Email" style={{ width: "20px" }} />
+                  <span className="input-group-text input-icon">
+                    <i className="bi bi-envelope-fill"></i>
                   </span>
                   <input
                     type="email"
-                    className="form-control bg-light border-0 text-dark"
+                    className="form-control form-input"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     autoComplete="email"
-                    style={{
-                      boxShadow: "none",
-                      backgroundColor: "#d3d3d3",
-                    }}
                   />
                 </div>
                 {errors.email && (
-                  <small className="text-danger position-absolute">
+                  <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                     {errors.email}
                   </small>
                 )}
               </div>
-              <div className="mb-3 pt-2 position-relative">
+
+              <div className="position-relative">
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-0">
-                    <img
-                      src={passwordIcon}
-                      alt="Password"
-                      style={{ width: "20px" }}
-                    />
+                  <span className="input-group-text input-icon">
+                    <i className="bi bi-lock-fill"></i>
                   </span>
                   <input
                     type="password"
-                    className="form-control bg-light border-0 text-dark"
+                    className="form-control form-input"
                     placeholder="Password"
                     value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("password", e.target.value)}
                     autoComplete={action === "Sign In" ? "current-password" : "new-password"}
-                    style={{
-                      boxShadow: "none",
-                      backgroundColor: "#d3d3d3",
-                    }}
                   />
                 </div>
                 {errors.password && (
-                  <small className="text-danger position-absolute">
+                  <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                     {errors.password}
                   </small>
                 )}
               </div>
+
               {action === "Sign In" && (
-                <div className="text-center mb-3">
-                  <small>
-                    Forgot password?{" "}
-                    <a href="#" className="text-primary">
-                      Click here
-                    </a>
-                  </small>
+                <div className="text-end">
+                  <a href="#" className="text-decoration-none" style={{ color: "#6c30f3" }}>
+                    Forgot password?
+                  </a>
                 </div>
               )}
+
               {errors.general && (
-                <div className="alert alert-danger mb-3" role="alert">
+                <div className="alert alert-danger" role="alert">
                   {errors.general}
                 </div>
               )}
+
               <button
                 type="button"
-                className="btn btn-primary w-100 py-2 fw-bol mt-2"
+                className="submit-button"
                 onClick={submit}
                 disabled={!isValid}
-                style={{
-                  backgroundColor: "#6c30f3",
-                  borderRadius: "20px",
-                  opacity: !isValid ? 0.6 : 1,
-                }}
               >
                 {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
               </button>

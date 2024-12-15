@@ -6,5 +6,5 @@ public class GetPrinterLocationRequest
 {
     public double? MaxModelHeight { get; set; }
     public double? MaxModelWidth { get; set; }
-    public ICollection<PrintMaterialDto> Materials { get; set; }
+    public List<PrintMaterialDto> Materials { get; set; }
 }

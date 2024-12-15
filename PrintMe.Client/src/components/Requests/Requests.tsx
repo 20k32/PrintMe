@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { RequestDto, RequestType, requestsService } from '../../services/requestsService';
-import { useNavigate } from 'react-router-dom';
+import { requestsService } from '../../services/requestsService';
+import { RequestDto, RequestType } from '../../types/requests';
+import { Link } from 'react-router-dom';
 import { handleApiError } from '../../utils/apiErrorHandler';
+import "./assets/requests.css";
 
-const Requests = () => {
-    const navigate = useNavigate();
+const Requests: React.FC = () => {
     const [requests, setRequests] = useState<RequestDto[]>([]);
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
@@ -16,9 +17,9 @@ const Requests = () => {
                 setRequests(data);
             })
             .catch((error) => {
-              if (error.response?.status !== 404) {
-                setError(handleApiError(error));
-              }
+                if (error.response?.status !== 404) {
+                    setError(handleApiError(error));
+                }
             })
             .finally(() => {
                 setIsLoading(false);
@@ -28,73 +29,57 @@ const Requests = () => {
     const getStatusDisplay = (statusId: number) => {
         switch (statusId) {
             case 1:
-                return <span className="text-warning">Pending</span>;
+                return <span className="badge bg-warning">Pending</span>;
             case 2:
-                return <span className="text-success">Approved</span>;
+                return <span className="badge bg-success">Approved</span>;
             case 3:
-                return <span className="text-danger">Rejected</span>;
+                return <span className="badge bg-danger">Rejected</span>;
             default:
-                return <span className="text-muted">Unknown</span>;
+                return <span className="badge bg-secondary">Unknown</span>;
         }
     };
-
-    const getTypeDisplay = (typeId: number) => {
-        switch (typeId) {
-            case 2:
-                return "Printer Application";
-            default:
-                return "Unknown";
-        }
-    }
-
-    const handleRequestTypeSelect = (type: RequestType) => {
-        switch (type) {
-            case RequestType.PrinterApplication:
-                navigate('/requests/printer');
-                break;
-        }
-    };
-
-    if (error) {
-      return <div className="alert alert-danger">{error}</div>;
-    }
 
     return (
-      <div className="container mt-4">
-        <h1 className="mb-4">My Requests</h1>
-        <button
-          className="btn btn-primary mb-3"
-          onClick={() => handleRequestTypeSelect(RequestType.PrinterApplication)}
-        >
-          Add printer
-        </button>
+        <div className="requests-container">
+            <div className="requests-content">
+                <h1 className="text-white mb-4">Requests</h1>
+                
+                {/* Action Cards */}
+                <div className="d-flex gap-4 justify-content-center mb-5">
+                    <Link to="/requests/printer" className="request-card">
+                        <i className="bi bi-printer-fill mb-3 fs-1"></i>
+                        <h3>Add Printer</h3>
+                        <p>Register your 3D printer and start earning</p>
+                    </Link>
+                </div>
 
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : requests && requests.length > 0 ? (
-          <div className="list-group">
-            {requests.map((request) => (
-              <div key={request.requestId} className="list-group-item">
-                <h5>Request #{request.requestId}</h5>
-                {request.description && (
-                  <p className="mb-1">
-                    <strong>Description:</strong> {request.description}
-                  </p>
+                {/* Pending Requests List */}
+                {!isLoading && requests.length > 0 && (
+                    <div className="requests-list-container">
+                        <h2 className="text-white mb-4">Your Requests</h2>
+                        <div className="requests-list">
+                            {requests.map((request) => (
+                                <div key={request.requestId} className="request-item">
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <h4>{request.requestTypeId === RequestType.PrinterApplication ? "Printer Application" : "Request"}</h4>
+                                        {getStatusDisplay(request.requestStatusId)}
+                                    </div>
+                                    <div className="request-details">
+                                        {request.description && (
+                                            <p className="request-description mb-0">
+                                                {request.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
-                <p className="mb-1">
-                  <strong>Status:</strong>{" "}
-                  {getStatusDisplay(request.requestStatusId)}
-                </p>
-                <p className="mb-1">
-                  <strong>Type:</strong> {getTypeDisplay(request.requestTypeId)}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No requests found</p>
-        )}
-      </div>
+
+                {error && <div className="alert alert-danger mt-4">{error}</div>}
+            </div>
+        </div>
     );
 };
 

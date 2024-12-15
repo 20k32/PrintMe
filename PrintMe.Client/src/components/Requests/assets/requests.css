@@ -1,0 +1,242 @@
+.requests-container {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.requests-content {
+  text-align: center;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.request-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  text-decoration: none;
+  width: 300px;
+  transition: all 0.3s ease;
+}
+
+.request-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.request-card h3 {
+  margin-bottom: 1rem;
+}
+
+.request-card p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.request-card i {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.requests-list-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.request-item {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1.5rem;
+  border-radius: 10px;
+  transition: transform 0.2s ease;
+}
+
+.request-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.request-item h4 {
+  color: white;
+  margin: 0;
+}
+
+.request-details {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.request-description {
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.printer-form-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem;
+  color: white;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.printer-form-section {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.printer-form-section:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.printer-form-container input,
+.printer-form-container textarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.printer-form-container input[type="checkbox"] {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin-top: 0.25em;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.printer-form-container input[type="checkbox"]:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.printer-form-container input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.printer-form-container input[type="checkbox"]:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.printer-form-container .form-check-label {
+  cursor: pointer;
+  user-select: none;
+  color: rgba(255, 255, 255, 0.9);
+  padding-left: 0.5rem;
+}
+
+.printer-form-container input[type="checkbox"]:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.printer-form-container .form-check-label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.printer-form-container input:focus,
+.printer-form-container textarea:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  box-shadow: none;
+}
+
+.printer-form-container .form-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.material-checkbox {
+  display: block;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin: 0;
+}
+
+.material-checkbox .form-check {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  min-height: auto;
+  text-align: left;
+  width: 100%;
+  height: 100%;
+}
+
+.material-checkbox .form-check-label {
+  margin: 0;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.material-checkbox:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.material-checkbox .form-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: auto;
+  text-align: center;
+}
+
+.material-checkbox .form-check-label {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.material-checkbox:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

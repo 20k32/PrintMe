@@ -1,23 +1,62 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   StandaloneSearchBox,
-  Marker,
 } from "@react-google-maps/api";
-import { GOOGLE_MAPS_API_KEY, MAP_CONFIG } from "../../../constants";
+import { GOOGLE_MAPS_API_KEY, MAP_CONFIG, GOOGLE_MAPS_LIBRARIES } from "../../../constants";
 import { markersService } from "../../../services/markersService";
+import { FetchParams } from "../../../services/markersService";
 
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
   selectionMode?: boolean;
-  filters?: Record<string, string[]>;
+  filters?: FetchParams;
 }
 
-const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false, filters = {} }) => {
+interface AdvancedMarkerProps {
+  position: google.maps.LatLng;
+  map: google.maps.Map;
+}
+
+const AdvancedMarker: React.FC<AdvancedMarkerProps> = ({ position, map }) => {
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const initMarker = async () => {
+      try {
+        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+        if (isMounted && !markerRef.current) {
+          markerRef.current = new AdvancedMarkerElement({
+            position,
+            map
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing marker:', error);
+      }
+    };
+
+    initMarker();
+
+    return () => {
+      isMounted = false;
+      if (markerRef.current) {
+        markerRef.current.map = null;
+        markerRef.current = null;
+      }
+    };
+  }, [position, map]);
+
+  return null;
+};
+
+const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false, filters = {} as FetchParams }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries: MAP_CONFIG.libraries,
+    libraries: GOOGLE_MAPS_LIBRARIES,
     mapIds: ["7dabcc41eef25214"],
   });
 
@@ -78,12 +117,28 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
   };
 
   useEffect(() => {
+    let isMounted = true;
+    let debounceTimeout: NodeJS.Timeout;
+
     if (map && !selectionMode) {
-      (async () => {
-        await markersService.getGoogleMapsMarkers(map, filters);
-      })();
+      debounceTimeout = setTimeout(async () => {
+        if (isMounted) {
+          try {
+            await markersService.getGoogleMapsMarkers(map, filters);
+          } catch (error) {
+            console.error('Error loading markers:', error);
+          }
+        }
+      }, 500); // Increased debounce time
     }
-  }, [map, selectionMode, filters]);
+
+    return () => {
+      isMounted = false;
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+    };
+  }, [filters, map, selectionMode]); // Use JSON.stringify to properly compare filters
 
   if (!isLoaded) {
     return <div className="d-flex justify-content-center align-items-center h-100">
@@ -92,54 +147,67 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
   }
 
   return (
-    <div className="d-flex flex-column justify-content-between h-100">
-      <div className="bg-white shadow-sm p-3 rounded-start flex-grow-1">
-        <h2 className="fs-3 mb-3">
-          {selectionMode ? "Select Printer Location" : "Map of printers"}
-        </h2>
-        <div
-          className="border border-dark rounded shadow-sm mx-auto"
-          style={{
-            height: selectionMode ? "400px" : "80%",
+    <div className="d-flex flex-column h-100">
+      <h2 className="text-white fs-3 mb-3">
+        {selectionMode ? "Select Printer Location" : "Map of printers"}
+      </h2>
+      <div
+        className="map-wrapper mb-3"
+        style={{
+          height: selectionMode ? "400px" : "calc(100vh - 350px)", // Changed from 250px to 300px
+          width: "100%",
+          borderRadius: "10px",
+          overflow: "hidden",
+          background: "rgba(255, 255, 255, 0.05)",
+        }}
+      >
+        <GoogleMap
+          mapContainerStyle={{
             width: "100%",
-            overflow: "hidden",
+            height: "100%",
           }}
+          center={MAP_CONFIG.center}
+          zoom={MAP_CONFIG.zoom}
+          onLoad={onLoadMap}
+          onUnmount={onUnmountMap}
+          onClick={handleMapClick}
+          options={{ mapId: MAP_CONFIG.mapId }}
         >
-          <GoogleMap
-            mapContainerStyle={{
-              width: "100%",
-              height: "100%",
+          {selectedLocation && selectionMode && map && (
+            <AdvancedMarker position={selectedLocation} map={map} />
+          )}
+        </GoogleMap>
+      </div>
+      <div className="d-flex justify-content-center align-items-center gap-3">
+        <StandaloneSearchBox
+          onLoad={onSearchBoxLoad}
+          onPlacesChanged={onPlacesChanged}
+        >
+          <input
+            type="text"
+            className="form-control map-search-input"
+            placeholder="Search location..."
+          />
+        </StandaloneSearchBox>
+        {!selectionMode && (
+          <button 
+            className="btn d-flex align-items-center gap-2"
+            style={{
+              background: "rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              color: "white",
+              backdropFilter: "blur(10px)",
+              height: "42px",
+              borderRadius: "8px",
+              padding: "0 20px",
+              transition: "all 0.2s ease",
             }}
-            center={MAP_CONFIG.center}
-            zoom={MAP_CONFIG.zoom}
-            onLoad={onLoadMap}
-            onUnmount={onUnmountMap}
-            onClick={handleMapClick}
-            options={{ mapId: MAP_CONFIG.mapId }}
+            onClick={resetPosition}
           >
-            {selectedLocation && selectionMode && (
-              <Marker position={selectedLocation} />
-            )}
-          </GoogleMap>
-        </div>
-        <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
-          <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
-            onPlacesChanged={onPlacesChanged}
-          >
-            <input
-              type="text"
-              className="form-control w-100"
-              placeholder="Search location..."
-              style={{
-                boxShadow: "none",
-              }}
-            />
-          </StandaloneSearchBox>
-          <button className="btn btn-primary px-4" onClick={resetPosition}>
+            <i className="bi bi-geo-alt"></i>
             Reset position
           </button>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -73,7 +73,7 @@ namespace PrintMe.Server.Controllers
         /// Get info for printer by its id
         /// accepts 'detailed' parameter from query string
         /// </summary>
-        [HttpGet("/{id}")]
+        [HttpGet("/api/printers/{id:int}")]
         [ProducesResponseType(typeof(ApiResult<SimplePrinterDto>), 200)]
         public async Task<IActionResult> GetBasicInfoById(int? id, [FromQuery] bool detailed = false)
         {
@@ -124,7 +124,7 @@ namespace PrintMe.Server.Controllers
         /// Get info for printer by user_id
         /// accepts 'detailed' parameter from query string
         /// </summary>
-        [HttpGet("/user/{userId}")]
+        [HttpGet("/api/printers/user/{userId:int}")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
         public async Task<IActionResult> GetInfoByUserId(int? userId, [FromQuery] bool detailed = false)
         {
@@ -190,7 +190,7 @@ namespace PrintMe.Server.Controllers
         /// Get info for printers by user jwt
         /// accepts 'detailed' parameter from query string
         /// </summary>
-        [HttpGet("/my")]
+        [HttpGet("/api/printers/my")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
         [Authorize]
         public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool detailed)

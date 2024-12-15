@@ -1,29 +1,16 @@
+import { Material } from '../constants';
+import { baseApiService } from './baseApiService';
+import { SimplePrinterDto } from '../types/api';
+import { API_BASE_URL } from '../constants';
 import axios from 'axios';
 
-interface Material {
-    name: string;
-    printerId: number;
-}
-
-interface SimplePrinterDto {
-    id: number;
-    modelName: string;
-    materials: Material[];
-}
-
-interface ApiResponseMin {
-    value: SimplePrinterDto;
-    message: string;
-    statusCode: number;
-}
-
 export const printerService = {
+    getPrinter: (id: string) => baseApiService.get<SimplePrinterDto>(`/printers/${id}`, true, false),
     async getPrinterMinimalInfo(id: number): Promise<SimplePrinterDto> {
-        const response = await axios.get<ApiResponseMin>(`http://localhost:5193/${id}?detailed=false`);
-        return response.data.value;
+        return baseApiService.get<SimplePrinterDto>(`/Printers/${id}?detailed=false`);
     },
     async getMaterials(): Promise<Material[]> {
-        const response = await axios.get(`http://localhost:5193/api/Printers/materials`);
+        const response = await axios.get(`${API_BASE_URL}/Printers/materials`);
         return response.data;
     }
 }
