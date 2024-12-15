@@ -16,8 +16,6 @@ namespace PrintMe.Server.Models.DTOs.UserDto
                                 || string.IsNullOrWhiteSpace(FirstName)
                                 || string.IsNullOrWhiteSpace(LastName)
                                 || string.IsNullOrWhiteSpace(Email)
-                                || string.IsNullOrWhiteSpace(PhoneNumber)
-                                || string.IsNullOrWhiteSpace(Description)
                                 || string.IsNullOrWhiteSpace(UserRole);
     }
 }

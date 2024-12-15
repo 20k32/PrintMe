@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+.main-content {
+  font-family: 'Open Sans', sans-serif;
+  background-image: url('../images/background.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.profile-page-container{
+  position: relative;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  height: 800px;
+  width: 1500px;
+  gap: 30px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header{
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.content-container{
+  display: flex;
+  margin-top: 24px;
+  font-size: 24px;
+}
+
+.profile-image{
+  flex:1;
+
+}
+
+.profile-info{
+  display: flex;
+  flex-direction: column;
+  flex:3;
+}
+
+.profile-main-info{
+  display: flex;
+}
+.left-info{
+  flex:1
+}
+.right-info{
+  flex:1
+}
+.info-in{
+  margin: 10px 0px;
+}
+span{
+  font-weight: 900;
+}
+.submit-button {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 30px;
+  right: 5%;
+}
+button {
+  background-color: #6c30f3;
+  border-radius: 20px;
+  border: none;
+  padding: 15px;
+  font-weight: 900;
+  color: white;
+  transition: 0.1s ease-in;
+}
+button:hover {
+  background-color: #804aff;
+  transform: scale(1.05);
+}
+textarea{
+  width: 30dvw;
+  height: 300px;
+}
+input{
+  border: none;
+  background-color:#CCBFD9;
+  border-radius: 15px;
+}

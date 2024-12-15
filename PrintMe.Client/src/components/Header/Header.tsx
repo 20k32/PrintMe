@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
         {/* Навигация */}
         <ul className="nav justify-content-center flex-grow-1 fw-bold">
           <li>
-            <Link to="/" className="nav-link px-3 text-white fs-5">
+            <Link to="/main" className="nav-link px-3 text-white fs-5">
               Main Page
             </Link>
           </li>
@@ -68,9 +68,9 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
               <a href="#">
                 <img src={chats} alt="Chats" width="30" height="30" />
               </a>
-              <a href="#">
+              <Link to="/profile">
                 <img src={profile} alt="Profile" width="30" height="30" />
-              </a>
+              </Link>
               <a href="#" onClick={onLogout}>
                 <img src={logOut} alt="Log Out" width="30" height="30" />
               </a>
