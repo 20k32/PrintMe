@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
 
         <ul className="nav justify-content-center flex-grow-1 fw-bold">
           <li>
-            <Link to="/" className="nav-link px-3 text-white fs-5">
+            <Link to="/main" className="nav-link px-3 text-white fs-5">
               Main Page
             </Link>
           </li>
@@ -62,11 +62,11 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
               <a href="#" className="text-white header-icon">
                 <i className="bi bi-chat-dots-fill fs-2"></i>
               </a>
-              <a href="#" className="text-white header-icon">
-                <i className="bi bi-person-circle fs-2"></i>
-              </a>
-              <a href="#" onClick={onLogout} className="text-white header-icon">
-                <i className="bi bi-box-arrow-right fs-2"></i>
+              <Link to="/profile">
+                  <i className="bi bi-person-circle fs-2"></i>
+              </Link>
+              <a href="#" onClick={onLogout}>
+                  <i className="bi bi-box-arrow-right fs-2"></i>
               </a>
             </div>
           ) : (
