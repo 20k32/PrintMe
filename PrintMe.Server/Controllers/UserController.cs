@@ -78,6 +78,10 @@ namespace PrintMe.Server.Controllers
             {
                 result = new ( "Missing body.", StatusCodes.Status400BadRequest);
             }
+            else if (noPasswordUser.IsNull())
+            {
+                result = new ("Missing parameters in body.", StatusCodes.Status400BadRequest);
+            }
             else
             {
                 try
