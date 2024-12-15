@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
+using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
@@ -162,7 +163,7 @@ namespace PrintMe.Server.Controllers
                         if (printer is not null && printer.Count() != 0) // no multiple enumeration
                         {
                             result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer, "There is some printers in database", 
-                                StatusCodes.Status404NotFound);
+                                StatusCodes.Status200OK);
                         }
                         else
                         {
@@ -257,6 +258,26 @@ namespace PrintMe.Server.Controllers
                     StatusCodes.Status500InternalServerError);
             }
             return result.ToObjectResult();
+        }
+        
+        /// <summary>
+        /// <para>Start streaming printers locations.</para>
+        /// accepts 'materials' and 'maxModelHeight' and 'maxModelWidth' parameters from body
+        /// </summary>
+        [HttpPut("markers")]
+        [ProducesResponseType(typeof(List<PrinterLocationDto>), 200)]
+        public IAsyncEnumerable<PrinterLocationDto> GetPrinterLocations([FromBody] GetPrinterLocationRequest request)
+        {
+            IAsyncEnumerable<PrinterLocationDto> result;
+            var materials = request.Materials;
+            var maxHeight = request.MaxModelHeight;
+            var maxWidth = request.MaxModelWidth;
+            
+            var printerService = _provider.GetService<PrinterService>();
+            
+            result = printerService.GetPrinterLocationAsync(materials, maxHeight, maxWidth);
+
+            return result;
         }
     }
 }

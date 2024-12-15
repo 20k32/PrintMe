@@ -7,6 +7,8 @@ import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
 import Profile from "./components/Profile/Profile.tsx";
+import { AddPrinter } from "./components/Requests/components/AddPrinter";
+
 
 function App() {
   const [isLogined, setIsLogined] = useState<boolean>(authService.isLoggedIn());
@@ -46,6 +48,7 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/requests" element={<Requests />} />
+        <Route path="/requests/printer" element={<AddPrinter />} />
       </Routes>
     </>
   );

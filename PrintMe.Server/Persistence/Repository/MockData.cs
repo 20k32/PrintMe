@@ -9,7 +9,9 @@ namespace PrintMe.Server.Persistence.Repository
     internal static class MockData
     {
         private static readonly Faker _faker = new();
-        private static (string passwordHash, string passwordSalt) GenerateSequrityInfo(string password)
+
+        private static (string passwordHash, string passwordSalt) GenerateSequrityInfo(
+            string password)
         {
             var salt = SecurityHelper.GenerateSalt();
             var hash = SecurityHelper.HashPassword(password, salt);
@@ -19,48 +21,63 @@ namespace PrintMe.Server.Persistence.Repository
 
         private static UserRole[] _roles =
         [
-            new() { UserRoleId = 1, UserRoleName = "User" },
-            new () { UserRoleId = 2, UserRoleName = "PrinterOwner"},
+            new()
+            {
+                //UserRoleId = 1,
+                UserRoleName = "User"
+            },
+            new()
+            {
+                //UserRoleId = 2, 
+                UserRoleName = "PrinterOwner"
+            },
             // admin is set by system
             //new () { UserRoleId = 3, UserRoleName = "Admin"}
         ];
 
         private static UserStatus[] _statuses =
         [
-            new UserStatus(){ UserStatusId = 1, Status = "Active"},
-            new UserStatus(){ UserStatusId = 2, Status = "Inactive"}
+            new UserStatus()
+            {
+                //UserStatusId = 1,
+                Status = "Active"
+            },
+            new UserStatus()
+            {
+                //UserStatusId = 2, 
+                Status = "Inactive"
+            }
         ];
-        
-        private static User GenerateUser(int id, string password)
+
+        private static User GenerateUser(string password)
         {
             var securityInfo = GenerateSequrityInfo(password);
 
             var userRole = _faker.Random.ArrayElement(_roles);
             var userStatus = _faker.Random.ArrayElement(_statuses);
-            
+
             return new User()
             {
-                UserId = id,
+                //UserId = id,
                 FirstName = _faker.Name.FirstName(),
                 LastName = _faker.Name.LastName(),
                 Description = _faker.Company.CompanyName(),
                 Password = securityInfo.passwordHash,
                 PasswordSalt = securityInfo.passwordSalt,
                 PhoneNumber = _faker.Phone.PhoneNumber("##########"),
-                UserStatusId = userStatus.UserStatusId,
+                UserStatus = userStatus,
                 Email = _faker.Internet.Email(),
                 ShouldHidePhoneNumber = false,
-                UserRoleId = userRole.UserRoleId
+                UserRole = userRole
             };
         }
-        
         public static Task GenerateForUsersAsync(this DbSet<User> users, int count)
         {
             var userList = new List<User>(count);
 
             foreach (var index in Enumerable.Range(1, count))
             {
-                var user = GenerateUser(index, $"user{index}");
+                var user = GenerateUser($"user{index}");
                 userList.Add(user);
             }
 
@@ -69,7 +86,7 @@ namespace PrintMe.Server.Persistence.Repository
 
         public static Task GenerateForUserRolesAsync(this DbSet<UserRole> roles) =>
             roles.AddRangeAsync(_roles);
-        
+
         public static Task GenerateForUserStatusesAsync(this DbSet<UserStatus> statuses) =>
             statuses.AddRangeAsync(_statuses);
 
@@ -78,20 +95,21 @@ namespace PrintMe.Server.Persistence.Repository
         {
             return new()
             {
-                PrinterModelId = index,
+                //PrinterModelId = index,
                 Name = _faker.Vehicle.Model(),
                 Printers = printers
             };
         }
 
-        private static Task GenerateForPrinterModels(DbSet<PrinterModel> printerModels, int count, Printer[] allPrinters)
+        private static Task GenerateForPrinterModels(DbSet<PrinterModel> printerModels, int count,
+            Printer[] allPrinters)
         {
             var models = new List<PrinterModel>(count);
 
             foreach (var index in Enumerable.Range(1, count))
             {
                 var randomPrinters = _faker.Random.ArrayElements(allPrinters);
-                
+
                 if (randomPrinters.Length > 0)
                 {
                     var model = GeneratePrinterModel(index, randomPrinters.ToList());
@@ -100,18 +118,19 @@ namespace PrintMe.Server.Persistence.Repository
                     {
                         printer.PrinterModel = model;
                     }
+
                     models.Add(model);
                 }
             }
 
             return printerModels.AddRangeAsync(models);
         }
-        
+
         private static Printer GeneratePrinter(int index, int modelsCount)
         {
             return new()
             {
-                PrinterId = index,
+                //PrinterId = index,
                 Description = _faker.Vehicle.Manufacturer(),
                 LocationX = _faker.Random.Double(0, 100),
                 LocationY = _faker.Random.Double(0, 100),
@@ -121,12 +140,13 @@ namespace PrintMe.Server.Persistence.Repository
                 MaxModelWidth = _faker.Random.Double(0, 100),
             };
         }
-        
-        public static async Task GenerateForPrintersAsync(this DbSet<Printer> printers, DbSet<PrintMaterial> materials, DbSet<PrinterModel> models, int count, int printMaterialCount, int modelsCount)
+
+        public static async Task GenerateForPrintersAsync(this DbSet<Printer> printers,
+            DbSet<PrintMaterial> materials, DbSet<PrinterModel> models, int count,
+            int printMaterialCount, int modelsCount)
         {
-           
             var printerList = new List<Printer>(count);
-            
+
             foreach (var index in Enumerable.Range(1, count))
             {
                 var printer = GeneratePrinter(index, modelsCount);
@@ -143,15 +163,16 @@ namespace PrintMe.Server.Persistence.Repository
             return new()
             {
                 Name = _faker.Company.CompanyName(),
-                PrintMaterialId = index,
+                //PrintMaterialId = index,
                 Printers = printers
             };
         }
 
-        private static Task GenerateForPrintMaterials(DbSet<PrintMaterial> materials, int count, Printer[] printers)
+        private static Task GenerateForPrintMaterials(DbSet<PrintMaterial> materials, int count,
+            Printer[] printers)
         {
             var materialList = new List<PrintMaterial>(count);
-            
+
             foreach (var index in Enumerable.Range(1, count))
             {
                 var randomPrinters = _faker.Random.ArrayElements(printers);
