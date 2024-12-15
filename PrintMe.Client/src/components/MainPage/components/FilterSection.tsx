@@ -23,7 +23,7 @@ const SizeInput: React.FC<{
         value={value || ''}
         onChange={handleChange}
         min="0"
-        placeholder="Enter size in mm"
+        placeholder="Enter size"
         style={{
           background: "rgba(255, 255, 255, 0.15)",
           border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -91,7 +91,7 @@ const FilterFold: React.FC<FilterFoldProps> = ({
         className="d-flex justify-content-between align-items-center px-3 py-2 rounded mb-2 text-white"
         style={{ 
           cursor: "pointer", 
-          background: 'rgba(255, 255, 255, 0.1)',
+          background: 'rgba(255, 255, 255, 0.0)',
           transition: 'all 0.3s ease'
         }}
       >
@@ -120,7 +120,10 @@ const FilterFold: React.FC<FilterFoldProps> = ({
         <div className="materials-grid p-2" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-          gap: '8px'
+          gap: '8px',
+          maxHeight: '200px',
+          overflowY: 'auto',
+          paddingRight: '10px'
         }}>
           {showContent && options?.map((option) => (
             <label 

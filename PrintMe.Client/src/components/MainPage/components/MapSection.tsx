@@ -100,8 +100,10 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
 
   const resetPosition = () => {
     if (map) {
-      map.setCenter(MAP_CONFIG.center);
       map.setZoom(MAP_CONFIG.zoom);
+      setTimeout(() => {
+        map?.setCenter(MAP_CONFIG.center);
+      }, 50);
     }
   };
 

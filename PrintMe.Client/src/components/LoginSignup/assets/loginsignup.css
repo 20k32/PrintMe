@@ -44,14 +44,19 @@
   border-radius: 0 8px 8px 0 !important;
   padding: 12px;
   transition: all 0.3s ease;
-  background: rgba(108, 48, 243, 0.1) !important;
+  background: rgba(108, 48, 243, 0.15) !important;
   border: none !important;
+  color: #000 !important;
 }
 
 .form-input:focus {
   outline: none;
-  background: rgba(108, 48, 243, 0.15) !important;
+  background: rgba(108, 48, 243, 0.25) !important;
   box-shadow: none !important;
+}
+
+.form-input::placeholder {
+  color: #00000094 !important;
 }
 
 .input-icon {
