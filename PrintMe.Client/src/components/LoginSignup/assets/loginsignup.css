@@ -1,6 +1,11 @@
 .login-modal {
   backdrop-filter: blur(8px);
   background: rgba(9, 1, 38, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .login-container {

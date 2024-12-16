@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/loginsignup.css";
 import { authService } from "../../services/authService";
@@ -94,15 +94,22 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
     }
   };
 
+  const handleModalClick = useCallback(() => {
+    if (window.getSelection()?.toString()) {
+      return;
+    }
+    onClose();
+  }, [onClose]);
+
   return (
     <>
       {showLS && (
         <div className="login-modal d-flex align-items-center justify-content-center position-fixed w-100 h-100"
              style={{ zIndex: 9999 }}
-             onClick={onClose}>
+             onMouseUp={handleModalClick}>
           <div className="login-container p-4" 
                style={{ width: "400px" }}
-               onClick={(e) => e.stopPropagation()}>
+               onMouseUp={(e) => e.stopPropagation()}>
             <div className="d-flex justify-content-center gap-4 mb-5">
               <h2 className={`login-tab ${action === "Sign In" ? "active" : ""}`}
                   onClick={() => setAction("Sign In")}>
