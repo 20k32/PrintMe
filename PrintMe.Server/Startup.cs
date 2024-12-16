@@ -19,7 +19,7 @@ public class Startup
         
         services.AddDbContext<PrintMeDbContext>(options =>
             options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING_PRINTME_DB"),
-                builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)), ServiceLifetime.Singleton);
+                builder => builder.MigrationsAssembly(Assembly.GetExecutingAssembly()!.FullName)), ServiceLifetime.Scoped);
         
         
         services.AddRepositories().AddDatabaseServices();
@@ -49,7 +49,7 @@ public class Startup
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("http://localhost:5174")
+                policy.WithOrigins("http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()

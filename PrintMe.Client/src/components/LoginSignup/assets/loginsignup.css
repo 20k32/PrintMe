@@ -1,0 +1,103 @@
+.login-modal {
+  backdrop-filter: blur(8px);
+  background: rgba(9, 1, 38, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(9, 1, 38, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.login-tab {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  color: #6c757d;
+}
+
+.login-tab.active {
+  color: #6c30f3;
+  font-weight: bold;
+}
+
+.login-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #6c30f3;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.login-tab.active::after {
+  transform: scaleX(1);
+}
+
+.form-input {
+  border-radius: 0 8px 8px 0 !important;
+  padding: 12px;
+  transition: all 0.3s ease;
+  background: rgba(108, 48, 243, 0.15) !important;
+  border: none !important;
+  color: #000 !important;
+}
+
+.form-input:focus {
+  outline: none;
+  background: rgba(108, 48, 243, 0.25) !important;
+  box-shadow: none !important;
+}
+
+.form-input::placeholder {
+  color: #00000094 !important;
+}
+
+.input-icon {
+  background: #6c30f3 !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 8px 0 0 8px !important;
+  width: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.input-icon i {
+  font-size: 1.2rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem !important;
+}
+
+.submit-button {
+  background: linear-gradient(45deg, #6c30f3, #8755f5);
+  border: none;
+  border-radius: 25px;
+  padding: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 48, 243, 0.3);
+}
+
+.submit-button:disabled {
+  background: linear-gradient(45deg, #a590d9, #b8a7e0);
+}

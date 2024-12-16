@@ -200,7 +200,7 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new IncorrectPasswordException();
             }
 
-            var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, dbUser.UserRole.UserRoleName);
+            var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, "User"); // TODO: Replace with join from appropriate table
             tokenResult = _tokenGenerator.GetForSuccessLoginResult(loginResult);
 
             return tokenResult;

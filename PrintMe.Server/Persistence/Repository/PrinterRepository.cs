@@ -99,12 +99,26 @@ namespace PrintMe.Server.Persistence.Repository
             await _dbContext.SaveChangesAsync();
         }
         
-        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double maxHeight, double maxWidth)
+        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double? maxHeight, double? maxWidth)
         {
-            await foreach (var printerRaw in _dbContext.Printers
-                               .AsNoTracking()
-                               .Where(printer => printer.Materials.Any(material => printer.Materials.Select(m => m.PrintMaterialId).Contains(material.PrintMaterialId)))
-                               .Where(printer => printer.MaxModelHeight >= maxHeight && printer.MaxModelWidth >= maxWidth)
+            var query = _dbContext.Printers.AsNoTracking();
+
+            if (material != null && material.Count != 0)
+            {
+                query = query.Where(printer => printer.Materials.Any(m => material.Select(mat => mat.PrintMaterialId).Contains(m.PrintMaterialId)));
+            }
+
+            if (maxHeight.HasValue)
+            {
+                query = query.Where(printer => printer.MaxModelHeight >= maxHeight.Value);
+            }
+
+            if (maxWidth.HasValue)
+            {
+                query = query.Where(printer => printer.MaxModelWidth >= maxWidth.Value);
+            }
+
+            await foreach (var printerRaw in query
                                .Select(printer => new PrinterLocationDto()
                                {
                                    Id = printer.PrinterId,
@@ -117,5 +131,8 @@ namespace PrintMe.Server.Persistence.Repository
                 yield return printerRaw;
             }
         }
+
+        public Task<List<PrintMaterial>> GetAllMaterialsAsync() =>
+            _dbContext.PrintMaterials1.AsNoTracking().ToListAsync();
     }
 }

@@ -92,13 +92,23 @@ namespace PrintMe.Server.Logic.Services.Database
             var printer = printerDto.MapToEntity();
             await _repository.AddPrinterAsync(printer);
         }
-
-        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double maxHeight, double maxWidth)
+        
+        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double? maxHeight, double? maxWidth)
         {
             await foreach (var printer in _repository.GetPrinterLocationAsync(material, maxHeight, maxWidth))
             {
                 yield return printer;
             }
+        }
+
+        public async Task<List<PrintMaterialDto>> GetMaterialsAsync()
+        {
+            var materials = await _repository.GetAllMaterialsAsync();
+            if (materials is null || materials.Count == 0)
+            {
+                throw new NotFoundMaterialInDbException();
+            }
+            return materials.Select(material => material.MapToDto()).ToList();
         }
     }
 }

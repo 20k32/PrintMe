@@ -7,9 +7,9 @@ namespace PrintMe.Server.Logic.Services
     {
         public static IServiceCollection AddDatabaseServices(this IServiceCollection collection) =>
             collection
-                .AddSingleton<UserService>()
-                .AddSingleton<RequestService>()
-                .AddSingleton<PrinterService>()
-                .AddSingleton<OrderService>();
+                .AddScoped<UserService>()
+                .AddScoped<RequestService>()
+                .AddScoped<PrinterService>()
+                .AddScoped<OrderService>();
     }
 }

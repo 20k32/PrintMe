@@ -15,7 +15,6 @@ namespace PrintMe.Server.Controllers
 {
     [ApiController]
     [Route("api/Printers")]
-    [Authorize]
     public class PrinterController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -74,7 +73,7 @@ namespace PrintMe.Server.Controllers
         /// Get info for printer by its id
         /// accepts 'detailed' parameter from query string
         /// </summary>
-        [HttpGet("/{id}")]
+        [HttpGet("/api/printers/{id:int}")]
         [ProducesResponseType(typeof(ApiResult<SimplePrinterDto>), 200)]
         public async Task<IActionResult> GetBasicInfoById(int? id, [FromQuery] bool detailed = false)
         {
@@ -125,7 +124,7 @@ namespace PrintMe.Server.Controllers
         /// Get info for printer by user_id
         /// accepts 'detailed' parameter from query string
         /// </summary>
-        [HttpGet("/user/{userId}")]
+        [HttpGet("/api/printers/user/{userId:int}")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
         public async Task<IActionResult> GetInfoByUserId(int? userId, [FromQuery] bool detailed = false)
         {
@@ -191,8 +190,9 @@ namespace PrintMe.Server.Controllers
         /// Get info for printers by user jwt
         /// accepts 'detailed' parameter from query string
         /// </summary>
-        [HttpGet("/my")]
+        [HttpGet("/api/printers/my")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
+        [Authorize]
         public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool detailed)
         {
             PlainResult result;
@@ -262,13 +262,14 @@ namespace PrintMe.Server.Controllers
         
         /// <summary>
         /// <para>Start streaming printers locations.</para>
-        /// accepts 'materials' and 'maxModelHeight' and 'maxModelWidth' parameters from body
+        /// accepts 'materials', 'maxModelHeight' and 'maxModelWidth' parameters from query
         /// </summary>
         [HttpPut("markers")]
         [ProducesResponseType(typeof(List<PrinterLocationDto>), 200)]
         public IAsyncEnumerable<PrinterLocationDto> GetPrinterLocations([FromBody] GetPrinterLocationRequest request)
         {
             IAsyncEnumerable<PrinterLocationDto> result;
+
             var materials = request.Materials;
             var maxHeight = request.MaxModelHeight;
             var maxWidth = request.MaxModelWidth;
@@ -278,6 +279,25 @@ namespace PrintMe.Server.Controllers
             result = printerService.GetPrinterLocationAsync(materials, maxHeight, maxWidth);
 
             return result;
+        }
+
+        /// <summary>
+        /// Get all materials
+        /// </summary>
+        [HttpGet("materials")]
+        [ProducesResponseType(typeof(List<PrintMaterialDto>), 200)]
+        public async Task<IActionResult> GetMaterials()
+        {
+            var printerService = _provider.GetService<PrinterService>();
+            try 
+            {
+                var materials = await printerService.GetMaterialsAsync();
+                return Ok(materials);
+            }
+            catch (NotFoundMaterialInDbException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }
