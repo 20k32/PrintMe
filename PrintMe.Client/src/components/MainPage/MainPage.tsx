@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import FilterFoldGroup from "./components/FilterSection";
 import MapSection from "./components/MapSection";
 import { FilterState } from "../../constants";
@@ -13,15 +13,25 @@ const MainPage: React.FC = () => {
     setKey((prev) => prev + 1);
   }, []);
 
-  const handleFiltersChange = useCallback((newFilters: FilterState) => {
-    const convertedFilters = { ...newFilters } as FetchParams;
-    setFilters(prev => {
-      if (JSON.stringify(prev) === JSON.stringify(convertedFilters)) {
-        return prev;
-      }
-      return convertedFilters;
-    });
+  const debouncedSetFilters = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+    return (newFilters: FilterState) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const convertedFilters = { ...newFilters } as FetchParams;
+        setFilters(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(convertedFilters)) {
+            return prev;
+          }
+          return convertedFilters;
+        });
+      }, 10);
+    };
   }, []);
+
+  const handleFiltersChange = useCallback((newFilters: FilterState) => {
+    debouncedSetFilters(newFilters);
+  }, [debouncedSetFilters]);
 
   return (
     <div className="mainpage-container">

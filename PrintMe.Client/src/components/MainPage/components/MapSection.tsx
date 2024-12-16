@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -65,6 +65,9 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
     useState<google.maps.places.SearchBox | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
 
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const lastFiltersRef = useRef<FetchParams>({});
+
   const onLoadMap = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
   }, []);
@@ -118,6 +121,8 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
     }
   };
 
+  const memoizedFilters = useMemo(() => filters, [filters]);
+
   useEffect(() => {
     let isMounted = true;
     let debounceTimeout: NodeJS.Timeout;
@@ -126,12 +131,23 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
       debounceTimeout = setTimeout(async () => {
         if (isMounted) {
           try {
-            await markersService.getGoogleMapsMarkers(map, filters);
+            if (JSON.stringify(lastFiltersRef.current) !== JSON.stringify(memoizedFilters)) {
+              const newMarkers = await markersService.getGoogleMapsMarkers(map, memoizedFilters);
+              
+              markersRef.current.forEach(marker => {
+                if (!newMarkers.includes(marker)) {
+                  marker.map = null;
+                }
+              });
+
+              markersRef.current = newMarkers;
+              lastFiltersRef.current = memoizedFilters;
+            }
           } catch (error) {
             console.error('Error loading markers:', error);
           }
         }
-      }, 500);
+      }, 300);
     }
 
     return () => {
@@ -140,7 +156,14 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
         clearTimeout(debounceTimeout);
       }
     };
-  }, [filters, map, selectionMode]);
+  }, [memoizedFilters, map, selectionMode]);
+
+  useEffect(() => {
+    return () => {
+      markersRef.current.forEach(marker => marker.map = null);
+      markersRef.current = [];
+    };
+  }, []);
 
   if (!isLoaded) {
     return <div className="d-flex justify-content-center align-items-center h-100">
@@ -223,4 +246,4 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
   );
 };
 
-export default MapSection;
+export default React.memo(MapSection);
