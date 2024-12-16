@@ -76,7 +76,7 @@ const Profile = () => {
           .then((data) => setUserInfo(data))
           .catch((error) => {
             console.error("Failed to load user data", error);
-            setErrors({ general: "Failed to load user data" });
+            setErrors({ general: error.message });
           });
       }
     }
@@ -88,7 +88,7 @@ const Profile = () => {
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setErrors({ general: "Token not found" });
+      setErrors({ general: "You must be logged in" });
       return;
     }
 
@@ -106,9 +106,8 @@ const Profile = () => {
       });
       setIsEditing(false);
     } catch (error) {
-      console.error("Update failed:", error);
       setErrors({
-        general: (error as Error).message || "Update failed. Please try again.",
+        general: error instanceof Error ? error.message : "Update failed. Please try again.",
       });
     }
   };

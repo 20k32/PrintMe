@@ -1,5 +1,6 @@
 import { baseApiService } from './baseApiService';
 import { RequestData } from '../types/api';
+import { handleApiError } from '../utils/apiErrorHandler';
 
 interface UpdateProfileRequest extends RequestData {
   userId: number;
@@ -26,10 +27,23 @@ interface UserInfo {
 
 export const profileService = {
   async updateProfile(credentials: UpdateProfileRequest) {
-    return baseApiService.put<void>('/users/user', credentials, true);
+    try {
+      return await baseApiService.put<void>('/users/user', credentials, true);
+    } catch (error) {
+      throw new Error(handleApiError(error, {
+        badRequest: "Invalid profile data",
+        default: "Failed to update profile"
+      }));
+    }
   },
 
   async fetchUserData(): Promise<UserInfo> {
-    return baseApiService.get<UserInfo>('/users/my', true);
+    try {
+      return await baseApiService.get<UserInfo>('/users/my', true);
+    } catch (error) {
+      throw new Error(handleApiError(error, {
+        default: "Failed to load profile data"
+      }));
+    }
   }
 };
