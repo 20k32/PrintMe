@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FilterOption } from "../types";
-import { INITIAL_FILTER_STATE, FilterKey, Material } from "../../../constants";
+import { INITIAL_FILTER_STATE, FilterKey, PrintMaterial } from "../../../constants";
 import { printerService } from "../../../services/printerService";
 
 const SizeInput: React.FC<{
@@ -36,9 +36,9 @@ const SizeInput: React.FC<{
 };
 
 interface FilterFoldProps extends Omit<FilterOption, 'options' | 'state' | 'setState'> {
-  options: Material[];
-  state: Material[];
-  setState: (value: Material[]) => void;
+  options: PrintMaterial[];
+  state: PrintMaterial[];
+  setState: (value: PrintMaterial[]) => void;
 }
 
 const FilterFold: React.FC<FilterFoldProps> = ({
@@ -156,13 +156,13 @@ const FilterFold: React.FC<FilterFoldProps> = ({
 
 interface FilterFoldGroupProps {
   onFiltersChange: (filters: {
-    materials: Material[];
+    materials: PrintMaterial[];
     maxModelHeight: number;
     maxModelWidth: number;
   }) => void;
 }
 
-type FilterValue = Material[] | number;
+type FilterValue = PrintMaterial[] | number;
 
 const FilterFoldGroup: React.FC<FilterFoldGroupProps> = ({ onFiltersChange }) => {
   const [filters, setFilters] = useState(INITIAL_FILTER_STATE);
@@ -171,7 +171,7 @@ const FilterFoldGroup: React.FC<FilterFoldGroupProps> = ({ onFiltersChange }) =>
     maxModelHeight: true,
     maxModelWidth: true
   });
-  const [materialOptions, setMaterialOptions] = useState<Material[]>([]);
+  const [materialOptions, setMaterialOptions] = useState<PrintMaterial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -226,7 +226,7 @@ const FilterFoldGroup: React.FC<FilterFoldGroupProps> = ({ onFiltersChange }) =>
             label="Materials"
             options={materialOptions}
             state={filters.materials}
-            setState={updateFilter("materials") as (value: Material[]) => void}
+            setState={updateFilter("materials") as (value: PrintMaterial[]) => void}
             isOpen={openStates.materials}
             setIsOpen={updateOpenState("materials")}
           />

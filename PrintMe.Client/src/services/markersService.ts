@@ -1,4 +1,4 @@
-import { Material } from "../constants";
+import { PrintMaterial } from "../constants";
 import { baseApiService } from './baseApiService';
 import { printerService } from './printerService';
 import { MarkerDto, RequestData } from '../types/api';
@@ -6,14 +6,14 @@ import { MarkerDto, RequestData } from '../types/api';
 export interface FetchParams extends RequestData {
     maxModelHeight?: number;
     maxModelWidth?: number;
-    materials?: Material[];
+    materials?: PrintMaterial[];
 }
 
 const getPrinters = async (params: FetchParams): Promise<MarkerDto[]> => {
     return baseApiService.put<MarkerDto[]>('/printers/markers', params);
 };
 
-const createInfoWindowContent = (modelName: string, materials: Material[]) => `
+const createInfoWindowContent = (modelName: string, materials: PrintMaterial[]) => `
     <div>
         <h6>Printer ${modelName}</h6>
         <p>Materials: ${materials.map(material => material.name).join(", ")}</p>

@@ -71,13 +71,13 @@ public class RequestRepository(PrintMeDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task AddPrinterAsync(Request request)
+    public async Task AddPrinterRequestAsync(Request request)
     {
         await context.Requests.AddAsync(request);
         await context.SaveChangesAsync();
     }
 
-    public async Task EditPrinterAsync(Request request)
+    public async Task EditPrinterRequestAsync(Request request)
     {
         context.Requests.Update(request);
         await context.SaveChangesAsync();

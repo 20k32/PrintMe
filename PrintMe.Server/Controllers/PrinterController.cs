@@ -19,7 +19,7 @@ namespace PrintMe.Server.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IServiceProvider _provider;
-        
+
         public PrinterController(IServiceProvider provider, IConfiguration configuration)
         {
             _provider = provider;
@@ -35,19 +35,20 @@ namespace PrintMe.Server.Controllers
 
             return absoluteDifference <= maxEntriesCount;
         }
-        
+
         /// <summary>
         /// <para>Start streaming printers.</para>
         /// accepts 'detailed' parameter from query string
         /// </summary>
         [HttpGet("all")]
         [ProducesResponseType(typeof(List<SimplePrinterDto>), 200)]
-        public IAsyncEnumerable<SimplePrinterDto> GetPrinterInfo([FromQuery] int skip, [FromQuery] int take, [FromQuery] bool detailed = false)
+        public IAsyncEnumerable<SimplePrinterDto> GetPrinterInfo([FromQuery] int skip, [FromQuery] int take,
+            [FromQuery] bool detailed = false)
         {
             IAsyncEnumerable<SimplePrinterDto> result;
-            
+
             var isRangeCorrect = CheckIfRangeCorrect(skip, take);
-            
+
             if (!isRangeCorrect)
             {
                 result = Enumerable.Empty<SimplePrinterDto>().ToAsyncEnumerable();
@@ -92,18 +93,18 @@ namespace PrintMe.Server.Controllers
                     if (detailed)
                     {
                         var printer = await printerService.GetPrinterDetailedByIdAsync(id.Value);
-                    
-                        result = new ApiResult<PrinterDto>(printer, "There is such printer in database", 
+
+                        result = new ApiResult<PrinterDto>(printer, "There is such printer in database",
                             StatusCodes.Status200OK);
                     }
                     else
                     {
                         var printer = await printerService.GetPrinterBasicByIdAsync(id.Value);
-                    
-                        result = new ApiResult<SimplePrinterDto>(printer, "There is such printer in database", 
+
+                        result = new ApiResult<SimplePrinterDto>(printer, "There is such printer in database",
                             StatusCodes.Status200OK);
                     }
-                    
+
                 }
                 catch (NotFoundPrinterInDbException ex)
                 {
@@ -119,7 +120,7 @@ namespace PrintMe.Server.Controllers
 
             return result.ToObjectResult();
         }
-        
+
         /// <summary>
         /// Get info for printer by user_id
         /// accepts 'detailed' parameter from query string
@@ -143,10 +144,11 @@ namespace PrintMe.Server.Controllers
                     if (detailed)
                     {
                         var printer = await printerService.GetPrintersDetailedByUserId(userId.Value);
-    
+
                         if (printer is not null && printer.Count() != 0) // no multiple enumeration
                         {
-                            result = new ApiResult<IEnumerable<PrinterDto>>(printer, "There is some printers in database", 
+                            result = new ApiResult<IEnumerable<PrinterDto>>(printer,
+                                "There is some printers in database",
                                 StatusCodes.Status200OK);
                         }
                         else
@@ -158,10 +160,11 @@ namespace PrintMe.Server.Controllers
                     else
                     {
                         var printer = await printerService.GetPrintersBasicByUserId(userId.Value);
-                    
+
                         if (printer is not null && printer.Count() != 0) // no multiple enumeration
                         {
-                            result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer, "There is some printers in database", 
+                            result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer,
+                                "There is some printers in database",
                                 StatusCodes.Status200OK);
                         }
                         else
@@ -185,7 +188,7 @@ namespace PrintMe.Server.Controllers
 
             return result.ToObjectResult();
         }
-        
+
         /// <summary>
         /// Get info for printers by user jwt
         /// accepts 'detailed' parameter from query string
@@ -196,12 +199,12 @@ namespace PrintMe.Server.Controllers
         public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool detailed)
         {
             PlainResult result;
-            
+
             var printerService = _provider.GetService<PrinterService>();
             try
             {
                 var idString = Request.TryGetUserId();
-                    
+
                 if (idString is null)
                 {
                     result = new("Missing id.",
@@ -212,10 +215,11 @@ namespace PrintMe.Server.Controllers
                     if (detailed)
                     {
                         var printer = await printerService.GetPrintersDetailedByUserId(id);
-                        
+
                         if (printer is not null && printer.Count() != 0) // no multiple enumeration
                         {
-                            result = new ApiResult<IEnumerable<PrinterDto>>(printer, "There is some printers in database", 
+                            result = new ApiResult<IEnumerable<PrinterDto>>(printer,
+                                "There is some printers in database",
                                 StatusCodes.Status200OK);
                         }
                         else
@@ -227,10 +231,11 @@ namespace PrintMe.Server.Controllers
                     else
                     {
                         var printer = await printerService.GetPrintersBasicByUserId(id);
-                        
+
                         if (printer is not null && printer.Count() != 0) // no multiple enumeration
                         {
-                            result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer, "There is some printers in database", 
+                            result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer,
+                                "There is some printers in database",
                                 StatusCodes.Status200OK);
                         }
                         else
@@ -239,7 +244,7 @@ namespace PrintMe.Server.Controllers
                                 StatusCodes.Status404NotFound);
                         }
                     }
-                    
+
                 }
                 else
                 {
@@ -257,9 +262,10 @@ namespace PrintMe.Server.Controllers
                 result = new($"Internal server error while getting user\n{ex.Message}\n{ex.StackTrace}",
                     StatusCodes.Status500InternalServerError);
             }
+
             return result.ToObjectResult();
         }
-        
+
         /// <summary>
         /// <para>Start streaming printers locations.</para>
         /// accepts 'materials', 'maxModelHeight' and 'maxModelWidth' parameters from query
@@ -273,9 +279,9 @@ namespace PrintMe.Server.Controllers
             var materials = request.Materials;
             var maxHeight = request.MaxModelHeight;
             var maxWidth = request.MaxModelWidth;
-            
+
             var printerService = _provider.GetService<PrinterService>();
-            
+
             result = printerService.GetPrinterLocationAsync(materials, maxHeight, maxWidth);
 
             return result;
@@ -289,7 +295,7 @@ namespace PrintMe.Server.Controllers
         public async Task<IActionResult> GetMaterials()
         {
             var printerService = _provider.GetService<PrinterService>();
-            try 
+            try
             {
                 var materials = await printerService.GetMaterialsAsync();
                 return Ok(materials);
@@ -299,5 +305,24 @@ namespace PrintMe.Server.Controllers
                 return NotFound(ex.Message);
             }
         }
-    }
+
+        /// <summary>
+        /// Get all models
+        /// </summary>
+        [HttpGet("models")]
+        [ProducesResponseType(typeof(List<PrinterModelDto>), 200)]
+        public async Task<IActionResult> GetModels()
+        {
+            var printerService = _provider.GetService<PrinterService>();
+            try
+            {
+                var models = await printerService.GetModelsAsync();
+                return Ok(models);
+            }
+            catch (NotFoundPrinterModelInDbException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+}
 }

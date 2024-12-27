@@ -110,5 +110,15 @@ namespace PrintMe.Server.Logic.Services.Database
             }
             return materials.Select(material => material.MapToDto()).ToList();
         }
+
+        public async Task<List<PrinterModelDto>> GetModelsAsync()
+        {
+            var models = await _repository.GetAllModelsAsync();
+            if (models is null || models.Count == 0)
+            {
+                throw new NotFoundPrinterModelInDbException();
+            }
+            return models.Select(model => model.MapToDto()).ToList();
+        }
     }
 }

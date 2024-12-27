@@ -4,6 +4,7 @@ namespace PrintMe.Server.Models.Api.ApiRequest;
 
 public class AddPrinterRequest
 {
+    public int PrinterModelId { get; set; }
     public int UserId { get; set; }
     public string Description { get; set; }
     public double MinModelHeight { get; set; }

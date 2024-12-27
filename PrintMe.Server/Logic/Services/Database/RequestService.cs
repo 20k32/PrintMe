@@ -87,7 +87,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         addRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(addRequest);
         var request = mapper.Map<Request>(requestDto);
-        await repository.AddPrinterAsync(request);
+        await repository.AddPrinterRequestAsync(request);
     }
 
     public async Task EditPrinterRequestAsync(EditPrinterRequest editRequest, int id)
@@ -95,7 +95,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         editRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(editRequest);
         var request = mapper.Map<Request>(requestDto);
-        await repository.EditPrinterAsync(request);
+        await repository.EditPrinterRequestAsync(request);
     }
 
     private async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)

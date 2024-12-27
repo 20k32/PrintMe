@@ -134,5 +134,8 @@ namespace PrintMe.Server.Persistence.Repository
 
         public Task<List<PrintMaterial>> GetAllMaterialsAsync() =>
             _dbContext.PrintMaterials1.AsNoTracking().ToListAsync();
+
+        public Task<List<PrinterModel>> GetAllModelsAsync() =>
+            _dbContext.PrinterModels.AsNoTracking().ToListAsync();
     }
 }
