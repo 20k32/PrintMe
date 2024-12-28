@@ -92,4 +92,24 @@ public class RequestRepository(PrintMeDbContext context)
 
         return requestType.Type;
     }
+
+    public async Task AddPrinterRequestMaterialsAsync(int requestId, IEnumerable<int> materialIds)
+    {
+        var request = await context.Requests.FindAsync(requestId);
+        if (request == null)
+        {
+            return;
+        }
+
+        foreach (var materialId in materialIds)
+        {
+            var material = await context.PrintMaterials1.FindAsync(materialId);
+            if (material != null)
+            {
+                request.PrintMaterials.Add(material);
+            }
+        }
+        
+        await context.SaveChangesAsync();
+    }
 }

@@ -87,7 +87,10 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         addRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(addRequest);
         var request = mapper.Map<Request>(requestDto);
+
         await repository.AddPrinterRequestAsync(request);
+        
+        await repository.AddPrinterRequestMaterialsAsync(request.RequestId, addRequest.Materials.Select(m => m.PrintMaterialId));
     }
 
     public async Task EditPrinterRequestAsync(EditPrinterRequest editRequest, int id)
@@ -119,16 +122,15 @@ public class RequestService(RequestRepository repository, IMapper mapper)
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
 
-        var approvedStatusId = await GetRequestStatusIdByNameAsync("APPROVED");
+        var approvedStatusId = await GetRequestStatusIdByNameAsync("ACCEPTED");
         if (request.RequestStatusId == approvedStatusId)
         {
             throw new AlreadyApprovedRequestException();
         }
 
         var requestType = await GetRequestTypeNameByIdAsync(request.RequestTypeId);
-        var strategyFactory = new RequestApprovalStrategyFactory();
 
-        var strategy = strategyFactory.GetStrategy(requestType);
+        var strategy = RequestApprovalStrategyFactory.GetStrategy(requestType);
         await strategy.ApproveRequestAsync(request, provider);
 
         request.RequestStatusId = approvedStatusId;

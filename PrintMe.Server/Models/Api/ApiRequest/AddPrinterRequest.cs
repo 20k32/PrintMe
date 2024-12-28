@@ -13,5 +13,5 @@ public class AddPrinterRequest
     public double MaxModelWidth { get; set; }
     public double LocationX { get; set; }
     public double LocationY { get; set; }
-    public ICollection<PrintMaterialDto> Materials { get; set; }
+    public ICollection<PrintMaterialDto> Materials { get; set; } = new List<PrintMaterialDto>();
 }
