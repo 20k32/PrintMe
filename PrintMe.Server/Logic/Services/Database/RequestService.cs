@@ -82,9 +82,8 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         await repository.UpdateRequestAsync(mapper.Map<Request>(request));
     }
 
-    public async Task AddPrinterRequestAsync(AddPrinterRequest addRequest, int id)
+    public async Task AddPrinterRequestAsync(AddPrinterRequest addRequest)
     {
-        addRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(addRequest);
         var request = mapper.Map<Request>(requestDto);
 

@@ -94,7 +94,7 @@ export const AddPrinter = () => {
 
       setPrinter((prevPrinter: PrinterApplicationDto) => ({
         ...prevPrinter,
-        materials: newMaterials.map((id) => ({ materialId: id })),
+        materials: newMaterials.map((id) => ({ printMaterialId: id })),
       }));
 
       return newMaterials;
