@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
@@ -7,10 +8,10 @@ using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal sealed class PrinterService
+    internal sealed class PrinterService(PrinterRepository repository, IMapper mapper)
     {
-        private PrinterRepository _repository;
-        public PrinterService(PrinterRepository repository) => _repository = repository;
+        private readonly IMapper _mapper = mapper;
+        private readonly PrinterRepository _repository = repository;
         
         public async IAsyncEnumerable<SimplePrinterDto> GetPrintersBasicAsync(int skip, int take)
         { 
@@ -87,9 +88,24 @@ namespace PrintMe.Server.Logic.Services.Database
             return printersDto;
         }
 
+
+        private async Task GetPrinterModelByName(string name)
+        {
+            var model = await _repository.GetModelByNameAsync(name);
+        }
         public async Task AddPrinterAsync(PrinterDto printerDto)
         {
-            var printer = printerDto.MapToEntity();
+            var printer = _mapper.Map<Printer>(printerDto);
+
+            printer.PrinterModel = await _repository.GetModelByNameAsync(printer.PrinterModel.Name);
+
+            printer.Materials ??= [];
+            foreach (var item in printerDto.Materials)
+            {
+                var materialRaw = await repository.GetMaterialByIdAsync(item.PrintMaterialId);
+                printer.Materials.Add(materialRaw);
+            }
+            
             await _repository.AddPrinterAsync(printer);
         }
         

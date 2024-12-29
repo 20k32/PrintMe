@@ -13,11 +13,12 @@ public class RequestRepository(PrintMeDbContext context)
             .ToListAsync();
     }
 
-    public async Task<object> GetRequestByIdAsync(int requestId)
+    public async Task<Request> GetRequestByIdAsync(int requestId)
     {
         return await context
             .Requests
             .AsQueryable()
+            .Include(request => request.PrintMaterials)
             .FirstOrDefaultAsync(request => request.RequestId == requestId);
     }
 

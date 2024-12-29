@@ -137,5 +137,21 @@ namespace PrintMe.Server.Persistence.Repository
 
         public Task<List<PrinterModel>> GetAllModelsAsync() =>
             _dbContext.PrinterModels.AsNoTracking().ToListAsync();
+
+        public Task<PrinterModel> GetModelByNameAsync(string name) => _dbContext
+            .PrinterModels
+            .AsQueryable()
+            .FirstAsync(model =>
+            model.Name == name);
+        
+        public Task<PrinterModel> GetModelByIdAsync(int id) => _dbContext
+            .PrinterModels
+            .AsQueryable()
+            .FirstAsync(model =>
+                model.PrinterModelId == id);
+
+        public Task<PrintMaterial> GetMaterialByIdAsync(int printMaterialId) =>
+            _dbContext.PrintMaterials1.AsQueryable()
+                .FirstAsync(material => material.PrintMaterialId == printMaterialId);
     }
 }

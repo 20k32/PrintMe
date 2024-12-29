@@ -9,7 +9,7 @@ using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
-public class RequestService(RequestRepository repository, IMapper mapper)
+internal class RequestService(RequestRepository repository, IMapper mapper, PrinterRepository printerRepository)
 {
     public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync()
     {
@@ -116,7 +116,29 @@ public class RequestService(RequestRepository repository, IMapper mapper)
     public async Task<PrinterDto> ToPrinterDtoAsync(int id)
     {
         var request = await repository.GetRequestByIdAsync(id);
-        return mapper.Map<PrinterDto>(request);
+        
+        var result = mapper.Map<PrinterDto>(request);
+
+        var modelName = string.Empty;
+        
+        if (request.ModelId is not null && request.ModelId > 0)
+        {
+            modelName = (await printerRepository.GetModelByIdAsync(request.ModelId.Value))?.Name 
+                        ?? string.Empty;
+        }
+        
+        result.ModelName = modelName;
+
+        var materials = new List<PrintMaterialDto>(request.PrintMaterials.Count);
+
+        foreach (var materialRaw in request.PrintMaterials)
+        {
+            var materialDto = mapper.Map<PrintMaterialDto>(materialRaw);
+            materials.Add(materialDto);
+        }
+        
+        result.Materials = materials;
+        return result;
     }
 
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)

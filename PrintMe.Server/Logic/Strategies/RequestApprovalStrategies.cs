@@ -9,7 +9,9 @@ public class PrinterApplicationStrategy : IRequestApprovalStrategy
     {
         var requestService = provider.GetRequiredService<RequestService>();
         var printerService = provider.GetRequiredService<PrinterService>();
-        await printerService.AddPrinterAsync(await requestService.ToPrinterDtoAsync(request.RequestId));
+
+        var printerDto = await requestService.ToPrinterDtoAsync(request.RequestId);
+        await printerService.AddPrinterAsync(printerDto);
         await requestService.UpdateRequestAsync(request);
     }
 }
