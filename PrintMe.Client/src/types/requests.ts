@@ -17,6 +17,7 @@ export interface RequestDto {
 }
 
 export interface PrinterApplicationDto extends RequestData {
+    printerModelId: number;
     description: string;
     minModelHeight: number;
     minModelWidth: number;

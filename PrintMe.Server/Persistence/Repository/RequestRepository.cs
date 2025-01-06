@@ -13,11 +13,12 @@ public class RequestRepository(PrintMeDbContext context)
             .ToListAsync();
     }
 
-    public async Task<object> GetRequestByIdAsync(int requestId)
+    public async Task<Request> GetRequestByIdAsync(int requestId)
     {
         return await context
             .Requests
             .AsQueryable()
+            .Include(request => request.PrintMaterials)
             .FirstOrDefaultAsync(request => request.RequestId == requestId);
     }
 
@@ -71,13 +72,13 @@ public class RequestRepository(PrintMeDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task AddPrinterAsync(Request request)
+    public async Task AddPrinterRequestAsync(Request request)
     {
         await context.Requests.AddAsync(request);
         await context.SaveChangesAsync();
     }
 
-    public async Task EditPrinterAsync(Request request)
+    public async Task EditPrinterRequestAsync(Request request)
     {
         context.Requests.Update(request);
         await context.SaveChangesAsync();
@@ -91,5 +92,25 @@ public class RequestRepository(PrintMeDbContext context)
             .FirstOrDefaultAsync(requestType => requestType.RequestTypeId == requestTypeId);
 
         return requestType.Type;
+    }
+
+    public async Task AddPrinterRequestMaterialsAsync(int requestId, IEnumerable<int> materialIds)
+    {
+        var request = await context.Requests.FindAsync(requestId);
+        if (request == null)
+        {
+            return;
+        }
+
+        foreach (var materialId in materialIds)
+        {
+            var material = await context.PrintMaterials1.FindAsync(materialId);
+            if (material != null)
+            {
+                request.PrintMaterials.Add(material);
+            }
+        }
+        
+        await context.SaveChangesAsync();
     }
 }

@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 import MapSection from "../../MainPage/components/MapSection";
 import { handleApiError } from '../../../utils/apiErrorHandler';
 import { PrinterApplicationDto } from "../../../types/requests";
-import { Material } from "../../../constants";
+import { PrintMaterial, PrinterModel } from "../../../constants";
 import "../assets/requests.css";
 
 export const AddPrinter = () => {
   const navigate = useNavigate();
   const [printer, setPrinter] = useState<PrinterApplicationDto>({
+    printerModelId: 0,
     description: "",
     minModelHeight: 0,
     minModelWidth: 0,
@@ -23,24 +24,31 @@ export const AddPrinter = () => {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMaterials, setSelectedMaterials] = useState<number[]>([]);
-  const [materials, setMaterials] = useState<Material[]>([]);
+  const [materials, setMaterials] = useState<PrintMaterial[]>([]);
   const [materialsLoading, setMaterialsLoading] = useState(true);
+  const [models, setModels] = useState<PrinterModel[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(true);
 
   useEffect(() => {
-    const loadMaterials = async () => {
+    const loadData = async () => {
       try {
-        const fetchedMaterials = await printerService.getMaterials();
+        const [fetchedMaterials, fetchedModels] = await Promise.all([
+          printerService.getMaterials(),
+          printerService.getModels()
+        ]);
         setMaterials(fetchedMaterials);
+        setModels(fetchedModels);
       } catch (error) {
         setError(handleApiError(error, {
-          badRequest: "Failed to load materials."
+          badRequest: "Failed to load initial data."
         }));
       } finally {
         setMaterialsLoading(false);
+        setModelsLoading(false);
       }
     };
 
-    loadMaterials();
+    loadData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,7 +69,7 @@ export const AddPrinter = () => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setPrinter((prev: PrinterApplicationDto) => ({
@@ -86,7 +94,7 @@ export const AddPrinter = () => {
 
       setPrinter((prevPrinter: PrinterApplicationDto) => ({
         ...prevPrinter,
-        materials: newMaterials.map((id) => ({ materialId: id })),
+        materials: newMaterials.map((id) => ({ printMaterialId: id })),
       }));
 
       return newMaterials;
@@ -106,6 +114,32 @@ export const AddPrinter = () => {
           )}
 
           <form onSubmit={handleSubmit}>
+            <div className="printer-form-section">
+              <h5 className="mb-3">Select your model</h5>
+              {modelsLoading ? (
+                <div className="text-center py-3">
+                  <div className="spinner-border text-light" role="status">
+                    <span className="visually-hidden">Loading models...</span>
+                  </div>
+                </div>
+              ) : (
+                <select
+                  className="form-select"
+                  name="printerModelId"
+                  value={printer.printerModelId}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select a printer model</option>
+                  {models.map((model) => (
+                    <option key={model.printerModelId} value={model.printerModelId}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            
             <div className="printer-form-section">
               <h5 className="mb-3">Description</h5>
               <textarea

@@ -2,9 +2,9 @@ using PrintMe.Server.Models.Exceptions;
 
 namespace PrintMe.Server.Logic.Strategies;
 
-public class RequestApprovalStrategyFactory
+public static class RequestApprovalStrategyFactory
 {
-    private readonly Dictionary<string, IRequestApprovalStrategy> _strategies = new()
+    private static readonly Dictionary<string, IRequestApprovalStrategy> Strategies = new()
     {
         { "PRINTER_APPLICATION", new PrinterApplicationStrategy() },
         { "PRINTER_DESCRIPTION_CHANGE", new PrinterDescriptionChangeStrategy() },
@@ -12,9 +12,9 @@ public class RequestApprovalStrategyFactory
         { "ACCOUNT_DELETION", new AccountDeletionStrategy() }
     };
 
-    public IRequestApprovalStrategy GetStrategy(string requestType)
+    public static IRequestApprovalStrategy GetStrategy(string requestType)
     {
-        if (_strategies.TryGetValue(requestType, out var strategy))
+        if (Strategies.TryGetValue(requestType, out var strategy))
         {
             return strategy;
         }
