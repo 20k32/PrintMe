@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Constants;
 
 namespace PrintMe.Server.Persistence;
 
@@ -209,11 +210,11 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("status");
 
             modelBuilder.Entity<PrintOrderStatus>().HasData(
-                new PrintOrderStatus { PrintOrderStatusId = 1, Status = "Pending" },
-                new PrintOrderStatus { PrintOrderStatusId = 2, Status = "Declined" },
-                new PrintOrderStatus { PrintOrderStatusId = 3, Status = "Started" },
-                new PrintOrderStatus { PrintOrderStatusId = 4, Status = "Aborted" },
-                new PrintOrderStatus { PrintOrderStatusId = 5, Status = "Archived" });
+                new PrintOrderStatus { PrintOrderStatusId = 1, Status = DbConstants.PrintOrderStatus.Pending },
+                new PrintOrderStatus { PrintOrderStatusId = 2, Status = DbConstants.PrintOrderStatus.Declined },
+                new PrintOrderStatus { PrintOrderStatusId = 3, Status = DbConstants.PrintOrderStatus.Started },
+                new PrintOrderStatus { PrintOrderStatusId = 4, Status = DbConstants.PrintOrderStatus.Aborted },
+                new PrintOrderStatus { PrintOrderStatusId = 5, Status = DbConstants.PrintOrderStatus.Archived });
         });
 
         modelBuilder.Entity<PrintOrderStatusReason>(entity =>
@@ -228,10 +229,10 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("reason");
 
             modelBuilder.Entity<PrintOrderStatusReason>().HasData(
-                new PrintOrderStatusReason { PrintOrderStatusReasonId = 1, Reason = "Inappropriate" },
-                new PrintOrderStatusReason { PrintOrderStatusReasonId = 2, Reason = "OffensiveContent" },
-                new PrintOrderStatusReason { PrintOrderStatusReasonId = 3, Reason = "AbsentMaterials" },
-                new PrintOrderStatusReason { PrintOrderStatusReasonId = 4, Reason = "QualityConcerns" });
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 1, Reason = DbConstants.PrintOrderStatusReason.Inappropriate },
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 2, Reason = DbConstants.PrintOrderStatusReason.OffensiveContent },
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 3, Reason = DbConstants.PrintOrderStatusReason.AbsentMaterials },
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 4, Reason = DbConstants.PrintOrderStatusReason.QualityConcerns });
         });
 
         modelBuilder.Entity<Printer>(entity =>
@@ -413,9 +414,9 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("status");
 
             modelBuilder.Entity<RequestStatus>().HasData(
-                new RequestStatus { RequestStatusId = 1, Status = "Pending" },
-                new RequestStatus { RequestStatusId = 2, Status = "Approved" },
-                new RequestStatus { RequestStatusId = 3, Status = "Declined" });
+                new RequestStatus { RequestStatusId = 1, Status = DbConstants.RequestStatus.Pending },
+                new RequestStatus { RequestStatusId = 2, Status = DbConstants.RequestStatus.Approved },
+                new RequestStatus { RequestStatusId = 3, Status = DbConstants.RequestStatus.Declined });
         });
 
         modelBuilder.Entity<RequestStatusReason>(entity =>
@@ -430,9 +431,9 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("reason");
 
             modelBuilder.Entity<RequestStatusReason>().HasData(
-                new RequestStatusReason { RequestStatusReasonId = 1, Reason = "Inappropriate" },
-                new RequestStatusReason { RequestStatusReasonId = 2, Reason = "OffensiveContent" },
-                new RequestStatusReason { RequestStatusReasonId = 3, Reason = "SystemAbuse" });
+                new RequestStatusReason { RequestStatusReasonId = 1, Reason = DbConstants.RequestStatusReason.Inappropriate },
+                new RequestStatusReason { RequestStatusReasonId = 2, Reason = DbConstants.RequestStatusReason.OffensiveContent },
+                new RequestStatusReason { RequestStatusReasonId = 3, Reason = DbConstants.RequestStatusReason.SystemAbuse });
         });
 
         modelBuilder.Entity<RequestType>(entity =>
@@ -447,10 +448,10 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("type");
 
             modelBuilder.Entity<RequestType>().HasData(
-                new RequestType { RequestTypeId = 1, Type = "PrinterApplication" },
-                new RequestType { RequestTypeId = 2, Type = "PrinterDescriptionChanging" },
-                new RequestType { RequestTypeId = 3, Type = "UserReport" },
-                new RequestType { RequestTypeId = 4, Type = "AccountDeletion" });
+                new RequestType { RequestTypeId = 1, Type = DbConstants.RequestType.PrinterApplication },
+                new RequestType { RequestTypeId = 2, Type = DbConstants.RequestType.PrinterDescriptionChanging },
+                new RequestType { RequestTypeId = 3, Type = DbConstants.RequestType.UserReport },
+                new RequestType { RequestTypeId = 4, Type = DbConstants.RequestType.AccountDeletion });
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -540,9 +541,9 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("status");
 
             modelBuilder.Entity<UserStatus>().HasData(
-                new UserStatus { UserStatusId = 1, Status = "Active" },
-                new UserStatus { UserStatusId = 2, Status = "Inactive" },
-                new UserStatus { UserStatusId = 3, Status = "Blocked" });
+                new UserStatus { UserStatusId = 1, Status = DbConstants.UserStatus.Active },
+                new UserStatus { UserStatusId = 2, Status = DbConstants.UserStatus.Inactive },
+                new UserStatus { UserStatusId = 3, Status = DbConstants.UserStatus.Blocked });
         });
         
         modelBuilder.Entity<UserRole>(entity =>
@@ -554,9 +555,9 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("user_role_name");
 
             modelBuilder.Entity<UserRole>().HasData(
-                new UserRole { UserRoleId = 1, UserRoleName = "User" },
-                new UserRole { UserRoleId = 2, UserRoleName = "PrinterOwner" },
-                new UserRole { UserRoleId = 3, UserRoleName = "Admin" });
+                new UserRole { UserRoleId = 1, UserRoleName = DbConstants.UserRole.User },
+                new UserRole { UserRoleId = 2, UserRoleName = DbConstants.UserRole.PrinterOwner },
+                new UserRole { UserRoleId = 3, UserRoleName = DbConstants.UserRole.Admin });
         });
         
         OnModelCreatingPartial(modelBuilder);

@@ -1,3 +1,4 @@
+using PrintMe.Server.Constants;
 using PrintMe.Server.Models.Exceptions;
 
 namespace PrintMe.Server.Logic.Strategies;
@@ -6,10 +7,10 @@ public static class RequestApprovalStrategyFactory
 {
     private static readonly Dictionary<string, IRequestApprovalStrategy> Strategies = new()
     {
-        { "PrinterApplication", new PrinterApplicationStrategy() },
-        { "PrinterDescriptionChanging", new PrinterDescriptionChangeStrategy() },
-        { "UserReport", new UserReportStrategy() },
-        { "AccountDeletion", new AccountDeletionStrategy() }
+        { DbConstants.RequestType.PrinterApplication, new PrinterApplicationStrategy() },
+        { DbConstants.RequestType.PrinterDescriptionChanging, new PrinterDescriptionChangeStrategy() },
+        { DbConstants.RequestType.UserReport, new UserReportStrategy() },
+        { DbConstants.RequestType.AccountDeletion, new AccountDeletionStrategy() }
     };
 
     public static IRequestApprovalStrategy GetStrategy(string requestType)

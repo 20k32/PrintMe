@@ -6,6 +6,7 @@ using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Constants;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
@@ -146,7 +147,7 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
 
-        var approvedStatusId = await GetRequestStatusIdByNameAsync("Approved");
+        var approvedStatusId = await GetRequestStatusIdByNameAsync(DbConstants.RequestStatus.Approved);
         if (request.RequestStatusId == approvedStatusId)
         {
             throw new AlreadyApprovedRequestException();
@@ -165,7 +166,7 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
 
     public async Task DeclineRequestAsync(RequestDto request, string reason)
     {
-        var declinedStatusId = await GetRequestStatusIdByNameAsync("Declined");
+        var declinedStatusId = await GetRequestStatusIdByNameAsync(DbConstants.RequestStatus.Declined);
         var reasonId = await GetRequestStatusReasonIdByNameAsync(reason);
 
         if (request.RequestStatusId == declinedStatusId)
