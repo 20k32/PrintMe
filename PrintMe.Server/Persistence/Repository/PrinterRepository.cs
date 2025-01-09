@@ -87,6 +87,32 @@ namespace PrintMe.Server.Persistence.Repository
                 .Include(printer => printer.Materials)
                 .Where(printer => printer.UserId == userId).ToListAsync();
 
+        public Task<List<Printer>> GetPrintersForUserAsync(int userId, bool? isDeactivated)
+        {
+            var query = _dbContext.Printers
+                .AsNoTracking()
+                .Include(printer => printer.PrinterModel)
+                .Include(printer => printer.Materials)
+                .Where(printer => printer.UserId == userId);
+
+            if (isDeactivated.HasValue)
+            {
+                query = query.Where(printer => printer.IsDeactivated == isDeactivated.Value);
+            }
+
+            return query.ToListAsync();
+        }
+
+        public async Task DeactivatePrinterAsync(int printerId)
+        {
+            var printer = await _dbContext.Printers.FindAsync(printerId);
+            if (printer != null)
+            {
+                printer.IsDeactivated = true;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
         public async Task AddPrinterAsync(Printer printer)
         {
             var existingEntity = await _dbContext.Printers.FindAsync(printer.PrinterId);

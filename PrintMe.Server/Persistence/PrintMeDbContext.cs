@@ -26,8 +26,8 @@ public partial class PrintMeDbContext : DbContext
 
     public async Task LoadTestDataAsync()
     {
-        await UserRoles.GenerateForUserRolesAsync();
-        await UserStatuses.GenerateForUserStatusesAsync(); 
+        // await UserRoles.GenerateForUserRolesAsync();
+        // await UserStatuses.GenerateForUserStatusesAsync();
         await Users.GenerateForUsersAsync(15);
         await Printers.GenerateForPrintersAsync(PrintMaterials1, PrinterModels, 15, 4, 10);
         
@@ -207,6 +207,13 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+
+            modelBuilder.Entity<PrintOrderStatus>().HasData(
+                new PrintOrderStatus { PrintOrderStatusId = 1, Status = "Pending" },
+                new PrintOrderStatus { PrintOrderStatusId = 2, Status = "Declined" },
+                new PrintOrderStatus { PrintOrderStatusId = 3, Status = "Started" },
+                new PrintOrderStatus { PrintOrderStatusId = 4, Status = "Aborted" },
+                new PrintOrderStatus { PrintOrderStatusId = 5, Status = "Archived" });
         });
 
         modelBuilder.Entity<PrintOrderStatusReason>(entity =>
@@ -219,6 +226,12 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Reason)
                 .IsRequired()
                 .HasColumnName("reason");
+
+            modelBuilder.Entity<PrintOrderStatusReason>().HasData(
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 1, Reason = "Inappropriate" },
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 2, Reason = "OffensiveContent" },
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 3, Reason = "AbsentMaterials" },
+                new PrintOrderStatusReason { PrintOrderStatusReasonId = 4, Reason = "QualityConcerns" });
         });
 
         modelBuilder.Entity<Printer>(entity =>
@@ -241,6 +254,9 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.MinModelWidth).HasColumnName("min_model_width");
             entity.Property(e => e.PrinterModelId).HasColumnName("printer_model_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.IsDeactivated)
+                .HasColumnName("is_deactivated")
+                .HasDefaultValue(false);
 
             entity.HasOne(d => d.PrinterModel).WithMany(p => p.Printers)
                 .HasForeignKey(d => d.PrinterModelId)
@@ -395,6 +411,11 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+
+            modelBuilder.Entity<RequestStatus>().HasData(
+                new RequestStatus { RequestStatusId = 1, Status = "Pending" },
+                new RequestStatus { RequestStatusId = 2, Status = "Approved" },
+                new RequestStatus { RequestStatusId = 3, Status = "Declined" });
         });
 
         modelBuilder.Entity<RequestStatusReason>(entity =>
@@ -407,6 +428,11 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Reason)
                 .IsRequired()
                 .HasColumnName("reason");
+
+            modelBuilder.Entity<RequestStatusReason>().HasData(
+                new RequestStatusReason { RequestStatusReasonId = 1, Reason = "Inappropriate" },
+                new RequestStatusReason { RequestStatusReasonId = 2, Reason = "OffensiveContent" },
+                new RequestStatusReason { RequestStatusReasonId = 3, Reason = "SystemAbuse" });
         });
 
         modelBuilder.Entity<RequestType>(entity =>
@@ -419,6 +445,12 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Type)
                 .IsRequired()
                 .HasColumnName("type");
+
+            modelBuilder.Entity<RequestType>().HasData(
+                new RequestType { RequestTypeId = 1, Type = "PrinterApplication" },
+                new RequestType { RequestTypeId = 2, Type = "PrinterDescriptionChanging" },
+                new RequestType { RequestTypeId = 3, Type = "UserReport" },
+                new RequestType { RequestTypeId = 4, Type = "AccountDeletion" });
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -506,6 +538,11 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+
+            modelBuilder.Entity<UserStatus>().HasData(
+                new UserStatus { UserStatusId = 1, Status = "Active" },
+                new UserStatus { UserStatusId = 2, Status = "Inactive" },
+                new UserStatus { UserStatusId = 3, Status = "Blocked" });
         });
         
         modelBuilder.Entity<UserRole>(entity =>
@@ -515,6 +552,11 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.UserRoleName)
                 .IsRequired()
                 .HasColumnName("user_role_name");
+
+            modelBuilder.Entity<UserRole>().HasData(
+                new UserRole { UserRoleId = 1, UserRoleName = "User" },
+                new UserRole { UserRoleId = 2, UserRoleName = "PrinterOwner" },
+                new UserRole { UserRoleId = 3, UserRoleName = "Admin" });
         });
         
         OnModelCreatingPartial(modelBuilder);

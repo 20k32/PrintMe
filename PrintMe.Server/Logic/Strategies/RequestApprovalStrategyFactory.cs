@@ -6,10 +6,10 @@ public static class RequestApprovalStrategyFactory
 {
     private static readonly Dictionary<string, IRequestApprovalStrategy> Strategies = new()
     {
-        { "PRINTER_APPLICATION", new PrinterApplicationStrategy() },
-        { "PRINTER_DESCRIPTION_CHANGE", new PrinterDescriptionChangeStrategy() },
-        { "USER_REPORT", new UserReportStrategy() },
-        { "ACCOUNT_DELETION", new AccountDeletionStrategy() }
+        { "PrinterApplication", new PrinterApplicationStrategy() },
+        { "PrinterDescriptionChanging", new PrinterDescriptionChangeStrategy() },
+        { "UserReport", new UserReportStrategy() },
+        { "AccountDeletion", new AccountDeletionStrategy() }
     };
 
     public static IRequestApprovalStrategy GetStrategy(string requestType)

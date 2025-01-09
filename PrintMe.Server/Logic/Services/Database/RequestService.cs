@@ -137,13 +137,16 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         }
         
         result.Materials = materials;
+
+        result.UserId = request.UserSenderId;
+
         return result;
     }
 
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
 
-        var approvedStatusId = await GetRequestStatusIdByNameAsync("ACCEPTED");
+        var approvedStatusId = await GetRequestStatusIdByNameAsync("Approved");
         if (request.RequestStatusId == approvedStatusId)
         {
             throw new AlreadyApprovedRequestException();
@@ -162,7 +165,7 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
 
     public async Task DeclineRequestAsync(RequestDto request, string reason)
     {
-        var declinedStatusId = await GetRequestStatusIdByNameAsync("DECLINED");
+        var declinedStatusId = await GetRequestStatusIdByNameAsync("Declined");
         var reasonId = await GetRequestStatusReasonIdByNameAsync(reason);
 
         if (request.RequestStatusId == declinedStatusId)
