@@ -30,7 +30,8 @@ namespace PrintMe.Server.Logic.Services.Database
             }
             var salt = SecurityHelper.GenerateSalt();
             var hashedPassword = SecurityHelper.HashPassword(user.Password, salt);
-            var userRole = await _repository.GetRoleIdByNamesAsync(DbConstants.UserRole.User);
+            var userRoleId = DbConstants.UserRole.Dictionary[DbConstants.UserRole.User];
+            var activeStatusId = DbConstants.UserStatus.Dictionary[DbConstants.UserStatus.Active];
 
             var userRaw = new User
             {
@@ -39,8 +40,8 @@ namespace PrintMe.Server.Logic.Services.Database
                 PasswordSalt = salt,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                UserStatusId = 1,
-                UserRole = userRole,
+                UserStatusId = activeStatusId,
+                UserRoleId = userRoleId,
                 ShouldHidePhoneNumber = true,
                 Description = ""
             };
