@@ -87,5 +87,12 @@ namespace PrintMe.Server.Persistence.Repository
         public async Task<UserRole> GetRoleIdByNamesAsync(string roleName)
             => await _rolesRepository.GetByRoleNameAsync(roleName);
 
+        public string GetUserRole(int userId)
+        {
+            return _dbContext.Users.Include(user => user.UserRole)
+                .AsQueryable()
+                .FirstOrDefault(user => user.UserId == userId)
+                ?.UserRole?.UserRoleName;
+        }
     }
 }

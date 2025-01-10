@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Constants;
 
 namespace PrintMe.Server.Persistence;
 
@@ -26,8 +27,8 @@ public partial class PrintMeDbContext : DbContext
 
     public async Task LoadTestDataAsync()
     {
-        await UserRoles.GenerateForUserRolesAsync();
-        await UserStatuses.GenerateForUserStatusesAsync(); 
+        // await UserRoles.GenerateForUserRolesAsync();
+        // await UserStatuses.GenerateForUserStatusesAsync();
         await Users.GenerateForUsersAsync(15);
         await Printers.GenerateForPrintersAsync(PrintMaterials1, PrinterModels, 15, 4, 10);
         
@@ -207,6 +208,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+
+            modelBuilder.Entity<PrintOrderStatus>().HasData(
+                DbConstants.PrintOrderStatus.Dictionary.Select(x => 
+                    new PrintOrderStatus { PrintOrderStatusId = x.Value, Status = x.Key }));
         });
 
         modelBuilder.Entity<PrintOrderStatusReason>(entity =>
@@ -219,6 +224,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Reason)
                 .IsRequired()
                 .HasColumnName("reason");
+
+            modelBuilder.Entity<PrintOrderStatusReason>().HasData(
+                DbConstants.PrintOrderStatusReason.Dictionary.Select(x => 
+                    new PrintOrderStatusReason { PrintOrderStatusReasonId = x.Value, Reason = x.Key }));
         });
 
         modelBuilder.Entity<Printer>(entity =>
@@ -241,6 +250,9 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.MinModelWidth).HasColumnName("min_model_width");
             entity.Property(e => e.PrinterModelId).HasColumnName("printer_model_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.IsDeactivated)
+                .HasColumnName("is_deactivated")
+                .HasDefaultValue(false);
 
             entity.HasOne(d => d.PrinterModel).WithMany(p => p.Printers)
                 .HasForeignKey(d => d.PrinterModelId)
@@ -395,6 +407,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+
+            modelBuilder.Entity<RequestStatus>().HasData(
+                DbConstants.RequestStatus.Dictionary.Select(x => 
+                    new RequestStatus { RequestStatusId = x.Value, Status = x.Key }));
         });
 
         modelBuilder.Entity<RequestStatusReason>(entity =>
@@ -407,6 +423,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Reason)
                 .IsRequired()
                 .HasColumnName("reason");
+
+            modelBuilder.Entity<RequestStatusReason>().HasData(
+                DbConstants.RequestStatusReason.Dictionary.Select(x => 
+                    new RequestStatusReason { RequestStatusReasonId = x.Value, Reason = x.Key }));
         });
 
         modelBuilder.Entity<RequestType>(entity =>
@@ -419,6 +439,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Type)
                 .IsRequired()
                 .HasColumnName("type");
+
+            modelBuilder.Entity<RequestType>().HasData(
+                DbConstants.RequestType.Dictionary.Select(x => 
+                    new RequestType { RequestTypeId = x.Value, Type = x.Key }));
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -506,6 +530,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasColumnName("status");
+
+            modelBuilder.Entity<UserStatus>().HasData(
+                DbConstants.UserStatus.Dictionary.Select(x => 
+                    new UserStatus { UserStatusId = x.Value, Status = x.Key }));
         });
         
         modelBuilder.Entity<UserRole>(entity =>
@@ -515,6 +543,10 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.UserRoleName)
                 .IsRequired()
                 .HasColumnName("user_role_name");
+
+            modelBuilder.Entity<UserRole>().HasData(
+                DbConstants.UserRole.Dictionary.Select(x => 
+                    new UserRole { UserRoleId = x.Value, UserRoleName = x.Key }));
         });
         
         OnModelCreatingPartial(modelBuilder);

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic;
+using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Authentication;
 using PrintMe.Server.Models.DTOs;
@@ -13,7 +14,7 @@ namespace PrintMe.Server.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class RolesController : ControllerBase
+    public class RolesController(IServiceProvider provider) : ControllerBase
     {
         [HttpGet("my")]
         public IActionResult GetMyRole()
@@ -22,9 +23,13 @@ namespace PrintMe.Server.Controllers
             
             try
             {
-                var userRole = Request.TryGetUserId();
+                var userId = Request.TryGetUserId();
+
+                var userService = provider.GetService<UserService>();
+
+                var userRole = userService.GetUserRole(int.Parse(userId));
                     
-                if (string.IsNullOrWhiteSpace(userRole))
+                if (string.IsNullOrWhiteSpace(userId))
                 {
                     result = new ("Missing parameters in JWT.", StatusCodes.Status400BadRequest);
                 }

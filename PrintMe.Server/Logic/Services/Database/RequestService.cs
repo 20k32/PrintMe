@@ -6,6 +6,7 @@ using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Constants;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
@@ -62,18 +63,6 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         catch (Exception)
         {
             throw new NotFoundRequestStatusInDb();
-        }
-    }
-
-    private async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
-    {
-        try
-        {
-            return await repository.GetRequestStatusReasonIdByNameAsync(reason.ToUpper());
-        }
-        catch (Exception)
-        {
-            throw new NotFoundRequestStatusReasonInDbException();
         }
     }
 
@@ -137,13 +126,16 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         }
         
         result.Materials = materials;
+
+        result.UserId = request.UserSenderId;
+
         return result;
     }
 
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
-
-        var approvedStatusId = await GetRequestStatusIdByNameAsync("ACCEPTED");
+        var approvedStatusId = DbConstants.RequestStatus.Dictionary[DbConstants.RequestStatus.Approved];
+        
         if (request.RequestStatusId == approvedStatusId)
         {
             throw new AlreadyApprovedRequestException();
@@ -162,13 +154,14 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
 
     public async Task DeclineRequestAsync(RequestDto request, string reason)
     {
-        var declinedStatusId = await GetRequestStatusIdByNameAsync("DECLINED");
-        var reasonId = await GetRequestStatusReasonIdByNameAsync(reason);
-
+        var declinedStatusId = DbConstants.RequestStatus.Dictionary[DbConstants.RequestStatus.Declined];
+        
         if (request.RequestStatusId == declinedStatusId)
         {
             throw new AlreadyDeclinedRequestException();
         }
+
+        var reasonId = DbConstants.RequestStatusReason.Dictionary[reason];
 
         request.RequestStatusId = declinedStatusId;
         request.RequestStatusReasonId = reasonId;

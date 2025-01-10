@@ -191,12 +191,12 @@ namespace PrintMe.Server.Controllers
 
         /// <summary>
         /// Get info for printers by user jwt
-        /// accepts 'detailed' parameter from query string
+        /// accepts 'isDeactivated' parameter from query string
         /// </summary>
         [HttpGet("/api/printers/my")]
         [ProducesResponseType(typeof(ApiResult<IEnumerable<PrinterDto>>), 200)]
         [Authorize]
-        public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool detailed)
+        public async Task<IActionResult> GetMyPrinterDetailedInfo([FromQuery] bool? isDeactivated)
         {
             PlainResult result;
 
@@ -212,11 +212,11 @@ namespace PrintMe.Server.Controllers
                 }
                 else if (int.TryParse(idString, out var id))
                 {
-                    if (detailed)
-                    {
-                        var printer = await printerService.GetPrintersDetailedByUserId(id);
+                    // if (detailed)
+                    // {
+                        var printer = await printerService.GetPrintersDetailedByUserId(id, isDeactivated);
 
-                        if (printer is not null && printer.Count() != 0) // no multiple enumeration
+                        if (printer is not null && printer.Count() != 0)
                         {
                             result = new ApiResult<IEnumerable<PrinterDto>>(printer,
                                 "There is some printers in database",
@@ -227,23 +227,23 @@ namespace PrintMe.Server.Controllers
                             result = new("There is no printers related to such user",
                                 StatusCodes.Status404NotFound);
                         }
-                    }
-                    else
-                    {
-                        var printer = await printerService.GetPrintersBasicByUserId(id);
-
-                        if (printer is not null && printer.Count() != 0) // no multiple enumeration
-                        {
-                            result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer,
-                                "There is some printers in database",
-                                StatusCodes.Status200OK);
-                        }
-                        else
-                        {
-                            result = new("There is no printers related to such user",
-                                StatusCodes.Status404NotFound);
-                        }
-                    }
+                    // }
+                    // else
+                    // {
+                    //     var printer = await printerService.GetPrintersBasicByUserId(id);
+                    //
+                    //     if (printer is not null && printer.Count() != 0) // no multiple enumeration
+                    //     {
+                    //         result = new ApiResult<IEnumerable<SimplePrinterDto>>(printer,
+                    //             "There is some printers in database",
+                    //             StatusCodes.Status200OK);
+                    //     }
+                    //     else
+                    //     {
+                    //         result = new("There is no printers related to such user",
+                    //             StatusCodes.Status404NotFound);
+                    //     }
+                    // }
 
                 }
                 else
@@ -324,5 +324,32 @@ namespace PrintMe.Server.Controllers
                 return NotFound(ex.Message);
             }
         }
-}
+
+        /// <summary>
+        /// Deactivates printer by id
+        /// </summary>
+        /// <param name="printerId"></param>
+        /// <returns></returns>
+        [HttpPost("deactivate/{printerId:int}")]
+        [Authorize]
+        public async Task<IActionResult> DeactivatePrinter(int printerId)
+        {
+            var printerService = _provider.GetService<PrinterService>();
+            var userId = Request.TryGetUserId();
+            var userPrinters = await printerService.GetPrintersDetailedByUserId(int.Parse(userId));
+            if (userPrinters.All(dto => dto.Id != printerId))
+            {
+                return BadRequest(new { message = "User does not have such a printer" });
+            }
+            try
+            {
+                await printerService.DeactivatePrinterAsync(printerId);
+                return Ok(new { message = "Printer deactivated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Error deactivating printer: {ex.Message}" });
+            }
+        }
+    }
 }

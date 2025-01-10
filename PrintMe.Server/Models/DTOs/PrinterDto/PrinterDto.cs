@@ -17,5 +17,7 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
         public double LocationX { get; set; }
 
         public double LocationY { get; set; }
+
+        public int UserId { get; set; }
     }
 }

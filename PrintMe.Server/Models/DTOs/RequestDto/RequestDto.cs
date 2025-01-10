@@ -41,14 +41,14 @@ public class RequestProfile : Profile
             .ReverseMap();
 
         CreateMap<AddPrinterRequest, RequestDto>()
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "Adding printer request"))
-            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 2))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "PrinterApplication"))
+            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 1))
             .ForMember(dest => dest.RequestStatusId, opt => opt.MapFrom(src => 1))
             .ForMember(dest => dest.ModelId, opt => opt.MapFrom(src => src.PrinterModelId));
 
         CreateMap<EditPrinterRequest, RequestDto>()
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "Editing printer request"))
-            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 4))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "PrinterDescriptionChanging"))
+            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 2))
             .ForMember(dest => dest.RequestStatusId, opt => opt.MapFrom(src => 1))
             .ForMember(dest => dest.ModelId, opt => opt.MapFrom(src => src.PrinterID));
 

@@ -60,9 +60,9 @@ namespace PrintMe.Server.Logic.Services.Database
             return printerDto;
         }
         
-        public async Task<IEnumerable<PrinterDto>> GetPrintersDetailedByUserId(int id)
+        public async Task<IEnumerable<PrinterDto>> GetPrintersDetailedByUserId(int id, bool? isDeactivated = null)
         {
-            ICollection<Printer> printers = await _repository.GetPrintersForUserAsync(id);
+            ICollection<Printer> printers = await _repository.GetPrintersForUserAsync(id, isDeactivated);
 
             if (printers is null)
             {
@@ -88,11 +88,11 @@ namespace PrintMe.Server.Logic.Services.Database
             return printersDto;
         }
 
-
         private async Task GetPrinterModelByName(string name)
         {
             var model = await _repository.GetModelByNameAsync(name);
         }
+
         public async Task AddPrinterAsync(PrinterDto printerDto)
         {
             var printer = _mapper.Map<Printer>(printerDto);
@@ -135,6 +135,11 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new NotFoundPrinterModelInDbException();
             }
             return models.Select(model => model.MapToDto()).ToList();
+        }
+
+        public async Task DeactivatePrinterAsync(int printerId)
+        {
+            await _repository.DeactivatePrinterAsync(printerId);
         }
     }
 }
