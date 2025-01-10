@@ -334,9 +334,15 @@ namespace PrintMe.Server.Controllers
         [Authorize]
         public async Task<IActionResult> DeactivatePrinter(int printerId)
         {
+            var printerService = _provider.GetService<PrinterService>();
+            var userId = Request.TryGetUserId();
+            var userPrinters = await printerService.GetPrintersDetailedByUserId(int.Parse(userId));
+            if (userPrinters.All(dto => dto.Id != printerId))
+            {
+                return BadRequest(new { message = "User does not have such a printer" });
+            }
             try
             {
-                var printerService = _provider.GetService<PrinterService>();
                 await printerService.DeactivatePrinterAsync(printerId);
                 return Ok(new { message = "Printer deactivated successfully" });
             }
