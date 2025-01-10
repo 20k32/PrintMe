@@ -115,8 +115,8 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
       const location = e.latLng;
       setSelectedLocation(location);
       onLocationSelect({
-        x: location.lat(),
-        y: location.lng()
+        x: location.lng(),
+        y: location.lat()
       });
     }
   };

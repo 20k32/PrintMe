@@ -25,5 +25,5 @@ export interface PrinterApplicationDto extends RequestData {
     maxModelWidth: number;
     locationX: number;
     locationY: number;
-    materials: { materialId: number }[];
+    materials: { printMaterialId: number }[];
 }
