@@ -85,7 +85,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             }
             else
             {
-                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status.ToUpper());
+                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status);
                 requests = (await _requestService.GetRequestsByStatusIdAsync(statusId)).ToList();
             }
 
