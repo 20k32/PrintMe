@@ -14,6 +14,7 @@ namespace PrintMe.Server.Persistence.Repository
         {
             await foreach (var printerRaw in _dbContext.Printers
                                .AsNoTracking()
+                               .Where(printer => !printer.IsDeactivated)
                                .Select(printer => new SimplePrinter()
                                {
                                    Materials = printer.Materials,
@@ -33,6 +34,7 @@ namespace PrintMe.Server.Persistence.Repository
         {
             await foreach (var printerRaw in _dbContext.Printers
                                .AsNoTracking()
+                               .Where(printer => !printer.IsDeactivated)
                                .Include(printer => printer.PrinterModel)
                                .Include(printer => printer.Materials)
                                .OrderBy(printer => printer.PrinterId)
