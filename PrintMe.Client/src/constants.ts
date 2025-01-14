@@ -28,13 +28,13 @@ export const MAP_CONFIG = {
 };
 
 export const FILTER_OPTIONS = {
-  materials: [] as Material[],
+  materials: [] as PrintMaterial[],
 };
 
 export type FilterKey = 'materials' | 'maxModelHeight' | 'maxModelWidth';
 
 export interface FilterState {
-  materials: Material[];
+  materials: PrintMaterial[];
   maxModelHeight: number;
   maxModelWidth: number;
 }
@@ -45,8 +45,13 @@ export const INITIAL_FILTER_STATE: FilterState = {
   materials: [],
 };
 
-export interface Material {
+export interface PrintMaterial {
   printMaterialId: number;
+  name: string;
+}
+
+export interface PrinterModel {
+  printerModelId: number;
   name: string;
 }
 

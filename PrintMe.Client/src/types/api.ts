@@ -1,4 +1,4 @@
-import { Material } from '../constants';
+import { PrintMaterial } from '../constants';
 
 export type RequestData = Record<string, unknown>;
 
@@ -11,7 +11,7 @@ export interface ApiResponse<T> {
 export interface SimplePrinterDto {
     id: number;
     modelName: string;
-    materials: Material[];
+    materials: PrintMaterial[];
 }
 
 export interface MarkerDto {

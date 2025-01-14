@@ -6,10 +6,11 @@ using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Constants;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
-public class RequestService(RequestRepository repository, IMapper mapper)
+internal class RequestService(RequestRepository repository, IMapper mapper, PrinterRepository printerRepository)
 {
     public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync()
     {
@@ -65,29 +66,19 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         }
     }
 
-    private async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
-    {
-        try
-        {
-            return await repository.GetRequestStatusReasonIdByNameAsync(reason.ToUpper());
-        }
-        catch (Exception)
-        {
-            throw new NotFoundRequestStatusReasonInDbException();
-        }
-    }
-
     public async Task UpdateRequestAsync(RequestDto request)
     {
         await repository.UpdateRequestAsync(mapper.Map<Request>(request));
     }
 
-    public async Task AddPrinterRequestAsync(AddPrinterRequest addRequest, int id)
+    public async Task AddPrinterRequestAsync(AddPrinterRequest addRequest)
     {
-        addRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(addRequest);
         var request = mapper.Map<Request>(requestDto);
-        await repository.AddPrinterAsync(request);
+
+        await repository.AddPrinterRequestAsync(request);
+        
+        await repository.AddPrinterRequestMaterialsAsync(request.RequestId, addRequest.Materials.Select(m => m.PrintMaterialId));
     }
 
     public async Task EditPrinterRequestAsync(EditPrinterRequest editRequest, int id)
@@ -95,7 +86,7 @@ public class RequestService(RequestRepository repository, IMapper mapper)
         editRequest.UserId = id;
         var requestDto = mapper.Map<RequestDto>(editRequest);
         var request = mapper.Map<Request>(requestDto);
-        await repository.EditPrinterAsync(request);
+        await repository.EditPrinterRequestAsync(request);
     }
 
     private async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)
@@ -113,22 +104,46 @@ public class RequestService(RequestRepository repository, IMapper mapper)
     public async Task<PrinterDto> ToPrinterDtoAsync(int id)
     {
         var request = await repository.GetRequestByIdAsync(id);
-        return mapper.Map<PrinterDto>(request);
+        
+        var result = mapper.Map<PrinterDto>(request);
+
+        var modelName = string.Empty;
+        
+        if (request.ModelId is not null && request.ModelId > 0)
+        {
+            modelName = (await printerRepository.GetModelByIdAsync(request.ModelId.Value))?.Name 
+                        ?? string.Empty;
+        }
+        
+        result.ModelName = modelName;
+
+        var materials = new List<PrintMaterialDto>(request.PrintMaterials.Count);
+
+        foreach (var materialRaw in request.PrintMaterials)
+        {
+            var materialDto = mapper.Map<PrintMaterialDto>(materialRaw);
+            materials.Add(materialDto);
+        }
+        
+        result.Materials = materials;
+
+        result.UserId = request.UserSenderId;
+
+        return result;
     }
 
     public async Task ApproveRequestAsync(RequestDto request, IServiceProvider provider)
     {
-
-        var approvedStatusId = await GetRequestStatusIdByNameAsync("APPROVED");
+        var approvedStatusId = DbConstants.RequestStatus.Dictionary[DbConstants.RequestStatus.Approved];
+        
         if (request.RequestStatusId == approvedStatusId)
         {
             throw new AlreadyApprovedRequestException();
         }
 
         var requestType = await GetRequestTypeNameByIdAsync(request.RequestTypeId);
-        var strategyFactory = new RequestApprovalStrategyFactory();
 
-        var strategy = strategyFactory.GetStrategy(requestType);
+        var strategy = RequestApprovalStrategyFactory.GetStrategy(requestType);
         await strategy.ApproveRequestAsync(request, provider);
 
         request.RequestStatusId = approvedStatusId;
@@ -139,13 +154,14 @@ public class RequestService(RequestRepository repository, IMapper mapper)
 
     public async Task DeclineRequestAsync(RequestDto request, string reason)
     {
-        var declinedStatusId = await GetRequestStatusIdByNameAsync("DECLINED");
-        var reasonId = await GetRequestStatusReasonIdByNameAsync(reason);
-
+        var declinedStatusId = DbConstants.RequestStatus.Dictionary[DbConstants.RequestStatus.Declined];
+        
         if (request.RequestStatusId == declinedStatusId)
         {
             throw new AlreadyDeclinedRequestException();
         }
+
+        var reasonId = DbConstants.RequestStatusReason.Dictionary[reason];
 
         request.RequestStatusId = declinedStatusId;
         request.RequestStatusReasonId = reasonId;

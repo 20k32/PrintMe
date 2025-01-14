@@ -17,6 +17,7 @@ export interface RequestDto {
 }
 
 export interface PrinterApplicationDto extends RequestData {
+    printerModelId: number;
     description: string;
     minModelHeight: number;
     minModelWidth: number;
@@ -24,5 +25,5 @@ export interface PrinterApplicationDto extends RequestData {
     maxModelWidth: number;
     locationX: number;
     locationY: number;
-    materials: { materialId: number }[];
+    materials: { printMaterialId: number }[];
 }

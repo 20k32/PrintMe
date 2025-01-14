@@ -85,7 +85,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             }
             else
             {
-                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status.ToUpper());
+                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status);
                 requests = (await _requestService.GetRequestsByStatusIdAsync(statusId)).ToList();
             }
 
@@ -200,9 +200,11 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
         }
 
+        request.UserId = userId;
+
         try
         {
-            await _requestService.AddPrinterRequestAsync(request, userId);
+            await _requestService.AddPrinterRequestAsync(request);
         }
         catch (Exception ex)
         {

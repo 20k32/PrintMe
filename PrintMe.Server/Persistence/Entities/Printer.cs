@@ -22,11 +22,14 @@ public partial class Printer
 
     public double LocationY { get; set; }
 
+    public bool IsDeactivated { get; set; }
+
     public virtual ICollection<PrintOrder> PrintOrders { get; set; } = new List<PrintOrder>();
 
     public virtual PrinterModel PrinterModel { get; set; }
 
     public virtual User User { get; set; }
+
 
     public virtual ICollection<PrintMaterial> Materials { get; set; } = new List<PrintMaterial>();
 

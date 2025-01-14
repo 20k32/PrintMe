@@ -41,15 +41,14 @@ public class RequestProfile : Profile
             .ReverseMap();
 
         CreateMap<AddPrinterRequest, RequestDto>()
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "Adding printer request"))
-            .ForMember(dest => dest.UserTextData, opt => opt.MapFrom(src => string.Join(", ", src.Materials.Select(m => $"{m.PrintMaterialId}:{m.Name}"))))
-            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 2))
-            .ForMember(dest => dest.RequestStatusId, opt => opt.MapFrom(src => 1));
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "PrinterApplication"))
+            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 1))
+            .ForMember(dest => dest.RequestStatusId, opt => opt.MapFrom(src => 1))
+            .ForMember(dest => dest.ModelId, opt => opt.MapFrom(src => src.PrinterModelId));
 
         CreateMap<EditPrinterRequest, RequestDto>()
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "Editing printer request"))
-            .ForMember(dest => dest.UserTextData, opt => opt.MapFrom(src => string.Join(", ", src.Materials.Select(m => $"{m.PrintMaterialId}:{m.Name}"))))
-            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 4))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => "PrinterDescriptionChanging"))
+            .ForMember(dest => dest.RequestTypeId, opt => opt.MapFrom(src => 2))
             .ForMember(dest => dest.RequestStatusId, opt => opt.MapFrom(src => 1))
             .ForMember(dest => dest.ModelId, opt => opt.MapFrom(src => src.PrinterID));
 
@@ -61,8 +60,6 @@ public class RequestProfile : Profile
             .ForMember(dest => dest.MaxModelHeight, opt => opt.MapFrom(src => src.MaxModelHeight))
             .ForMember(dest => dest.MinModelHeight, opt => opt.MapFrom(src => src.MinModelHeight))
             .ForMember(dest => dest.MaxModelWidth, opt => opt.MapFrom(src => src.MaxModelWidth))
-            .ForMember(dest => dest.MinModelWidth, opt => opt.MapFrom(src => src.MinModelWidth))
-            .ForMember(dest => dest.Materials, opt => opt.Ignore())
-            .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.UserTextData.Split(new[] { ',' })[0]));
+            .ForMember(dest => dest.MinModelWidth, opt => opt.MapFrom(src => src.MinModelWidth));
     }
 }

@@ -10,6 +10,7 @@ using PrintMe.Server.Models.DTOs.UserDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Constants;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
@@ -29,7 +30,8 @@ namespace PrintMe.Server.Logic.Services.Database
             }
             var salt = SecurityHelper.GenerateSalt();
             var hashedPassword = SecurityHelper.HashPassword(user.Password, salt);
-            var userRole = await _repository.GetRoleIdByNamesAsync("User");
+            var userRoleId = DbConstants.UserRole.Dictionary[DbConstants.UserRole.User];
+            var activeStatusId = DbConstants.UserStatus.Dictionary[DbConstants.UserStatus.Active];
 
             var userRaw = new User
             {
@@ -38,8 +40,8 @@ namespace PrintMe.Server.Logic.Services.Database
                 PasswordSalt = salt,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                UserStatusId = 1,
-                UserRole = userRole,
+                UserStatusId = activeStatusId,
+                UserRoleId = userRoleId,
                 ShouldHidePhoneNumber = true,
                 Description = ""
             };
@@ -200,10 +202,15 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new IncorrectPasswordException();
             }
 
-            var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, "User"); // TODO: Replace with join from appropriate table
+            var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, _repository.GetUserRole(dbUser.UserId));
             tokenResult = _tokenGenerator.GetForSuccessLoginResult(loginResult);
 
             return tokenResult;
+        }
+
+        public string GetUserRole(int id)
+        {
+            return _repository.GetUserRole(id);
         }
 
         [GeneratedRegex(@"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
