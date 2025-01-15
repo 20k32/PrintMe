@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import FilterFoldGroup from "./components/FilterSection";
 import MapSection from "./components/MapSection";
+import OrderModal from "./components/OrderModal";
 import { FilterState } from "../../constants";
 import { FetchParams } from "../../services/markersService";
+import { SimplePrinterDto } from "../../types/api";
 import "./assets/mainpage.css";
 
 const MainPage: React.FC = () => {
   const [key, setKey] = useState(0);
   const [filters, setFilters] = useState<FetchParams>({});
+  const [selectedPrinter, setSelectedPrinter] = useState<SimplePrinterDto | null>(null);
 
   useEffect(() => {
     setKey((prev) => prev + 1);
@@ -33,11 +36,24 @@ const MainPage: React.FC = () => {
     debouncedSetFilters(newFilters);
   }, [debouncedSetFilters]);
 
+  const handleMarkerClick = useCallback((printer: SimplePrinterDto) => {
+    setSelectedPrinter(printer);
+  }, []);
+
+  const handleOrderSubmit = useCallback((orderData: unknown) => {
+    console.log(orderData);
+    setSelectedPrinter(null);
+  }, []);
+
   return (
     <div className="mainpage-container">
       <div className="mainpage-content">
         <div className="map-container">
-          <MapSection key={key} filters={filters} />
+          <MapSection 
+            key={key} 
+            filters={filters} 
+            onMarkerClick={handleMarkerClick}
+          />
         </div>
 
         <div className="filter-container">
@@ -47,6 +63,14 @@ const MainPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {selectedPrinter && (
+        <OrderModal
+          printer={selectedPrinter}
+          onClose={() => setSelectedPrinter(null)}
+          onSubmit={handleOrderSubmit}
+        />
+      )}
     </div>
   );
 };
