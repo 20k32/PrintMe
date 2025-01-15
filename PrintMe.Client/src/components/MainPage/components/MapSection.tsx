@@ -187,7 +187,10 @@ const MapSection: React.FC<MapSectionProps> = ({
     marker: MarkerWithPrinterInfo
   ) => {
     marker.addListener("click", () => {
-      setActiveMarker(marker);
+      setActiveMarker(null);
+      setTimeout(() => {
+        setActiveMarker(marker);
+      }, 10);
     });
   }, []);
 
