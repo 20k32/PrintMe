@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { createRoot } from 'react-dom/client';
 import {
   GoogleMap,
   useJsApiLoader,
   StandaloneSearchBox,
+  InfoWindow
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY, MAP_CONFIG, GOOGLE_MAPS_LIBRARIES } from "../../../constants";
 import { markersService } from "../../../services/markersService";
@@ -83,6 +83,26 @@ const MarkerContent: React.FC<MarkerContentProps> = ({ printerInfo, isLoggedIn, 
   </div>
 );
 
+const InfoWindowContent: React.FC<{
+  marker: MarkerWithPrinterInfo;
+  onClose: () => void;
+  onMarkerClick: (printer: SimplePrinterDto) => void;
+}> = ({ marker, onClose, onMarkerClick }) => {
+  const isLoggedIn = authService.isLoggedIn();
+  return (
+    <InfoWindow
+      anchor={marker as unknown as google.maps.MVCObject}
+      onCloseClick={onClose}
+    >
+      <MarkerContent
+        printerInfo={marker.printerInfo}
+        isLoggedIn={isLoggedIn}
+        onCreateOrder={() => onMarkerClick(marker.printerInfo)}
+      />
+    </InfoWindow>
+  );
+};
+
 const MapSection: React.FC<MapSectionProps> = ({ 
   onLocationSelect, 
   selectionMode = false, 
@@ -99,6 +119,7 @@ const MapSection: React.FC<MapSectionProps> = ({
   const [searchBox, setSearchBox] =
     useState<google.maps.places.SearchBox | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
+  const [activeMarker, setActiveMarker] = useState<MarkerWithPrinterInfo | null>(null);
 
   const markersRef = useRef<MarkerWithPrinterInfo[]>([]);
   const lastFiltersRef = useRef<FetchParams>({});
@@ -163,39 +184,12 @@ const MapSection: React.FC<MapSectionProps> = ({
   }, [onMarkerClick]);
 
   const setupMarkerUI = useCallback((
-    marker: MarkerWithPrinterInfo,
-    map: google.maps.Map
+    marker: MarkerWithPrinterInfo
   ) => {
-    const { printerInfo } = marker;
-    const isLoggedIn = authService.isLoggedIn();
-
-    const infoWindow = new google.maps.InfoWindow({
-      content: document.createElement('div')
-    });
-
     marker.addListener("click", () => {
-      document.querySelectorAll(".gm-ui-hover-effect").forEach((element) => {
-        (element as HTMLElement).click();
-      });
-
-      infoWindow.open({
-        anchor: marker,
-        map,
-      });
-
-      google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-        const container = infoWindow.getContent() as HTMLElement;
-        const root = createRoot(container);
-        root.render(
-          <MarkerContent
-            printerInfo={printerInfo}
-            isLoggedIn={isLoggedIn}
-            onCreateOrder={() => handleMarkerClick(printerInfo)}
-          />
-        );
-      });
+      setActiveMarker(marker);
     });
-  }, [handleMarkerClick]);
+  }, []);
 
   const memoizedFilters = useMemo(() => filters, [filters]);
 
@@ -210,7 +204,7 @@ const MapSection: React.FC<MapSectionProps> = ({
             if (JSON.stringify(lastFiltersRef.current) !== JSON.stringify(memoizedFilters)) {
               const newMarkers = await markersService.getGoogleMapsMarkers(map, memoizedFilters);
               
-              newMarkers.forEach(marker => setupMarkerUI(marker, map));
+              newMarkers.forEach(marker => setupMarkerUI(marker));
               
               markersRef.current.forEach(marker => {
                 if (!newMarkers.includes(marker)) {
@@ -287,6 +281,13 @@ const MapSection: React.FC<MapSectionProps> = ({
           >
             {selectedLocation && selectionMode && map && (
               <AdvancedMarker position={selectedLocation} map={map} />
+            )}
+            {activeMarker && (
+              <InfoWindowContent
+                marker={activeMarker}
+                onClose={() => setActiveMarker(null)}
+                onMarkerClick={handleMarkerClick}
+              />
             )}
           </GoogleMap>
         </div>
