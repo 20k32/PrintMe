@@ -32,7 +32,8 @@ namespace PrintMe.Server.Persistence.Migrations
                     { 2, "Declined" },
                     { 3, "Started" },
                     { 4, "Aborted" },
-                    { 5, "Archived" }
+                    { 5, "Done"},
+                    { 6, "Archived" }
                 });
 
             migrationBuilder.InsertData(
