@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { handleApiError } from "../../utils/apiErrorHandler";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/orders.css";
-import { PrintOrderDto } from "../../types/orders";
+import { PrintOrderDto } from "../../types/api";
 import { ordersService } from "../../services/ordersService";
 import { useNavigate } from "react-router-dom";
 

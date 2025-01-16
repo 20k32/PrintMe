@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ordersService } from "../../../services/ordersService";
-import { PrintOrderDto } from "../../../types/orders";
+import { PrintOrderDto } from "../../../types/api";
 import "./../assets/orderDetails.css";
 
 interface User {

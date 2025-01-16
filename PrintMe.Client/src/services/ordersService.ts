@@ -1,5 +1,5 @@
 import { baseApiService } from './baseApiService';
-import { PrintOrderDto } from '../types/orders';
+import { PrintOrderDto } from '../types/api';
 
 export const ordersService = {
     async getMyOrders(): Promise<PrintOrderDto[]> {
