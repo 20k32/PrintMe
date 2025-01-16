@@ -2,6 +2,7 @@ namespace PrintMe.Server.Models.DTOs
 {
     public class PrintOrderDto : INullCheck
     {
+        public int PrintOrderId { get; init; }
         public int UserId { get; init; }
         public int PrinterId { get; init; }
         public double Price { get; init; }
@@ -14,7 +15,8 @@ namespace PrintMe.Server.Models.DTOs
         public int PrintOrderStatusId { get; init; }
         public int PrintOrderStatusReasonId { get; init; }
 
-        public bool IsNull() => UserId == default
+        public bool IsNull() => PrintOrderId == default
+                                || UserId == default
                                 || PrinterId == default
                                 || Price == 0d
                                 || StartDate == default

@@ -1,0 +1,21 @@
+.orderd-container {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+  
+  .card {
+    max-width: 1200px;
+    width: 100%;
+    min-height: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+    color: white;
+    text-decoration: none;
+  }
+  
