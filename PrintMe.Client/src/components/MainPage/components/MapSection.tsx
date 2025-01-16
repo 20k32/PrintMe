@@ -1,15 +1,28 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   StandaloneSearchBox,
-  InfoWindow
+  InfoWindow,
 } from "@react-google-maps/api";
-import { GOOGLE_MAPS_API_KEY, MAP_CONFIG, GOOGLE_MAPS_LIBRARIES } from "../../../constants";
+import {
+  GOOGLE_MAPS_API_KEY,
+  MAP_CONFIG,
+  GOOGLE_MAPS_LIBRARIES,
+} from "../../../constants";
 import { markersService } from "../../../services/markersService";
 import { authService } from "../../../services/authService";
-import { FetchParams, MarkerWithPrinterInfo } from "../../../services/markersService";
-import { SimplePrinterDto } from '../../../types/api';
+import {
+  FetchParams,
+  MarkerWithPrinterInfo,
+} from "../../../services/markersService";
+import { SimplePrinterDto } from "../../../types/api";
 
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
@@ -24,22 +37,26 @@ interface AdvancedMarkerProps {
 }
 
 const AdvancedMarker: React.FC<AdvancedMarkerProps> = ({ position, map }) => {
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
+    null
+  );
 
   useEffect(() => {
     let isMounted = true;
 
     const initMarker = async () => {
       try {
-        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+        const { AdvancedMarkerElement } = (await google.maps.importLibrary(
+          "marker"
+        )) as google.maps.MarkerLibrary;
         if (isMounted && !markerRef.current) {
           markerRef.current = new AdvancedMarkerElement({
             position,
-            map
+            map,
           });
         }
       } catch (error) {
-        console.error('Error initializing marker:', error);
+        console.error("Error initializing marker:", error);
       }
     };
 
@@ -63,22 +80,34 @@ interface MarkerContentProps {
   onCreateOrder: () => void;
 }
 
-const MarkerContent: React.FC<MarkerContentProps> = ({ printerInfo, isLoggedIn, onCreateOrder }) => (
+const MarkerContent: React.FC<MarkerContentProps> = ({
+  printerInfo,
+  isLoggedIn,
+  onCreateOrder,
+}) => (
   <div>
     <h6>Printer {printerInfo.modelName}</h6>
-    <p>Materials: {printerInfo.materials.map(material => material.name).join(", ")}</p>
+    <p>
+      Materials:{" "}
+      {printerInfo.materials.map((material) => material.name).join(", ")}
+    </p>
     {isLoggedIn ? (
-      <button 
-        className="btn btn-primary create-order-btn" 
+      <button
+        className="btn btn-primary create-order-btn"
         style={{ backgroundColor: "#2c1d55" }}
         onClick={onCreateOrder}
       >
         Create Order
       </button>
     ) : (
-      <p className="text-muted">
-        <big>Please log in to create orders</big>
-      </p>
+      <button
+        className="btn btn-primary create-order-btn"
+        style={{ backgroundColor: "gray" }}
+        disabled
+        title="Please log in to create an order"
+      >
+        Create Order
+      </button>
     )}
   </div>
 );
@@ -103,11 +132,11 @@ const InfoWindowContent: React.FC<{
   );
 };
 
-const MapSection: React.FC<MapSectionProps> = ({ 
-  onLocationSelect, 
-  selectionMode = false, 
+const MapSection: React.FC<MapSectionProps> = ({
+  onLocationSelect,
+  selectionMode = false,
   filters = {} as FetchParams,
-  onMarkerClick 
+  onMarkerClick,
 }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -118,8 +147,10 @@ const MapSection: React.FC<MapSectionProps> = ({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [searchBox, setSearchBox] =
     useState<google.maps.places.SearchBox | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
-  const [activeMarker, setActiveMarker] = useState<MarkerWithPrinterInfo | null>(null);
+  const [selectedLocation, setSelectedLocation] =
+    useState<google.maps.LatLng | null>(null);
+  const [activeMarker, setActiveMarker] =
+    useState<MarkerWithPrinterInfo | null>(null);
 
   const markersRef = useRef<MarkerWithPrinterInfo[]>([]);
   const lastFiltersRef = useRef<FetchParams>({});
@@ -149,7 +180,7 @@ const MapSection: React.FC<MapSectionProps> = ({
             setSelectedLocation(place.geometry.location);
             onLocationSelect({
               x: place.geometry.location.lat(),
-              y: place.geometry.location.lng()
+              y: place.geometry.location.lng(),
             });
           }
         }
@@ -172,20 +203,21 @@ const MapSection: React.FC<MapSectionProps> = ({
       setSelectedLocation(location);
       onLocationSelect({
         x: location.lng(),
-        y: location.lat()
+        y: location.lat(),
       });
     }
   };
 
-  const handleMarkerClick = useCallback((printer: SimplePrinterDto) => {
-    if (onMarkerClick) {
-      onMarkerClick(printer);
-    }
-  }, [onMarkerClick]);
+  const handleMarkerClick = useCallback(
+    (printer: SimplePrinterDto) => {
+      if (onMarkerClick) {
+        onMarkerClick(printer);
+      }
+    },
+    [onMarkerClick]
+  );
 
-  const setupMarkerUI = useCallback((
-    marker: MarkerWithPrinterInfo
-  ) => {
+  const setupMarkerUI = useCallback((marker: MarkerWithPrinterInfo) => {
     marker.addListener("click", () => {
       setActiveMarker(null);
       setTimeout(() => {
@@ -204,12 +236,18 @@ const MapSection: React.FC<MapSectionProps> = ({
       debounceTimeout = setTimeout(async () => {
         if (isMounted) {
           try {
-            if (JSON.stringify(lastFiltersRef.current) !== JSON.stringify(memoizedFilters)) {
-              const newMarkers = await markersService.getGoogleMapsMarkers(map, memoizedFilters);
-              
-              newMarkers.forEach(marker => setupMarkerUI(marker));
-              
-              markersRef.current.forEach(marker => {
+            if (
+              JSON.stringify(lastFiltersRef.current) !==
+              JSON.stringify(memoizedFilters)
+            ) {
+              const newMarkers = await markersService.getGoogleMapsMarkers(
+                map,
+                memoizedFilters
+              );
+
+              newMarkers.forEach((marker) => setupMarkerUI(marker));
+
+              markersRef.current.forEach((marker) => {
                 if (!newMarkers.includes(marker)) {
                   marker.map = null;
                 }
@@ -219,7 +257,7 @@ const MapSection: React.FC<MapSectionProps> = ({
               lastFiltersRef.current = memoizedFilters;
             }
           } catch (error) {
-            console.error('Error loading markers:', error);
+            console.error("Error loading markers:", error);
           }
         }
       }, 300);
@@ -235,15 +273,17 @@ const MapSection: React.FC<MapSectionProps> = ({
 
   useEffect(() => {
     return () => {
-      markersRef.current.forEach(marker => marker.map = null);
+      markersRef.current.forEach((marker) => (marker.map = null));
       markersRef.current = [];
     };
   }, []);
 
   if (!isLoaded) {
-    return <div className="d-flex justify-content-center align-items-center h-100">
-      Loading...
-      </div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center h-100">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -272,7 +312,7 @@ const MapSection: React.FC<MapSectionProps> = ({
             onLoad={onLoadMap}
             onUnmount={onUnmountMap}
             onClick={handleMapClick}
-            options={{ 
+            options={{
               mapId: MAP_CONFIG.mapId,
               minZoom: MAP_CONFIG.minZoom,
               restriction: {
@@ -306,7 +346,7 @@ const MapSection: React.FC<MapSectionProps> = ({
             />
           </StandaloneSearchBox>
           {!selectionMode && (
-            <button 
+            <button
               className="btn d-flex align-items-center gap-2"
               style={{
                 background: "rgba(255, 255, 255, 0.15)",

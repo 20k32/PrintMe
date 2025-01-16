@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SimplePrinterDto } from '../../../types/api';
+import { orderService } from '../../../services/orderService';
+import { toast } from 'react-toastify';
 
 interface OrderModalProps {
   printer: SimplePrinterDto;
@@ -17,22 +19,45 @@ interface OrderModalProps {
   }) => void;
 }
 
-const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose, onSubmit }) => {
-  const handleSubmit = (e: React.FormEvent) => {
+const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose }) => {
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const formatUrl = (url: string): string => {
+    if (!url) return url;
+    return url.startsWith('http://') || url.startsWith('https://')
+      ? url
+      : `https://${url}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    
-    onSubmit({
-      orderName: formData.get('orderName') as string,
-      description: formData.get('description') as string,
-      contact: formData.get('contact') as string,
-      price: formData.get('price') as string,
-      file: (formData.get('file') as File) || null,
-      printerName: printer.modelName,
-      dueDate: formData.get('dueDate') as string,
-      quantity: parseInt(formData.get('quantity') as string, 10),
-      selectedMaterial: parseInt(formData.get('selectedMaterial') as string, 10)
-    });
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      const orderData = {
+        printerId: printer.id,
+        price: Number(formData.get('price')),
+        itemLink: formatUrl(String(formData.get('fileName'))),
+        dueDate: String(formData.get('dueDate')),
+        itemQuantity: Number(formData.get('quantity')),
+        itemDescription: String(formData.get('description')),
+        itemMaterialId: Number(formData.get('selectedMaterial')),
+      };
+
+      await orderService.createOrder(orderData);
+      toast.success('Order created successfully!');
+      onClose();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create order';
+      setError(errorMessage);
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -94,6 +119,11 @@ const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose, onSubmit }) =
           </div>
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
               <div className="d-flex flex-column gap-3">
                 <div>
                   <label htmlFor="description" className="form-label">
@@ -184,14 +214,16 @@ const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose, onSubmit }) =
                 </div>
 
                 <div>
-                  <label htmlFor="file" className="form-label">
-                    Attach File:
+                  <label htmlFor="fileName" className="form-label">
+                    File URL:
                   </label>
                   <input
-                    type="file"
-                    id="file"
-                    name="file"
+                    type="text"
+                    id="fileName"
+                    name="fileName"
                     className="form-control"
+                    placeholder="Enter file URL (with or without http/https)"
+                    pattern="^(https?:\/\/)?.+"
                     required
                     style={{
                       backgroundColor: "#776d91",
@@ -211,6 +243,8 @@ const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose, onSubmit }) =
                     id="price"
                     name="price"
                     className="form-control"
+                    step="0.01"
+                    min="0"
                     required
                     style={{
                       backgroundColor: "#776d91",
@@ -226,6 +260,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose, onSubmit }) =
               <button
                 type="submit"
                 className="btn btn-lg"
+                disabled={isSubmitting}
                 style={{
                   backgroundColor: "#2c1d55",
                   color: "#ffffff",
@@ -233,7 +268,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose, onSubmit }) =
                   padding: "10px 50px",
                 }}
               >
-                Create
+                {isSubmitting ? 'Creating...' : 'Create'}
               </button>
             </div>
           </form>
