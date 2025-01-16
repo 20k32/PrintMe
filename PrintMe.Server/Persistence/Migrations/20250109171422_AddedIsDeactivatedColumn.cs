@@ -127,6 +127,11 @@ namespace PrintMe.Server.Persistence.Migrations
                 keyValue: 5);
 
             migrationBuilder.DeleteData(
+                table: "print_order_status",
+                keyColumn: "print_order_status_id",
+                keyValue: 6);
+
+            migrationBuilder.DeleteData(
                 table: "print_order_status_reason",
                 keyColumn: "print_order_status_reason_id",
                 keyValue: 1);
