@@ -98,7 +98,7 @@ const OrderDetails: React.FC = () => {
     <div className="orderd-container py-5">
       <div className="card shadow-lg p-4">
         <div className="card-header text-white d-flex align-items-center justify-content-between">
-          <h4>Order/{order.printOrderId}</h4>
+          <h4>Order #{order.printOrderId}</h4>
           <a href="#" onClick={handleBackClick} className="text-white header-icon">
             <i className="bi bi-arrow-bar-left fs-2"></i>
           </a>
