@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/orders.css";
 import { PrintOrderDto } from "../../types/api";
 import { ordersService } from "../../services/ordersService";
+import { userService } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
 
 
@@ -24,7 +25,7 @@ const Orders: React.FC = () => {
         const userIds = Array.from(new Set(data.map((order) => order.userId)));
 
         const userPromises = userIds.map((userId) =>
-          ordersService.getUserById(userId).then((userData) => ({
+          userService.getUserFullNameById(userId).then((userData) => ({
             userId,
             userData,
           }))

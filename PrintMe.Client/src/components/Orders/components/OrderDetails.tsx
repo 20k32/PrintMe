@@ -1,7 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ordersService } from "../../../services/ordersService";
+import { userService } from "../../../services/userService";
 import { PrintOrderDto } from "../../../types/api";
+import { printerService } from "../../../services/printerService";
 import "./../assets/orderDetails.css";
 
 interface User {
@@ -9,11 +11,17 @@ interface User {
   lastName: string;
 }
 
+interface Material {
+  printMaterialId: number;
+  name: string;
+}
+
 const OrderDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<PrintOrderDto | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,11 +33,14 @@ const OrderDetails: React.FC = () => {
         setOrder(orderDetails || null);
 
         if (orderDetails) {
-          const userData = await ordersService.getUserById(orderDetails.userId);
+          const userData = await userService.getUserFullNameById(orderDetails.userId);
           setUser(userData);
         }
+
+        const materialsData = await printerService.getMaterials();
+        setMaterials(materialsData);
       } catch (error) {
-        console.error("Error fetching order details", error);
+        console.error("Error fetching order details or materials", error);
       } finally {
         setIsLoading(false);
       }
@@ -37,6 +48,11 @@ const OrderDetails: React.FC = () => {
 
     fetchOrderDetails();
   }, [orderId]);
+
+  const getMaterialDisplay = (materialId: number) => {
+    const material = materials.find((m) => m.printMaterialId === materialId);
+    return material ? material.name : "Unknown Material";
+  };
 
   const getStatusDisplay = (statusId: number) => {
     switch (statusId) {
@@ -52,21 +68,6 @@ const OrderDetails: React.FC = () => {
         return <span className="badge bg-secondary">Archived</span>;
       default:
         return <span className="badge bg-secondary">Unknown</span>;
-    }
-  };
-
-  const getMaterialDisplay = (materialId: number) => {
-    switch (materialId) {
-      case 1:
-        return "Gleason - Rutherford";
-      case 2:
-        return "Hansen - Beatty";
-      case 3:
-        return "Ritchie - Maggio";
-      case 4:
-        return "Thompson LLC";
-      default:
-        return "Unknown Material";
     }
   };
 
