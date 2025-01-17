@@ -6,7 +6,7 @@ import { PrintOrderDto } from "../../types/api";
 import { ordersService } from "../../services/ordersService";
 import { userService } from "../../services/userService";
 import { useNavigate } from "react-router-dom";
-
+import { getStatusDisplay } from "../../utils/orderUtils";
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<PrintOrderDto[]>([]);
@@ -52,24 +52,6 @@ const Orders: React.FC = () => {
 
     fetchOrders();
   }, []);
-
-
-  const getStatusDisplay = (statusId: number) => {
-    switch (statusId) {
-      case 1:
-        return <span className="badge bg-warning">Pending</span>;
-      case 2:
-        return <span className="badge bg-danger">Declined</span>;
-      case 3:
-        return <span className="badge bg-success">Started</span>;
-      case 4:
-        return <span className="badge bg-danger">Aborted</span>;
-      case 5:
-        return <span className="badge bg-secondary">Archived</span>;
-      default:
-        return <span className="badge bg-secondary">Unknown</span>;
-    }
-  };
 
   const handleOrderClick = (printOrderId: number) => {
     navigate(`/orders/${printOrderId}`);

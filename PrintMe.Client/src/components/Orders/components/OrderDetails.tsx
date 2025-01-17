@@ -4,6 +4,7 @@ import { ordersService } from "../../../services/ordersService";
 import { userService } from "../../../services/userService";
 import { PrintOrderDto } from "../../../types/api";
 import { printerService } from "../../../services/printerService";
+import { getStatusDisplay } from "../../../utils/orderUtils";
 import "./../assets/orderDetails.css";
 
 interface User {
@@ -52,23 +53,6 @@ const OrderDetails: React.FC = () => {
   const getMaterialDisplay = (materialId: number) => {
     const material = materials.find((m) => m.printMaterialId === materialId);
     return material ? material.name : "Unknown Material";
-  };
-
-  const getStatusDisplay = (statusId: number) => {
-    switch (statusId) {
-      case 1:
-        return <span className="badge bg-warning">Pending</span>;
-      case 2:
-        return <span className="badge bg-danger">Declined</span>;
-      case 3:
-        return <span className="badge bg-success">Started</span>;
-      case 4:
-        return <span className="badge bg-danger">Aborted</span>;
-      case 5:
-        return <span className="badge bg-secondary">Archived</span>;
-      default:
-        return <span className="badge bg-secondary">Unknown</span>;
-    }
   };
 
   const handleBackClick = () => {
