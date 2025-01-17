@@ -7,6 +7,7 @@ import { handleApiError } from '../../../utils/apiErrorHandler';
 import { PrinterApplicationDto } from "../../../types/requests";
 import { PrintMaterial, PrinterModel } from "../../../constants";
 import "../assets/requests.css";
+import { toast } from "react-toastify";
 
 export const AddPrinter = () => {
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ export const AddPrinter = () => {
     try {
       await requestsService.submitPrinterApplication(printer);
       navigate("/requests");
+      toast.success('Request for adding printer created successfully!');
     } catch (error) {
       setError(handleApiError(error, {
         badRequest: "Failed to submit printer application. Please check your input."

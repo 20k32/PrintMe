@@ -44,7 +44,6 @@ const Requests: React.FC = () => {
             <div className="requests-content">
                 <h1 className="text-white mb-4">Requests</h1>
                 
-                {/* Action Cards */}
                 <div className="d-flex gap-4 justify-content-center mb-5">
                     <Link to="/requests/printer" className="request-card">
                         <i className="bi bi-printer-fill mb-3 fs-1"></i>
@@ -53,7 +52,6 @@ const Requests: React.FC = () => {
                     </Link>
                 </div>
 
-                {/* Pending Requests List */}
                 {!isLoading && requests.length > 0 && (
                     <div className="requests-list-container">
                         <h2 className="text-white mb-4">Your Requests</h2>

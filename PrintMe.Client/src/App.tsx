@@ -10,6 +10,9 @@ import Profile from "./components/Profile/Profile.tsx";
 import { AddPrinter } from "./components/Requests/components/AddPrinter";
 import Orders from "./components/Orders/Orders.tsx";
 import OrderDetails from "./components/Orders/components/OrderDetails.tsx";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 function App() {
@@ -54,6 +57,18 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
       </Routes>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 }

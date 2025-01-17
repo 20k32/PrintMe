@@ -32,7 +32,8 @@ namespace PrintMe.Server.Persistence.Migrations
                     { 2, "Declined" },
                     { 3, "Started" },
                     { 4, "Aborted" },
-                    { 5, "Archived" }
+                    { 5, "Done"},
+                    { 6, "Archived" }
                 });
 
             migrationBuilder.InsertData(
@@ -124,6 +125,11 @@ namespace PrintMe.Server.Persistence.Migrations
                 table: "print_order_status",
                 keyColumn: "print_order_status_id",
                 keyValue: 5);
+
+            migrationBuilder.DeleteData(
+                table: "print_order_status",
+                keyColumn: "print_order_status_id",
+                keyValue: 6);
 
             migrationBuilder.DeleteData(
                 table: "print_order_status_reason",
