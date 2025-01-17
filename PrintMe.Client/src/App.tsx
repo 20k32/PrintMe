@@ -8,8 +8,11 @@ import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
 import Profile from "./components/Profile/Profile.tsx";
 import { AddPrinter } from "./components/Requests/components/AddPrinter";
+import Orders from "./components/Orders/Orders.tsx";
+import OrderDetails from "./components/Orders/components/OrderDetails.tsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 
 
 function App() {
@@ -51,6 +54,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/requests/printer" element={<AddPrinter />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
       </Routes>
       <ToastContainer
         position="bottom-right"
