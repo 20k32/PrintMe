@@ -1,17 +1,34 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   StandaloneSearchBox,
+  InfoWindow,
 } from "@react-google-maps/api";
-import { GOOGLE_MAPS_API_KEY, MAP_CONFIG, GOOGLE_MAPS_LIBRARIES } from "../../../constants";
+import {
+  GOOGLE_MAPS_API_KEY,
+  MAP_CONFIG,
+  GOOGLE_MAPS_LIBRARIES,
+} from "../../../constants";
 import { markersService } from "../../../services/markersService";
-import { FetchParams } from "../../../services/markersService";
+import { authService } from "../../../services/authService";
+import {
+  FetchParams,
+  MarkerWithPrinterInfo,
+} from "../../../services/markersService";
+import { SimplePrinterDto } from "../../../types/api";
 
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
   selectionMode?: boolean;
   filters?: FetchParams;
+  onMarkerClick?: (printer: SimplePrinterDto) => void;
 }
 
 interface AdvancedMarkerProps {
@@ -20,22 +37,26 @@ interface AdvancedMarkerProps {
 }
 
 const AdvancedMarker: React.FC<AdvancedMarkerProps> = ({ position, map }) => {
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
+    null
+  );
 
   useEffect(() => {
     let isMounted = true;
 
     const initMarker = async () => {
       try {
-        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+        const { AdvancedMarkerElement } = (await google.maps.importLibrary(
+          "marker"
+        )) as google.maps.MarkerLibrary;
         if (isMounted && !markerRef.current) {
           markerRef.current = new AdvancedMarkerElement({
             position,
-            map
+            map,
           });
         }
       } catch (error) {
-        console.error('Error initializing marker:', error);
+        console.error("Error initializing marker:", error);
       }
     };
 
@@ -53,7 +74,70 @@ const AdvancedMarker: React.FC<AdvancedMarkerProps> = ({ position, map }) => {
   return null;
 };
 
-const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode = false, filters = {} as FetchParams }) => {
+interface MarkerContentProps {
+  printerInfo: SimplePrinterDto;
+  isLoggedIn: boolean;
+  onCreateOrder: () => void;
+}
+
+const MarkerContent: React.FC<MarkerContentProps> = ({
+  printerInfo,
+  isLoggedIn,
+  onCreateOrder,
+}) => (
+  <div>
+    <h6>Printer {printerInfo.modelName}</h6>
+    <p>
+      Materials:{" "}
+      {printerInfo.materials.map((material) => material.name).join(", ")}
+    </p>
+    {isLoggedIn ? (
+      <button
+        className="btn btn-primary create-order-btn"
+        style={{ backgroundColor: "#2c1d55" }}
+        onClick={onCreateOrder}
+      >
+        Create Order
+      </button>
+    ) : (
+      <button
+        className="btn btn-primary create-order-btn"
+        style={{ backgroundColor: "gray" }}
+        disabled
+        title="Please log in to create an order"
+      >
+        Create Order
+      </button>
+    )}
+  </div>
+);
+
+const InfoWindowContent: React.FC<{
+  marker: MarkerWithPrinterInfo;
+  onClose: () => void;
+  onMarkerClick: (printer: SimplePrinterDto) => void;
+}> = ({ marker, onClose, onMarkerClick }) => {
+  const isLoggedIn = authService.isLoggedIn();
+  return (
+    <InfoWindow
+      anchor={marker as unknown as google.maps.MVCObject}
+      onCloseClick={onClose}
+    >
+      <MarkerContent
+        printerInfo={marker.printerInfo}
+        isLoggedIn={isLoggedIn}
+        onCreateOrder={() => onMarkerClick(marker.printerInfo)}
+      />
+    </InfoWindow>
+  );
+};
+
+const MapSection: React.FC<MapSectionProps> = ({
+  onLocationSelect,
+  selectionMode = false,
+  filters = {} as FetchParams,
+  onMarkerClick,
+}) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: GOOGLE_MAPS_LIBRARIES,
@@ -63,9 +147,12 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [searchBox, setSearchBox] =
     useState<google.maps.places.SearchBox | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<google.maps.LatLng | null>(null);
+  const [selectedLocation, setSelectedLocation] =
+    useState<google.maps.LatLng | null>(null);
+  const [activeMarker, setActiveMarker] =
+    useState<MarkerWithPrinterInfo | null>(null);
 
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const markersRef = useRef<MarkerWithPrinterInfo[]>([]);
   const lastFiltersRef = useRef<FetchParams>({});
 
   const onLoadMap = useCallback((mapInstance: google.maps.Map) => {
@@ -93,7 +180,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
             setSelectedLocation(place.geometry.location);
             onLocationSelect({
               x: place.geometry.location.lat(),
-              y: place.geometry.location.lng()
+              y: place.geometry.location.lng(),
             });
           }
         }
@@ -116,10 +203,28 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
       setSelectedLocation(location);
       onLocationSelect({
         x: location.lng(),
-        y: location.lat()
+        y: location.lat(),
       });
     }
   };
+
+  const handleMarkerClick = useCallback(
+    (printer: SimplePrinterDto) => {
+      if (onMarkerClick) {
+        onMarkerClick(printer);
+      }
+    },
+    [onMarkerClick]
+  );
+
+  const setupMarkerUI = useCallback((marker: MarkerWithPrinterInfo) => {
+    marker.addListener("click", () => {
+      setActiveMarker(null);
+      setTimeout(() => {
+        setActiveMarker(marker);
+      }, 10);
+    });
+  }, []);
 
   const memoizedFilters = useMemo(() => filters, [filters]);
 
@@ -131,10 +236,18 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
       debounceTimeout = setTimeout(async () => {
         if (isMounted) {
           try {
-            if (JSON.stringify(lastFiltersRef.current) !== JSON.stringify(memoizedFilters)) {
-              const newMarkers = await markersService.getGoogleMapsMarkers(map, memoizedFilters);
-              
-              markersRef.current.forEach(marker => {
+            if (
+              JSON.stringify(lastFiltersRef.current) !==
+              JSON.stringify(memoizedFilters)
+            ) {
+              const newMarkers = await markersService.getGoogleMapsMarkers(
+                map,
+                memoizedFilters
+              );
+
+              newMarkers.forEach((marker) => setupMarkerUI(marker));
+
+              markersRef.current.forEach((marker) => {
                 if (!newMarkers.includes(marker)) {
                   marker.map = null;
                 }
@@ -144,7 +257,7 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
               lastFiltersRef.current = memoizedFilters;
             }
           } catch (error) {
-            console.error('Error loading markers:', error);
+            console.error("Error loading markers:", error);
           }
         }
       }, 300);
@@ -156,93 +269,104 @@ const MapSection: React.FC<MapSectionProps> = ({ onLocationSelect, selectionMode
         clearTimeout(debounceTimeout);
       }
     };
-  }, [memoizedFilters, map, selectionMode]);
+  }, [memoizedFilters, map, selectionMode, setupMarkerUI, handleMarkerClick]);
 
   useEffect(() => {
     return () => {
-      markersRef.current.forEach(marker => marker.map = null);
+      markersRef.current.forEach((marker) => (marker.map = null));
       markersRef.current = [];
     };
   }, []);
 
   if (!isLoaded) {
-    return <div className="d-flex justify-content-center align-items-center h-100">
-      Loading...
-      </div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center h-100">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="d-flex flex-column h-100">
-      <h2 className="text-white fs-3 mb-3">
-        {selectionMode ? "Select Printer Location" : "Map of printers"}
-      </h2>
-      <div
-        className="map-wrapper mb-3"
-        style={{
-          height: selectionMode ? "400px" : "calc(100vh - 350px)",
-          width: "100%",
-          borderRadius: "10px",
-          overflow: "hidden",
-          background: "rgba(255, 255, 255, 0.05)",
-        }}
-      >
-        <GoogleMap
-          mapContainerStyle={{
+    <>
+      <div className="d-flex flex-column h-100">
+        <h2 className="text-white fs-3 mb-3">
+          {selectionMode ? "Select Printer Location" : "Map of printers"}
+        </h2>
+        <div
+          className="map-wrapper mb-3"
+          style={{
+            height: selectionMode ? "400px" : "calc(100vh - 350px)",
             width: "100%",
-            height: "100%",
-          }}
-          center={MAP_CONFIG.center}
-          zoom={MAP_CONFIG.zoom}
-          onLoad={onLoadMap}
-          onUnmount={onUnmountMap}
-          onClick={handleMapClick}
-          options={{ 
-            mapId: MAP_CONFIG.mapId,
-            minZoom: MAP_CONFIG.minZoom,
-            restriction: {
-              latLngBounds: MAP_CONFIG.maxBounds,
-              strictBounds: true,
-            },
-            streetViewControl: false,
+            borderRadius: "10px",
+            overflow: "hidden",
+            background: "rgba(255, 255, 255, 0.05)",
           }}
         >
-          {selectedLocation && selectionMode && map && (
-            <AdvancedMarker position={selectedLocation} map={map} />
-          )}
-        </GoogleMap>
-      </div>
-      <div className="d-flex justify-content-center align-items-center gap-3">
-        <StandaloneSearchBox
-          onLoad={onSearchBoxLoad}
-          onPlacesChanged={onPlacesChanged}
-        >
-          <input
-            type="text"
-            className="form-control map-search-input"
-            placeholder="Search location..."
-          />
-        </StandaloneSearchBox>
-        {!selectionMode && (
-          <button 
-            className="btn d-flex align-items-center gap-2"
-            style={{
-              background: "rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              color: "white",
-              backdropFilter: "blur(10px)",
-              height: "42px",
-              borderRadius: "8px",
-              padding: "0 20px",
-              transition: "all 0.2s ease",
+          <GoogleMap
+            mapContainerStyle={{
+              width: "100%",
+              height: "100%",
             }}
-            onClick={resetPosition}
+            center={MAP_CONFIG.center}
+            zoom={MAP_CONFIG.zoom}
+            onLoad={onLoadMap}
+            onUnmount={onUnmountMap}
+            onClick={handleMapClick}
+            options={{
+              mapId: MAP_CONFIG.mapId,
+              minZoom: MAP_CONFIG.minZoom,
+              restriction: {
+                latLngBounds: MAP_CONFIG.maxBounds,
+                strictBounds: true,
+              },
+              streetViewControl: false,
+            }}
           >
-            <i className="bi bi-geo-alt"></i>
-            Reset position
-          </button>
-        )}
+            {selectedLocation && selectionMode && map && (
+              <AdvancedMarker position={selectedLocation} map={map} />
+            )}
+            {activeMarker && (
+              <InfoWindowContent
+                marker={activeMarker}
+                onClose={() => setActiveMarker(null)}
+                onMarkerClick={handleMarkerClick}
+              />
+            )}
+          </GoogleMap>
+        </div>
+        <div className="d-flex justify-content-center align-items-center gap-3">
+          <StandaloneSearchBox
+            onLoad={onSearchBoxLoad}
+            onPlacesChanged={onPlacesChanged}
+          >
+            <input
+              type="text"
+              className="form-control map-search-input"
+              placeholder="Search location..."
+            />
+          </StandaloneSearchBox>
+          {!selectionMode && (
+            <button
+              className="btn d-flex align-items-center gap-2"
+              style={{
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                color: "white",
+                backdropFilter: "blur(10px)",
+                height: "42px",
+                borderRadius: "8px",
+                padding: "0 20px",
+                transition: "all 0.2s ease",
+              }}
+              onClick={resetPosition}
+            >
+              <i className="bi bi-geo-alt"></i>
+              Reset position
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

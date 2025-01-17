@@ -80,6 +80,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
         if (token) {
           onClick(true);
           onClose();
+          window.location.reload();
         }
       } catch (error) {
         setErrors({ 

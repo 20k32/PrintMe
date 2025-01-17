@@ -18,17 +18,11 @@ public partial class PrintMeDbContext : DbContext
     public PrintMeDbContext(DbContextOptions<PrintMeDbContext> options)
         : base(options)
     {
-#if DEBUG
-        //Database.EnsureDeleted();
-        //Database.EnsureCreated();
-#endif
         
     }
 
     public async Task LoadTestDataAsync()
     {
-        // await UserRoles.GenerateForUserRolesAsync();
-        // await UserStatuses.GenerateForUserStatusesAsync();
         await Users.GenerateForUsersAsync(15);
         await Printers.GenerateForPrintersAsync(PrintMaterials1, PrinterModels, 15, 4, 10);
         

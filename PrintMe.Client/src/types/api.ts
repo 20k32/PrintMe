@@ -8,6 +8,16 @@ export interface ApiResponse<T> {
     statusCode: number;
 }
 
+export interface CreateOrderRequest extends RequestData {
+    printerId: number;
+    price: number;
+    itemLink: string;
+    dueDate: string;
+    itemQuantity: number;
+    itemDescription: string;
+    itemMaterialId: number;
+}
+
 export interface SimplePrinterDto {
     id: number;
     modelName: string;

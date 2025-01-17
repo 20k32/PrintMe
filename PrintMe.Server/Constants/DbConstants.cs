@@ -23,6 +23,7 @@ public static class DbConstants
         public const string Started = "Started";
         public const string Aborted = "Aborted";
         public const string Archived = "Archived";
+        public const string Done = "Done";
 
         public static readonly IReadOnlyDictionary<string, int> Dictionary = new Dictionary<string, int>
         {
@@ -30,7 +31,8 @@ public static class DbConstants
             { Declined, 2 },
             { Started, 3 },
             { Aborted, 4 },
-            { Archived, 5 }
+            { Done, 5 },
+            { Archived, 6 }
         };
     }
 

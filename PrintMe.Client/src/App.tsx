@@ -8,6 +8,8 @@ import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
 import Profile from "./components/Profile/Profile.tsx";
 import { AddPrinter } from "./components/Requests/components/AddPrinter";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function App() {
@@ -50,6 +52,18 @@ function App() {
         <Route path="/requests" element={<Requests />} />
         <Route path="/requests/printer" element={<AddPrinter />} />
       </Routes>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 }

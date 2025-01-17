@@ -21,7 +21,7 @@ export const baseApiService = {
         return response.data.value;
     },
 
-    async post<T>(endpoint: string, data: RequestData, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
+    async post<T>(endpoint: string, data: RequestData | FormData, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
         const config = requiresAuth ? createAuthHeader() : {};
         const response = await axios.post<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, data, config);
         if (isArray || Array.isArray(response.data)) {
