@@ -1,72 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import FilterFoldGroup from "./components/FilterSection";
 import MapSection from "./components/MapSection";
-import backgroundImage from "./assets/images/background.png";
+import OrderModal from "./components/OrderModal";
+import { FilterState } from "../../constants";
+import { FetchParams } from "../../services/markersService";
+import { SimplePrinterDto } from "../../types/api";
+import "./assets/mainpage.css";
 
 const MainPage: React.FC = () => {
   const [key, setKey] = useState(0);
+  const [filters, setFilters] = useState<FetchParams>({});
+  const [selectedPrinter, setSelectedPrinter] = useState<SimplePrinterDto | null>(null);
 
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, []);
 
-  return (
-    <div
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center center",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        gap: "30px",
-        padding: "40px",
-      }}
-    >
-      {}
-      <div
-        style={{
-          flex: 3,
-          borderRadius: "25px",
-          overflow: "hidden",
-          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-          backgroundColor: "#fff",
-          height: "90vh",
-        }}
-      >
-        <MapSection key={key} />
-      </div>
+  const debouncedSetFilters = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+    return (newFilters: FilterState) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const convertedFilters = { ...newFilters } as FetchParams;
+        setFilters(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(convertedFilters)) {
+            return prev;
+          }
+          return convertedFilters;
+        });
+      }, 10);
+    };
+  }, []);
 
-      {}
-      <div
-        style={{
-          flex: 1,
-          borderRadius: "25px",
-          overflow: "hidden",
-          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-          backgroundColor: "#fff",
-          height: "auto",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "20px",
-          minHeight: "40vh",
-        }}
-      >
-        <h2 className="fs-4 mb-3">Filter by</h2>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "30px",
-            flexWrap: "wrap",
-          }}
-        >
-          <FilterFoldGroup />
+  const handleFiltersChange = useCallback((newFilters: FilterState) => {
+    debouncedSetFilters(newFilters);
+  }, [debouncedSetFilters]);
+
+  const handleMarkerClick = useCallback((printer: SimplePrinterDto) => {
+    setSelectedPrinter(printer);
+  }, []);
+
+  const handleOrderSubmit = useCallback((orderData: unknown) => {
+    console.log(orderData);
+    setSelectedPrinter(null);
+  }, []);
+
+  return (
+    <div className="mainpage-container">
+      <div className="mainpage-content">
+        <div className="map-container">
+          <MapSection 
+            key={key} 
+            filters={filters} 
+            onMarkerClick={handleMarkerClick}
+          />
+        </div>
+
+        <div className="filter-container">
+          <h2 className="text-white fs-4 mb-3">Filter by</h2>
+          <div className="filter-content">
+            <FilterFoldGroup onFiltersChange={handleFiltersChange} />
+          </div>
         </div>
       </div>
+
+      {selectedPrinter && (
+        <OrderModal
+          printer={selectedPrinter}
+          onClose={() => setSelectedPrinter(null)}
+          onSubmit={handleOrderSubmit}
+        />
+      )}
     </div>
   );
 };

@@ -11,6 +11,13 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
                 PrintMaterialId = material.PrintMaterialId
             };
 
+        public static PrinterModelDto MapToDto(this PrinterModel model) =>
+            new()
+            {
+                PrinterModelId = model.PrinterModelId,
+                Name = model.Name
+            };
+
         public static ICollection<PrintMaterialDto> MapToDtos(this ICollection<PrintMaterial> materials) 
             => materials.Select(materialRaw => materialRaw.MapToDto()).ToList();
         
@@ -51,6 +58,8 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
                 Materials = printer.Materials.MapToDtos(),
                 ModelName = printer.PrinterModel.Name
             };
+        
+        
 
         public static Printer MapToEntity(this PrinterDto printerDto) =>
             new()

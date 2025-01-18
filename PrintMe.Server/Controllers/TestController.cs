@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Constants;
 using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Helpers;
@@ -64,7 +65,7 @@ public sealed class TestController : ControllerBase
     [HttpGet("GenerateJwt")]
     public IResult GenerateToken()
     {
-        var loginResult = new SuccessLoginEntity(1, string.Empty, Roles.USER);
+        var loginResult = new SuccessLoginEntity(1, string.Empty, DbConstants.UserRole.User);
         var tokenGenerator = _provider.GetService<TokenGenerator>();
         var token = tokenGenerator.GetForSuccessLoginResult(loginResult);
         return Results.Json(token);

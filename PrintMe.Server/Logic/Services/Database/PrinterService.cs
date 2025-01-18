@@ -1,3 +1,6 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
@@ -5,10 +8,10 @@ using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal sealed class PrinterService
+    internal sealed class PrinterService(PrinterRepository repository, IMapper mapper)
     {
-        private PrinterRepository _repository;
-        public PrinterService(PrinterRepository repository) => _repository = repository;
+        private readonly IMapper _mapper = mapper;
+        private readonly PrinterRepository _repository = repository;
         
         public async IAsyncEnumerable<SimplePrinterDto> GetPrintersBasicAsync(int skip, int take)
         { 
@@ -57,9 +60,9 @@ namespace PrintMe.Server.Logic.Services.Database
             return printerDto;
         }
         
-        public async Task<IEnumerable<PrinterDto>> GetPrintersDetailedByUserId(int id)
+        public async Task<IEnumerable<PrinterDto>> GetPrintersDetailedByUserId(int id, bool? isDeactivated = null)
         {
-            ICollection<Printer> printers = await _repository.GetPrintersForUserAsync(id);
+            ICollection<Printer> printers = await _repository.GetPrintersForUserAsync(id, isDeactivated);
 
             if (printers is null)
             {
@@ -85,11 +88,58 @@ namespace PrintMe.Server.Logic.Services.Database
             return printersDto;
         }
 
+        private async Task GetPrinterModelByName(string name)
+        {
+            var model = await _repository.GetModelByNameAsync(name);
+        }
+
         public async Task AddPrinterAsync(PrinterDto printerDto)
         {
-            var printer = printerDto.MapToEntity();
+            var printer = _mapper.Map<Printer>(printerDto);
+
+            printer.PrinterModel = await _repository.GetModelByNameAsync(printer.PrinterModel.Name);
+
+            printer.Materials ??= [];
+            foreach (var item in printerDto.Materials)
+            {
+                var materialRaw = await repository.GetMaterialByIdAsync(item.PrintMaterialId);
+                printer.Materials.Add(materialRaw);
+            }
+            
             await _repository.AddPrinterAsync(printer);
         }
         
+        public async IAsyncEnumerable<PrinterLocationDto> GetPrinterLocationAsync(ICollection<PrintMaterialDto> material, double? maxHeight, double? maxWidth)
+        {
+            await foreach (var printer in _repository.GetPrinterLocationAsync(material, maxHeight, maxWidth))
+            {
+                yield return printer;
+            }
+        }
+
+        public async Task<List<PrintMaterialDto>> GetMaterialsAsync()
+        {
+            var materials = await _repository.GetAllMaterialsAsync();
+            if (materials is null || materials.Count == 0)
+            {
+                throw new NotFoundMaterialInDbException();
+            }
+            return materials.Select(material => material.MapToDto()).ToList();
+        }
+
+        public async Task<List<PrinterModelDto>> GetModelsAsync()
+        {
+            var models = await _repository.GetAllModelsAsync();
+            if (models is null || models.Count == 0)
+            {
+                throw new NotFoundPrinterModelInDbException();
+            }
+            return models.Select(model => model.MapToDto()).ToList();
+        }
+
+        public async Task DeactivatePrinterAsync(int printerId)
+        {
+            await _repository.DeactivatePrinterAsync(printerId);
+        }
     }
 }

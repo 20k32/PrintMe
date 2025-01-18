@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header/Header.tsx";
 import MainPage from "./components/MainPage/MainPage.tsx";
 import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
-import AdminRequests from "./components/AdminRequests/AdminRequests.tsx";
+import Profile from "./components/Profile/Profile.tsx";
+import { AddPrinter } from "./components/Requests/components/AddPrinter";
+import Orders from "./components/Orders/Orders.tsx";
+import OrderDetails from "./components/Orders/components/OrderDetails.tsx";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 function App() {
   const [isLogined, setIsLogined] = useState<boolean>(authService.isLoggedIn());
   const [showLogin, setShowLogin] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loginState = authService.isLoggedIn();
@@ -24,6 +33,7 @@ function App() {
   const handleLogout = () => {
     setIsLogined(false);
     authService.logout();
+    navigate("/mainpage");
   };
 
   return (
@@ -39,10 +49,26 @@ function App() {
         onClose={handleCloseLogin}
       />      
       <Routes>
-        <Route path="/" element={<MainPage />} />
+        <Route index element={<MainPage />} />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/requests" element={<Requests />} />
-          <Route path="/adminrequests" element={<AdminRequests />} />
+        <Route path="/requests/printer" element={<AddPrinter />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
       </Routes>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 }

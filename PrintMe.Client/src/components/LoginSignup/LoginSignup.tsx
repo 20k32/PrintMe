@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import personIcon from "./assets/images/person.png";
-import emailIcon from "./assets/images/email.png";
-import passwordIcon from "./assets/images/password.png";
+import "./assets/loginsignup.css";
 import { authService } from "../../services/authService";
 import { registrationService } from "../../services/registrationService";
-import axios from 'axios';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
 interface LoginSignupProps {
   onClick: (isLoggedIn: boolean) => void;
@@ -53,8 +51,8 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
 
       if (!formData.password.trim()) {
         newErrors.password = "Password is required.";
-      } else if (formData.password.length < 4) {
-        newErrors.password = "Password must be at least 4 characters.";
+      } else if (formData.password.length < 6 && action === "Sign Up") {
+        newErrors.password = "Password must be at least 6 characters.";
       }
 
       setErrors(newErrors);
@@ -82,210 +80,156 @@ const LoginSignup: React.FC<LoginSignupProps> = ({
         if (token) {
           onClick(true);
           onClose();
+          window.location.reload();
         }
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          switch (error.response?.status) {
-            case 400:
-              setErrors({ general: "Invalid request. Please check your input." });
-              break;
-            case 401:
-            case 403:
-              setErrors({ general: "Invalid email or password." });
-              break;
-            case 404:
-              setErrors({ general: "User not found." });
-              break;
-            case 409:
-              setErrors({ general: "User already exists." });
-              break;
-            default:
-              setErrors({ general: "An error occurred. Please try again." });
-          }
-          console.error('Authentication error:', error);
-        } else {
-          setErrors({ general: "An unexpected error occurred." });
-          console.error('Unexpected error:', error);
-        }
+        setErrors({ 
+          general: handleApiError(error, {
+            unauthorized: "Invalid email or password.",
+            notFound: "User not found.",
+            conflict: "User already exists.",
+            badRequest: "Invalid request. Please check your input."
+          })
+        });
       }
     }
   };
 
+  const handleModalClick = useCallback(() => {
+    if (window.getSelection()?.toString()) {
+      return;
+    }
+    onClose();
+  }, [onClose]);
+
   return (
     <>
       {showLS && (
-        <div
-          className="d-flex align-items-center justify-content-center position-fixed w-100 h-100 bg-dark bg-opacity-50"
-          style={{ zIndex: 9999 }}
-          onClick={onClose}
-        >
-          <div
-            className="bg-white p-4 rounded shadow-lg"
-            style={{ width: "400px" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="d-flex justify-content-center mb-4">
-              <h2
-                className={`me-4 ${
-                  action === "Sign In"
-                    ? "text-primary text-decoration-underline fw-bold"
-                    : "text-muted"
-                }`}
-                onClick={() => setAction("Sign In")}
-                style={{
-                  cursor: "pointer",
-                  color: action === "Sign In" ? "#6c30f3" : "#6c757d",
-                }}
-              >
+        <div className="login-modal d-flex align-items-center justify-content-center position-fixed w-100 h-100"
+             style={{ zIndex: 9999 }}
+             onMouseUp={handleModalClick}>
+          <div className="login-container p-4" 
+               style={{ width: "400px" }}
+               onMouseUp={(e) => e.stopPropagation()}>
+            <div className="d-flex justify-content-center gap-4 mb-5">
+              <h2 className={`login-tab ${action === "Sign In" ? "active" : ""}`}
+                  onClick={() => setAction("Sign In")}>
                 SIGN IN
               </h2>
-              <h2
-                className={`${
-                  action === "Sign Up"
-                    ? "text-primary text-decoration-underline fw-bold"
-                    : "text-muted"
-                }`}
-                onClick={() => setAction("Sign Up")}
-                style={{
-                  cursor: "pointer",
-                  color: action === "Sign Up" ? "#6c30f3" : "#6c757d",
-                }}
-              >
+              <h2 className={`login-tab ${action === "Sign Up" ? "active" : ""}`}
+                  onClick={() => setAction("Sign Up")}>
                 SIGN UP
               </h2>
             </div>
-            <form>
+
+            <form className="d-flex flex-column gap-3">
               {action === "Sign Up" && (
                 <>
-                  <div className="mb-3 position-relative">
+                  <div className="position-relative">
                     <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <img src={personIcon} alt="First Name" style={{ width: "20px" }} />
+                      <span className="input-group-text input-icon">
+                        <i className="bi bi-person-fill"></i>
                       </span>
                       <input
                         type="text"
-                        className="form-control bg-light border-0 text-dark"
+                        className="form-control form-input"
                         placeholder="First Name"
                         value={formData.firstName}
-                        onChange={(e) =>
-                          handleInputChange("firstName", e.target.value)
-                        }
-                        style={{
-                          boxShadow: "none",
-                          backgroundColor: "#d3d3d3",
-                        }}
+                        onChange={(e) => handleInputChange("firstName", e.target.value)}
+                        autoComplete="given-name"
                       />
                     </div>
                     {errors.firstName && (
-                      <small className="text-danger position-absolute">
+                      <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                         {errors.firstName}
                       </small>
                     )}
                   </div>
-                  <div className="mb-3 position-relative">
+
+                  <div className="position-relative">
                     <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <img src={personIcon} alt="Last Name" style={{ width: "20px" }} />
+                      <span className="input-group-text input-icon">
+                        <i className="bi bi-person-fill"></i>
                       </span>
                       <input
                         type="text"
-                        className="form-control bg-light border-0 text-dark"
+                        className="form-control form-input"
                         placeholder="Last Name"
                         value={formData.lastName}
-                        onChange={(e) =>
-                          handleInputChange("lastName", e.target.value)
-                        }
-                        style={{
-                          boxShadow: "none",
-                          backgroundColor: "#d3d3d3",
-                        }}
+                        onChange={(e) => handleInputChange("lastName", e.target.value)}
+                        autoComplete="family-name"
                       />
                     </div>
                     {errors.lastName && (
-                      <small className="text-danger position-absolute">
+                      <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                         {errors.lastName}
                       </small>
                     )}
                   </div>
                 </>
               )}
-              <div className="mb-3 position-relative">
+
+              <div className="position-relative">
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-0">
-                    <img src={emailIcon} alt="Email" style={{ width: "20px" }} />
+                  <span className="input-group-text input-icon">
+                    <i className="bi bi-envelope-fill"></i>
                   </span>
                   <input
                     type="email"
-                    className="form-control bg-light border-0 text-dark"
+                    className="form-control form-input"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    style={{
-                      boxShadow: "none",
-                      backgroundColor: "#d3d3d3",
-                    }}
+                    autoComplete="email"
                   />
                 </div>
                 {errors.email && (
-                  <small className="text-danger position-absolute">
+                  <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                     {errors.email}
                   </small>
                 )}
               </div>
-              <div className="mb-3 position-relative">
+
+              <div className="position-relative">
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-0">
-                    <img
-                      src={passwordIcon}
-                      alt="Password"
-                      style={{ width: "20px" }}
-                    />
+                  <span className="input-group-text input-icon">
+                    <i className="bi bi-lock-fill"></i>
                   </span>
                   <input
                     type="password"
-                    className="form-control bg-light border-0 text-dark"
+                    className="form-control form-input"
                     placeholder="Password"
                     value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
-                    style={{
-                      boxShadow: "none",
-                      backgroundColor: "#d3d3d3",
-                    }}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    autoComplete={action === "Sign In" ? "current-password" : "new-password"}
                   />
                 </div>
                 {errors.password && (
-                  <small className="text-danger position-absolute">
+                  <small className="text-danger position-absolute start-0 bottom-0 translate-y-100 px-5">
                     {errors.password}
                   </small>
                 )}
               </div>
+
               {action === "Sign In" && (
-                <div className="text-center mb-3">
-                  <small>
-                    Forgot password?{" "}
-                    <a href="#" className="text-primary">
-                      Click here
-                    </a>
-                  </small>
+                <div className="text-end">
+                  <a href="#" className="text-decoration-none" style={{ color: "#6c30f3" }}>
+                    Forgot password?
+                  </a>
                 </div>
               )}
+
               {errors.general && (
-                <div className="alert alert-danger mb-3" role="alert">
+                <div className="alert alert-danger" role="alert">
                   {errors.general}
                 </div>
               )}
+
               <button
                 type="button"
-                className="btn btn-primary w-100 py-2 fw-bold"
+                className="submit-button"
                 onClick={submit}
                 disabled={!isValid}
-                style={{
-                  backgroundColor: "#6c30f3",
-                  borderRadius: "20px",
-                  opacity: !isValid ? 0.6 : 1,
-                }}
               >
                 {action === "Sign In" ? "SIGN IN" : "SIGN UP"}
               </button>

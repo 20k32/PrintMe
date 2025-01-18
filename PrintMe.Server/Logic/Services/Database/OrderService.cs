@@ -1,4 +1,5 @@
 using AutoMapper;
+using PrintMe.Server.Constants;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.Exceptions;
@@ -62,8 +63,12 @@ namespace PrintMe.Server.Logic.Services.Database
 
         public async Task<PrintOrderDto> AddOrderAsync(int userId, CreateOrderRequest request)
         {
-            var orderRaw = _mapper.Map<CreateOrderRequest, PrintOrder>(request, 
-                options => options.AfterMap((_, d) => d.UserId = userId));
+            var orderRaw = _mapper.Map<CreateOrderRequest, PrintOrder>(request,
+                options => options.AfterMap((_, d) =>
+                {
+                    d.UserId = userId;
+                    d.PrintOrderStatusId = DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Pending];
+                }));
 
             var result = await _orderRepository.CreateOrderAsync(orderRaw);
 

@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { RequestDto, requestsService } from '../../services/requestsService';
+import { requestsService } from '../../services/requestsService';
+import { RequestDto, RequestType } from '../../types/requests';
+import { Link } from 'react-router-dom';
+import { handleApiError } from '../../utils/apiErrorHandler';
+import "./assets/requests.css";
 
-const Requests = () => {
+const Requests: React.FC = () => {
     const [requests, setRequests] = useState<RequestDto[]>([]);
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
@@ -9,45 +13,70 @@ const Requests = () => {
     useEffect(() => {
         setIsLoading(true);
         requestsService.getMyRequests()
-            .then(data => {
+            .then((data) => {
                 setRequests(data);
-                setIsLoading(false);
             })
-            .catch(error => {
-                console.error('There was an error fetching the requests!', error);
-                setError(error.message || 'Failed to load requests');
+            .catch((error) => {
+                if (error.response?.status !== 404) {
+                    setError(handleApiError(error));
+                }
+            })
+            .finally(() => {
                 setIsLoading(false);
             });
     }, []);
 
-    if (error) {
-        return <div className="alert alert-danger">{error}</div>;
-    }
+    const getStatusDisplay = (statusId: number) => {
+        switch (statusId) {
+            case 1:
+                return <span className="badge bg-warning">Pending</span>;
+            case 2:
+                return <span className="badge bg-success">Approved</span>;
+            case 3:
+                return <span className="badge bg-danger">Rejected</span>;
+            default:
+                return <span className="badge bg-secondary">Unknown</span>;
+        }
+    };
 
     return (
-        <div className="container mt-4">
-            <h1 className="mb-4">My Requests</h1>
-            {isLoading ? (
-                <div>Loading...</div>
-            ) : requests && requests.length > 0 ? (
-                <div className="list-group">
-                    {requests.map(request => (
-                        <div key={request.requestId} className="list-group-item">
-                            <h5>Request #{request.requestId}</h5>
-                            {request.description && (
-                                <p className="mb-1"><strong>Description:</strong> {request.description}</p>
-                            )}
-                            {request.userTextData && (
-                                <p className="mb-1"><strong>Additional Info:</strong> {request.userTextData}</p>
-                            )}
-                            <p className="mb-1"><strong>Status:</strong> {request.requestStatus.status}</p>
-                            <p className="mb-1"><strong>Type:</strong> {request.requestType.type}</p>
-                        </div>
-                    ))}
+        <div className="requests-container">
+            <div className="requests-content">
+                <h1 className="text-white mb-4">Requests</h1>
+                
+                <div className="d-flex gap-4 justify-content-center mb-5">
+                    <Link to="/requests/printer" className="request-card">
+                        <i className="bi bi-printer-fill mb-3 fs-1"></i>
+                        <h3>Add Printer</h3>
+                        <p>Register your 3D printer and start earning</p>
+                    </Link>
                 </div>
-            ) : (
-                <p>No requests found</p>
-            )}
+
+                {!isLoading && requests.length > 0 && (
+                    <div className="requests-list-container">
+                        <h2 className="text-white mb-4">Your Requests</h2>
+                        <div className="requests-list">
+                            {requests.map((request) => (
+                                <div key={request.requestId} className="request-item">
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <h4>{request.requestTypeId === RequestType.PrinterApplication ? "Printer Application" : "Request"}</h4>
+                                        {getStatusDisplay(request.requestStatusId)}
+                                    </div>
+                                    <div className="request-details">
+                                        {request.description && (
+                                            <p className="request-description mb-0">
+                                                {request.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {error && <div className="alert alert-danger mt-4">{error}</div>}
+            </div>
         </div>
     );
 };

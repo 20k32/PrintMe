@@ -13,6 +13,9 @@ using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Controllers
 {
+    /// <summary>
+    /// Controller for managing print orders in the system.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -25,6 +28,16 @@ namespace PrintMe.Server.Controllers
             _orderService = provider.GetService<OrderService>();
         }
         
+        /// <summary>
+        /// Creates a new print order.
+        /// </summary>
+        /// <param name="orderRequest">The order details from the client.</param>
+        /// <returns>The created order details or error information.</returns>
+        /// <response code="200">Returns the created order.</response>
+        /// <response code="400">If the request is invalid or missing required data.</response>
+        /// <response code="401">If user authentication fails.</response>
+        /// <response code="403">If the order cannot be created due to business rules.</response>
+        /// <response code="500">If there was an internal server error.</response>
         [HttpPost]
         [ProducesResponseType(typeof(ApiResult<PrintOrderDto>), 200)]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest orderRequest)
@@ -76,6 +89,11 @@ namespace PrintMe.Server.Controllers
             return result.ToObjectResult();
         }
         
+        /// <summary>
+        /// Retrieves all orders for the currently authenticated user.
+        /// </summary>
+        /// <returns>A collection of orders belonging to the current user.</returns>
+        /// <response code="200">Returns the list of orders.</response>
         [HttpGet("my")]
         [ProducesResponseType(typeof(PrintOrderDto), 200)]
         public IAsyncEnumerable<PrintOrderDto> GetMyOrders()
@@ -97,6 +115,12 @@ namespace PrintMe.Server.Controllers
             return result;
         }
         
+        /// <summary>
+        /// Retrieves all orders for a specific user.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose orders to retrieve.</param>
+        /// <returns>A collection of orders for the specified user.</returns>
+        /// <response code="200">Returns the list of orders.</response>
         [HttpGet]
         [ProducesResponseType(typeof(PrintOrderDto), 200)]
         public IAsyncEnumerable<PrintOrderDto> GetOrdersByUserId([FromQuery] int userId)
@@ -115,6 +139,15 @@ namespace PrintMe.Server.Controllers
             return result;
         }
         
+        /// <summary>
+        /// Retrieves a specific order by its ID.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to retrieve.</param>
+        /// <returns>The requested order details or error information.</returns>
+        /// <response code="200">Returns the requested order.</response>
+        /// <response code="403">If the order cannot be accessed.</response>
+        /// <response code="404">If the order is not found.</response>
+        /// <response code="500">If there was an internal server error.</response>
         [HttpGet("{orderId}")]
         [ProducesResponseType(typeof(PrintOrderDto), 200)]
         public async Task<IActionResult> GetOrderById(int orderId)
@@ -149,6 +182,15 @@ namespace PrintMe.Server.Controllers
             return result.ToObjectResult();
         }
         
+        /// <summary>
+        /// Deletes a specific order by its ID.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to delete.</param>
+        /// <returns>The deleted order details or error information.</returns>
+        /// <response code="200">Returns the deleted order details.</response>
+        /// <response code="400">If the order ID is invalid.</response>
+        /// <response code="403">If the order cannot be deleted.</response>
+        /// <response code="500">If there was an internal server error.</response>
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> DeleteOrderById(int orderId)
         {
@@ -181,6 +223,15 @@ namespace PrintMe.Server.Controllers
             return result.ToObjectResult();
         }
         
+        /// <summary>
+        /// Updates all details of an existing order.
+        /// </summary>
+        /// <param name="orderDto">The updated order details.</param>
+        /// <returns>The updated order information or error details.</returns>
+        /// <response code="200">Returns the updated order.</response>
+        /// <response code="400">If the request is invalid or missing required data.</response>
+        /// <response code="403">If the order cannot be updated.</response>
+        /// <response code="500">If there was an internal server error.</response>
         [HttpPut("FullUpdate")]
         public async Task<IActionResult> FullUpdateOrderById([FromBody] UpdateFullOrderRequest orderDto)
         {

@@ -4,6 +4,7 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
     {
         public int Id { get; set; }
         public string ModelName { get; set; }
+        public bool IsDeactivated { get; set; }
         public ICollection<PrintMaterialDto> Materials { get; set; } 
     }
 }

@@ -71,7 +71,6 @@ namespace PrintMe.Server.Persistence.Repository
                 UserRole = userRole
             };
         }
-
         public static Task GenerateForUsersAsync(this DbSet<User> users, int count)
         {
             var userList = new List<User>(count);

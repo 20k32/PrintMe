@@ -1,0 +1,177 @@
+.mainpage-container {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+  padding: 40px;
+}
+
+.mainpage-content {
+  display: flex;
+  gap: 30px;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.map-container {
+  flex: 3;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  overflow: hidden;
+  padding: 20px;
+  max-width: 1400px;
+  width: 100%;
+}
+
+.filter-container {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  min-height: 40vh;
+}
+
+.filter-content {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+@media (max-width: 1024px) {
+  .mainpage-content {
+    flex-direction: column;
+  }
+  
+  .filter-container {
+    width: 100%;
+  }
+}
+
+.form-control::placeholder {
+  color: rgba(203, 195, 195, 0.667) !important;
+  opacity: 1;
+}
+
+.map-search-input {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  backdrop-filter: blur(10px);
+  min-width: 300px;
+  height: 42px;
+  border-radius: 8px;
+}
+
+.map-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  filter: brightness(0.6);
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  margin: 0;
+  width: 18px;
+  padding: 0;
+  appearance: auto;
+}
+
+input[type="number"]::-webkit-inner-spin-button:hover,
+input[type="number"]::-webkit-outer-spin-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+input[type="number"] {
+  padding-right: 25px;
+  position: relative;
+  height: 38px;
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.form-group {
+  position: relative;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-check-label {
+  margin: 0;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  color: rgba(255, 255, 255, 0.9);
+  padding-left: 0.5rem;
+}
+
+.materials-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.materials-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.materials-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.materials-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.materials-grid {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.1);
+}

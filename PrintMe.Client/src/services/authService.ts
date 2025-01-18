@@ -1,21 +1,30 @@
-import axios from 'axios';
-import { API_BASE_URL } from "../constants";
+import { baseApiService } from './baseApiService';
+import { RequestData } from '../types/api';
 
-interface LoginRequest {
+interface LoginRequest extends RequestData {
   email: string;
   password: string;
 }
 
+class AuthenticationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
+
 export const authService = {
   async login(credentials: LoginRequest) {
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
-    const token = response.data.value;
-    
-    if (!token) {
-      throw new Error("No token received from server");
+    try {
+      const token = await baseApiService.post<string>('/auth/login', credentials);
+      if (!token) {
+        throw new AuthenticationError('No token received from server');
+      }
+      localStorage.setItem('token', token);
+    } catch (err) {
+      console.error('Login failed:', err);
+      throw new AuthenticationError('Login failed');
     }
-    
-    localStorage.setItem("token", token);
   },
   logout() {
     localStorage.removeItem("token");
