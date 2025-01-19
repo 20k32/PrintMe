@@ -27,7 +27,7 @@ namespace PrintMe.Server.Models.Extensions
             var jwtHandler = new JwtSecurityTokenHandler();
             var securityToken = (JwtSecurityToken)jwtHandler.ReadToken(jwtToken);
             var id = securityToken.Claims.FirstOrDefault(existing
-                => existing.Type.Equals(ClaimTypes.Role))?.Value;
+                => existing.Type.Equals(CustomClaimTypes.ROLE))?.Value;
 
             return id;
         }

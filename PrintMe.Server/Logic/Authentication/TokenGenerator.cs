@@ -38,8 +38,8 @@ internal sealed class TokenGenerator
         var claims = new ClaimsIdentity();
         
         claims.AddClaim(new Claim(CustomClaimTypes.USER_ID, loginEntity.Id.ToString()));
-        claims.AddClaim(new Claim(ClaimTypes.Email, loginEntity.Email));
-        claims.AddClaim(new Claim(ClaimTypes.Role, loginEntity.Role));
+        claims.AddClaim(new Claim(CustomClaimTypes.EMAIL, loginEntity.Email));
+        claims.AddClaim(new Claim(CustomClaimTypes.ROLE, loginEntity.Role));
         
         return claims;
     }
