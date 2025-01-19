@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Persistence.Entities;
 
@@ -30,6 +31,33 @@ public class RequestRepository(PrintMeDbContext context)
             .Where(request => request.UserSenderId == userId)
             .ToListAsync();
     }
+    
+    public async Task<IEnumerable<Request>> GetRequestsByStatusIdTypeIdUserIdAsync(int userId, int statusId, int typeId)
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .Where(request => request.UserSenderId == userId && request.RequestStatusId == statusId && request.RequestTypeId == typeId)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Request>> GetRequestsByStatusIdUserIdAsync(int userId, int statusId)
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .Where(request => request.UserSenderId == userId && request.RequestStatusId == statusId)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Request>> GetRequestsByTypeIdUserIdAsync(int userId, int typeId)
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .Where(request => request.UserSenderId == userId && request.RequestTypeId == typeId)
+            .ToListAsync();
+    }
 
     public async Task<int> GetRequestStatusIdByNameAsync(string status)
     {
@@ -40,6 +68,16 @@ public class RequestRepository(PrintMeDbContext context)
 
       return requestStatus.RequestStatusId;
     }
+    
+    public async Task<int> GetRequestTypeIdByNameAsync(string type)
+    {
+        var requestType = await context
+            .RequestTypes
+            .AsQueryable()
+            .FirstOrDefaultAsync(requestType => requestType.Type == type);
+
+        return requestType.RequestTypeId;
+    }
 
     public async Task<IEnumerable<Request>> GetRequestsByStatusIdAsync(int statusId)
     {
@@ -49,7 +87,25 @@ public class RequestRepository(PrintMeDbContext context)
             .Where(request => request.RequestStatusId == statusId)
             .ToListAsync();
     }
-
+    
+    public async Task<IEnumerable<Request>> GetRequestsByTypeIdAsync(int typeId)
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .Where(request => request.RequestTypeId == typeId)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Request>> GetRequestsByStatusIdTypeIdAsync(int statusId, int typeId)
+    {
+        return await context
+            .Requests
+            .AsQueryable()
+            .Where(request => request.RequestStatusId == statusId && request.RequestTypeId == typeId)
+            .ToListAsync();
+    }
+    
     public async Task<int> GetRequestStatusReasonIdByNameAsync(string reason)
     {
         var requestStatusReason = await context

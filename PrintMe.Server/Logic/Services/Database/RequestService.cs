@@ -36,15 +36,47 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         return mapper.Map<RequestDto>(request);
     }
 
-    public async Task<IEnumerable<RequestDto>> GetRequestsByStatusIdAsync(int status)
+    public async Task<IEnumerable<RequestDto>> GetAllRequestsSortedAsync(int statusId, int typeId)
     {
-        var requests = await repository.GetRequestsByStatusIdAsync(status);
-
+        IEnumerable<Request> requests = null;
+        if (statusId != 0 && typeId != 0)
+        {
+            requests = await repository.GetRequestsByStatusIdTypeIdAsync(statusId, typeId);
+        } else if (statusId == 0)
+        {
+            requests = await repository.GetRequestsByTypeIdAsync(typeId);
+        } else if (typeId == 0)
+        {
+            requests = await repository.GetRequestsByStatusIdAsync(statusId);
+        }
+        
         if (!requests.Any())
         {
             throw new NotFoundRequestInDbException();
         }
+        
+        return mapper.Map<IEnumerable<RequestDto>>(requests);
+    }
 
+    public async Task<IEnumerable<RequestDto>> GetRequestsByUserIdSortedAsync(int userId, int statusId, int typeId)
+    {
+        IEnumerable<Request> requests = null;
+        if (statusId != 0 && typeId != 0)
+        {
+            requests = await repository.GetRequestsByStatusIdTypeIdUserIdAsync(userId, statusId, typeId);
+        } else if (statusId == 0)
+        {
+            requests = await repository.GetRequestsByTypeIdUserIdAsync(userId, typeId);
+        } else if (typeId == 0)
+        {
+            requests = await repository.GetRequestsByStatusIdUserIdAsync(userId, statusId);
+        }
+        
+        if (!requests.Any())
+        {
+            throw new NotFoundRequestInDbException();
+        }
+        
         return mapper.Map<IEnumerable<RequestDto>>(requests);
     }
 
@@ -63,6 +95,18 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         catch (Exception)
         {
             throw new NotFoundRequestStatusInDb();
+        }
+    }
+    
+    public async Task<int> GetRequestTypeIdByNameAsync(string type)
+    {
+        try
+        {
+            return await repository.GetRequestTypeIdByNameAsync(type);
+        }
+        catch (Exception)
+        {
+            throw new NotFoundRequestTypeInDb();
         }
     }
 
