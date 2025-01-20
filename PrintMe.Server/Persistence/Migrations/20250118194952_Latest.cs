@@ -4,10 +4,12 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace PrintMe.Server.Persistence.Migrations
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace PrintMe.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Latest : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -104,6 +106,19 @@ namespace PrintMe.Server.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "user_role",
+                columns: table => new
+                {
+                    user_role_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_role_name = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("user_role_pkey", x => x.user_role_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "user_status",
                 columns: table => new
                 {
@@ -129,11 +144,19 @@ namespace PrintMe.Server.Persistence.Migrations
                     user_status_id = table.Column<int>(type: "integer", nullable: true),
                     should_hide_phone_number = table.Column<bool>(type: "boolean", nullable: true, defaultValue: true),
                     description = table.Column<string>(type: "text", nullable: true),
-                    password = table.Column<string>(type: "text", nullable: false)
+                    password = table.Column<string>(type: "text", nullable: false),
+                    salt = table.Column<string>(type: "text", nullable: false),
+                    user_role_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("user_pkey", x => x.user_id);
+                    table.ForeignKey(
+                        name: "user_user_role_id_fkey",
+                        column: x => x.user_role_id,
+                        principalTable: "user_role",
+                        principalColumn: "user_role_id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "user_user_status_id_fkey",
                         column: x => x.user_status_id,
@@ -183,7 +206,8 @@ namespace PrintMe.Server.Persistence.Migrations
                     max_model_height = table.Column<double>(type: "double precision", nullable: false),
                     max_model_width = table.Column<double>(type: "double precision", nullable: false),
                     location_x = table.Column<double>(type: "double precision", nullable: false),
-                    location_y = table.Column<double>(type: "double precision", nullable: false)
+                    location_y = table.Column<double>(type: "double precision", nullable: false),
+                    is_deactivated = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -443,6 +467,81 @@ namespace PrintMe.Server.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "print_order_status",
+                columns: new[] { "print_order_status_id", "status" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Declined" },
+                    { 3, "Started" },
+                    { 4, "Aborted" },
+                    { 5, "Done" },
+                    { 6, "Archived" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "print_order_status_reason",
+                columns: new[] { "print_order_status_reason_id", "reason" },
+                values: new object[,]
+                {
+                    { 1, "Inappropriate" },
+                    { 2, "OffensiveContent" },
+                    { 3, "AbsentMaterials" },
+                    { 4, "QualityConcerns" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "request_status",
+                columns: new[] { "request_status_id", "status" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Declined" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "request_status_reason",
+                columns: new[] { "request_status_reason_id", "reason" },
+                values: new object[,]
+                {
+                    { 1, "Inappropriate" },
+                    { 2, "OffensiveContent" },
+                    { 3, "SystemAbuse" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "request_type",
+                columns: new[] { "request_type_id", "type" },
+                values: new object[,]
+                {
+                    { 1, "PrinterApplication" },
+                    { 2, "PrinterDescriptionChanging" },
+                    { 3, "UserReport" },
+                    { 4, "AccountDeletion" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "user_role",
+                columns: new[] { "user_role_id", "user_role_name" },
+                values: new object[,]
+                {
+                    { 1, "User" },
+                    { 2, "PrinterOwner" },
+                    { 3, "Admin" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "user_status",
+                columns: new[] { "user_status_id", "status" },
+                values: new object[,]
+                {
+                    { 1, "Active" },
+                    { 2, "Inactive" },
+                    { 3, "Blocked" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "idx_chat_user1_id",
                 table: "chat",
@@ -477,6 +576,12 @@ namespace PrintMe.Server.Persistence.Migrations
                 name: "IX_message_sender_id",
                 table: "message",
                 column: "sender_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_print_material_name",
+                table: "print_material",
+                column: "name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_print_materials_material_id",
@@ -584,6 +689,11 @@ namespace PrintMe.Server.Persistence.Migrations
                 column: "phone_number");
 
             migrationBuilder.CreateIndex(
+                name: "idx_user_role_id",
+                table: "user",
+                column: "user_role_id");
+
+            migrationBuilder.CreateIndex(
                 name: "idx_user_status_id",
                 table: "user",
                 column: "user_status_id");
@@ -592,12 +702,6 @@ namespace PrintMe.Server.Persistence.Migrations
                 name: "user_email_key",
                 table: "user",
                 column: "email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "user_phone_number_key",
-                table: "user",
-                column: "phone_number",
                 unique: true);
         }
 
@@ -654,6 +758,9 @@ namespace PrintMe.Server.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "request_type");
+
+            migrationBuilder.DropTable(
+                name: "user_role");
 
             migrationBuilder.DropTable(
                 name: "user_status");

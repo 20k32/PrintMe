@@ -8,7 +8,7 @@ using PrintMe.Server.Persistence;
 
 #nullable disable
 
-namespace PrintMe.Server.Persistence.Migrations
+namespace PrintMe.Server.Migrations
 {
     [DbContext(typeof(PrintMeDbContext))]
     partial class PrintMeDbContextModelSnapshot : ModelSnapshot
@@ -240,6 +240,38 @@ namespace PrintMe.Server.Persistence.Migrations
                         .HasName("print_order_status_pkey");
 
                     b.ToTable("print_order_status", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PrintOrderStatusId = 1,
+                            Status = "Pending"
+                        },
+                        new
+                        {
+                            PrintOrderStatusId = 2,
+                            Status = "Declined"
+                        },
+                        new
+                        {
+                            PrintOrderStatusId = 3,
+                            Status = "Started"
+                        },
+                        new
+                        {
+                            PrintOrderStatusId = 4,
+                            Status = "Aborted"
+                        },
+                        new
+                        {
+                            PrintOrderStatusId = 5,
+                            Status = "Done"
+                        },
+                        new
+                        {
+                            PrintOrderStatusId = 6,
+                            Status = "Archived"
+                        });
                 });
 
             modelBuilder.Entity("PrintMe.Server.Persistence.Entities.PrintOrderStatusReason", b =>
@@ -260,6 +292,28 @@ namespace PrintMe.Server.Persistence.Migrations
                         .HasName("print_order_status_reason_pkey");
 
                     b.ToTable("print_order_status_reason", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PrintOrderStatusReasonId = 1,
+                            Reason = "Inappropriate"
+                        },
+                        new
+                        {
+                            PrintOrderStatusReasonId = 2,
+                            Reason = "OffensiveContent"
+                        },
+                        new
+                        {
+                            PrintOrderStatusReasonId = 3,
+                            Reason = "AbsentMaterials"
+                        },
+                        new
+                        {
+                            PrintOrderStatusReasonId = 4,
+                            Reason = "QualityConcerns"
+                        });
                 });
 
             modelBuilder.Entity("PrintMe.Server.Persistence.Entities.Printer", b =>
@@ -274,6 +328,12 @@ namespace PrintMe.Server.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
+
+                    b.Property<bool>("IsDeactivated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deactivated");
 
                     b.Property<double>("LocationX")
                         .HasColumnType("double precision")
@@ -473,6 +533,23 @@ namespace PrintMe.Server.Persistence.Migrations
                         .HasName("request_status_pkey");
 
                     b.ToTable("request_status", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RequestStatusId = 1,
+                            Status = "Pending"
+                        },
+                        new
+                        {
+                            RequestStatusId = 2,
+                            Status = "Approved"
+                        },
+                        new
+                        {
+                            RequestStatusId = 3,
+                            Status = "Declined"
+                        });
                 });
 
             modelBuilder.Entity("PrintMe.Server.Persistence.Entities.RequestStatusReason", b =>
@@ -493,6 +570,23 @@ namespace PrintMe.Server.Persistence.Migrations
                         .HasName("request_status_reason_pkey");
 
                     b.ToTable("request_status_reason", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RequestStatusReasonId = 1,
+                            Reason = "Inappropriate"
+                        },
+                        new
+                        {
+                            RequestStatusReasonId = 2,
+                            Reason = "OffensiveContent"
+                        },
+                        new
+                        {
+                            RequestStatusReasonId = 3,
+                            Reason = "SystemAbuse"
+                        });
                 });
 
             modelBuilder.Entity("PrintMe.Server.Persistence.Entities.RequestType", b =>
@@ -513,6 +607,28 @@ namespace PrintMe.Server.Persistence.Migrations
                         .HasName("request_type_pkey");
 
                     b.ToTable("request_type", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RequestTypeId = 1,
+                            Type = "PrinterApplication"
+                        },
+                        new
+                        {
+                            RequestTypeId = 2,
+                            Type = "PrinterDescriptionChanging"
+                        },
+                        new
+                        {
+                            RequestTypeId = 3,
+                            Type = "UserReport"
+                        },
+                        new
+                        {
+                            RequestTypeId = 4,
+                            Type = "AccountDeletion"
+                        });
                 });
 
             modelBuilder.Entity("PrintMe.Server.Persistence.Entities.User", b =>
@@ -586,9 +702,6 @@ namespace PrintMe.Server.Persistence.Migrations
                     b.HasIndex(new[] { "Email" }, "user_email_key")
                         .IsUnique();
 
-                    b.HasIndex(new[] { "PhoneNumber" }, "user_phone_number_key")
-                        .IsUnique();
-
                     b.ToTable("user", (string)null);
                 });
 
@@ -596,7 +709,8 @@ namespace PrintMe.Server.Persistence.Migrations
                 {
                     b.Property<int>("UserRoleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_role_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserRoleId"));
 
@@ -611,6 +725,16 @@ namespace PrintMe.Server.Persistence.Migrations
                     b.ToTable("user_role", (string)null);
 
                     b.HasData(
+                        new
+                        {
+                            UserRoleId = 1,
+                            UserRoleName = "User"
+                        },
+                        new
+                        {
+                            UserRoleId = 2,
+                            UserRoleName = "PrinterOwner"
+                        },
                         new
                         {
                             UserRoleId = 3,
@@ -636,6 +760,23 @@ namespace PrintMe.Server.Persistence.Migrations
                         .HasName("user_status_pkey");
 
                     b.ToTable("user_status", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserStatusId = 1,
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            UserStatusId = 2,
+                            Status = "Inactive"
+                        },
+                        new
+                        {
+                            UserStatusId = 3,
+                            Status = "Blocked"
+                        });
                 });
 
             modelBuilder.Entity("RequestPrintMaterial", b =>

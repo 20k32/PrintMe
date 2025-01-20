@@ -29,3 +29,8 @@ export interface MarkerDto {
     locationX: number;
     locationY: number;
 }
+
+export interface RoleDto {
+    userRole: string;
+    message: string;
+}
