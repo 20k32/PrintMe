@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { requestsService } from '../../services/requestsService';
 import { RequestDto, RequestType } from '../../types/requests';
-import { Link } from 'react-router-dom';
 import { handleApiError } from '../../utils/apiErrorHandler';
 import "./assets/requests.css";
 
@@ -42,36 +41,33 @@ const Requests: React.FC = () => {
     return (
         <div className="requests-container">
             <div className="requests-content">
-                <h1 className="text-white mb-4">Requests</h1>
-                
-                <div className="d-flex gap-4 justify-content-center mb-5">
-                    <Link to="/requests/printer" className="request-card">
-                        <i className="bi bi-printer-fill mb-3 fs-1"></i>
-                        <h3>Add Printer</h3>
-                        <p>Register your 3D printer and start earning</p>
-                    </Link>
-                </div>
 
-                {!isLoading && requests.length > 0 && (
+                {!isLoading && (
                     <div className="requests-list-container">
                         <h2 className="text-white mb-4">Your Requests</h2>
-                        <div className="requests-list">
-                            {requests.map((request) => (
-                                <div key={request.requestId} className="request-item">
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                        <h4>{request.requestTypeId === RequestType.PrinterApplication ? "Printer Application" : "Request"}</h4>
-                                        {getStatusDisplay(request.requestStatusId)}
+                        {requests.length > 0 ? (
+                            <div className="requests-list">
+                                {requests.map((request) => (
+                                    <div key={request.requestId} className="request-item">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h4>{request.requestTypeId === RequestType.PrinterApplication ? "Printer Application" : "Request"}</h4>
+                                            {getStatusDisplay(request.requestStatusId)}
+                                        </div>
+                                        <div className="request-details">
+                                            {request.description && (
+                                                <p className="request-description mb-0">
+                                                    {request.description}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="request-details">
-                                        {request.description && (
-                                            <p className="request-description mb-0">
-                                                {request.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="alert alert-dark">
+                                You don't have any requests yet.
+                            </div>
+                        )}
                     </div>
                 )}
 

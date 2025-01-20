@@ -6,7 +6,7 @@ import MapSection from "../../MainPage/components/MapSection";
 import { handleApiError } from '../../../utils/apiErrorHandler';
 import { PrinterApplicationDto } from "../../../types/requests";
 import { PrintMaterial, PrinterModel } from "../../../constants";
-import "../assets/requests.css";
+import "../assets/printers.css";
 import { toast } from "react-toastify";
 
 export const AddPrinter = () => {

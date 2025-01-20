@@ -7,11 +7,12 @@ import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 import Requests from "./components/Requests/Requests.tsx";
 import { authService } from "./services/authService";
 import Profile from "./components/Profile/Profile.tsx";
-import { AddPrinter } from "./components/Requests/components/AddPrinter";
+import { AddPrinter } from "./components/Printers/components/AddPrinter.tsx";
 import Orders from "./components/Orders/Orders.tsx";
 import OrderDetails from "./components/Orders/components/OrderDetails.tsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Printers from "./components/Printers/Printers.tsx";
 
 
 
@@ -53,7 +54,8 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/requests" element={<Requests />} />
-        <Route path="/requests/printer" element={<AddPrinter />} />
+        <Route path="/printers" element={<Printers />} />
+        <Route path="/printers/add" element={<AddPrinter />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
       </Routes>

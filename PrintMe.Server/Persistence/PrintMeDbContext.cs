@@ -534,6 +534,7 @@ public partial class PrintMeDbContext : DbContext
         {
             entity.HasKey(e => e.UserRoleId).HasName("user_role_pkey");
             entity.ToTable("user_role");
+            entity.Property(e => e.UserRoleId).HasColumnName("user_role_id");
             entity.Property(e => e.UserRoleName)
                 .IsRequired()
                 .HasColumnName("user_role_name");

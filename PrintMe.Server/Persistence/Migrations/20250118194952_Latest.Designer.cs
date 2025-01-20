@@ -9,11 +9,11 @@ using PrintMe.Server.Persistence;
 
 #nullable disable
 
-namespace PrintMe.Server.Persistence.Migrations
+namespace PrintMe.Server.Migrations
 {
     [DbContext(typeof(PrintMeDbContext))]
-    [Migration("20250109171422_Test")]
-    partial class Test
+    [Migration("20250118194952_Latest")]
+    partial class Latest
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -268,6 +268,11 @@ namespace PrintMe.Server.Persistence.Migrations
                         new
                         {
                             PrintOrderStatusId = 5,
+                            Status = "Done"
+                        },
+                        new
+                        {
+                            PrintOrderStatusId = 6,
                             Status = "Archived"
                         });
                 });
@@ -707,7 +712,8 @@ namespace PrintMe.Server.Persistence.Migrations
                 {
                     b.Property<int>("UserRoleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_role_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserRoleId"));
 
