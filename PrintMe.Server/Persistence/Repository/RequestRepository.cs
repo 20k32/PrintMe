@@ -1,13 +1,16 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore;
+using PrintMe.Server.Models.Filters;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence.Repository;
 
 public class RequestRepository(PrintMeDbContext context)
 {
-    public async Task<IEnumerable<Request>> GetAllRequestsAsync(int statusId = 0, int typeId = 0)
+    public async Task<IEnumerable<Request>> GetAllRequestsAsync(RequestFilter filter = null)
     {
+        var statusId = filter.StatusId ?? 0;
+        var typeId = filter.TypeId ?? 0;
         if (statusId != 0 && typeId != 0)
         {
             return await context
@@ -51,8 +54,10 @@ public class RequestRepository(PrintMeDbContext context)
             .FirstOrDefaultAsync(request => request.RequestId == requestId);
     }
 
-    public async Task<IEnumerable<Request>> GetRequestsByUserIdAsync(int userId, int statusId = 0, int typeId = 0)
+    public async Task<IEnumerable<Request>> GetRequestsByUserIdAsync(int userId, RequestFilter filter = null)
     {
+        var statusId = filter.StatusId ?? 0;
+        var typeId = filter.TypeId ?? 0;
         if (statusId != 0 && typeId != 0)
         {
             return await context

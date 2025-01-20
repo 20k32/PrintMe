@@ -92,15 +92,15 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             {
                 return BadRequest(new PlainResult("Unable to get user role from token", StatusCodes.Status400BadRequest));
             }
-            var filterValues = new RequestFilter { Status = status, Type = type };
+            var filter = new RequestFilter { Status = status, Type = type };
             
             if (userRole != DbConstants.UserRole.Admin)
             { 
-                requests = (await _requestService.GetRequestsByUserIdAsync(userId, filterValues)).ToList();
+                requests = (await _requestService.GetRequestsByUserIdAsync(userId, filter)).ToList();
             }
             else if (userRole == DbConstants.UserRole.Admin)
             { 
-                requests = await _requestService.GetAllRequestsAsync(filterValues);
+                requests = await _requestService.GetAllRequestsAsync(filter);
             }
             return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully", StatusCodes.Status200OK));
         }

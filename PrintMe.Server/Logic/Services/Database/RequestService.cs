@@ -15,23 +15,7 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
 {
     public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync(RequestFilter filter = null)
     {
-        var statusId = filter.StatusId ?? 0;
-        var typeId = filter.TypeId ?? 0;
-        IEnumerable<Request> requests = null;
-        if (statusId != 0 && typeId != 0)
-        {
-            requests = await repository.GetAllRequestsAsync(statusId, typeId);
-        } else if (statusId == 0 && typeId != 0)
-        {
-            requests = await repository.GetAllRequestsAsync(0, typeId);
-        } else if (typeId == 0 && statusId != 0)
-        {
-            requests = await repository.GetAllRequestsAsync(statusId);
-        } 
-        else
-        {
-            requests = await repository.GetAllRequestsAsync();
-        }
+        var requests = await repository.GetAllRequestsAsync(filter);
         
         if (!requests.Any())
         {
@@ -55,23 +39,7 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
 
     public async Task<IEnumerable<RequestDto>> GetRequestsByUserIdAsync(int userId, RequestFilter filter = null)
     {
-        var statusId = filter.StatusId ?? 0;
-        var typeId = filter.TypeId ?? 0;
-        IEnumerable<Request> requests = null;
-        if (statusId != 0 && typeId != 0)
-        {
-            requests = await repository.GetRequestsByUserIdAsync(userId, statusId, typeId);
-        } else if (statusId == 0 && typeId != 0)
-        {
-            requests = await repository.GetRequestsByUserIdAsync(userId,0, typeId);
-        } else if (typeId == 0 && statusId != 0)
-        {
-            requests = await repository.GetRequestsByUserIdAsync(userId, statusId);
-        }
-        else
-        {
-            requests = await repository.GetRequestsByUserIdAsync(userId);
-        }
+    var requests = await repository.GetRequestsByUserIdAsync(userId, filter);
         
         if (!requests.Any())
         {
