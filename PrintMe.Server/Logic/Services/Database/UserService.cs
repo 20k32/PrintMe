@@ -208,11 +208,6 @@ namespace PrintMe.Server.Logic.Services.Database
             return tokenResult;
         }
 
-        public string GetUserRole(int id)
-        {
-            return _repository.GetUserRole(id);
-        }
-
         [GeneratedRegex(@"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
         private static partial Regex EmailRegex();
     }

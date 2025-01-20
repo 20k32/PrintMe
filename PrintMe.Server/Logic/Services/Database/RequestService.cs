@@ -7,20 +7,21 @@ using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
 using PrintMe.Server.Constants;
+using PrintMe.Server.Models.Filters;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
 internal class RequestService(RequestRepository repository, IMapper mapper, PrinterRepository printerRepository)
 {
-    public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync()
+    public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync(RequestFilter filter = null)
     {
-        var requests = await repository.GetAllRequestsAsync();
-
+        var requests = await repository.GetAllRequestsAsync(filter);
+        
         if (!requests.Any())
         {
             throw new NotFoundRequestInDbException();
         }
-
+        
         return mapper.Map<IEnumerable<RequestDto>>(requests);
     }
 
@@ -36,34 +37,16 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         return mapper.Map<RequestDto>(request);
     }
 
-    public async Task<IEnumerable<RequestDto>> GetRequestsByStatusIdAsync(int status)
+    public async Task<IEnumerable<RequestDto>> GetRequestsByUserIdAsync(int userId, RequestFilter filter = null)
     {
-        var requests = await repository.GetRequestsByStatusIdAsync(status);
-
+    var requests = await repository.GetRequestsByUserIdAsync(userId, filter);
+        
         if (!requests.Any())
         {
             throw new NotFoundRequestInDbException();
         }
-
+        
         return mapper.Map<IEnumerable<RequestDto>>(requests);
-    }
-
-    internal async Task<IEnumerable<RequestDto>> GetRequestsByUserIdAsync(int userId)
-    {
-        var requests = await repository.GetRequestsByUserIdAsync(userId);
-        return mapper.Map<IEnumerable<RequestDto>>(requests);
-    }
-
-    public async Task<int> GetRequestStatusIdByNameAsync(string status)
-    {
-        try
-        {
-            return await repository.GetRequestStatusIdByNameAsync(status);
-        }
-        catch (Exception)
-        {
-            throw new NotFoundRequestStatusInDb();
-        }
     }
 
     public async Task UpdateRequestAsync(RequestDto request)
