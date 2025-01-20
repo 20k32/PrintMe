@@ -20,13 +20,13 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         IEnumerable<Request> requests = null;
         if (statusId != 0 && typeId != 0)
         {
-            requests = await repository.GetRequestsByStatusIdTypeIdAsync(statusId, typeId);
+            requests = await repository.GetAllRequestsAsync(statusId, typeId);
         } else if (statusId == 0 && typeId != 0)
         {
-            requests = await repository.GetRequestsByTypeIdAsync(typeId);
+            requests = await repository.GetAllRequestsAsync(0, typeId);
         } else if (typeId == 0 && statusId != 0)
         {
-            requests = await repository.GetRequestsByStatusIdAsync(statusId);
+            requests = await repository.GetAllRequestsAsync(statusId);
         } 
         else
         {
@@ -60,13 +60,13 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         IEnumerable<Request> requests = null;
         if (statusId != 0 && typeId != 0)
         {
-            requests = await repository.GetRequestsByStatusIdTypeIdUserIdAsync(userId, statusId, typeId);
+            requests = await repository.GetRequestsByUserIdAsync(userId, statusId, typeId);
         } else if (statusId == 0 && typeId != 0)
         {
-            requests = await repository.GetRequestsByTypeIdUserIdAsync(userId, typeId);
+            requests = await repository.GetRequestsByUserIdAsync(userId,0, typeId);
         } else if (typeId == 0 && statusId != 0)
         {
-            requests = await repository.GetRequestsByStatusIdUserIdAsync(userId, statusId);
+            requests = await repository.GetRequestsByUserIdAsync(userId, statusId);
         }
         else
         {
