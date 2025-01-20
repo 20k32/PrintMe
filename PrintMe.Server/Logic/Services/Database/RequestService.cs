@@ -7,20 +7,37 @@ using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
 using PrintMe.Server.Constants;
+using PrintMe.Server.Models.Filters;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
 internal class RequestService(RequestRepository repository, IMapper mapper, PrinterRepository printerRepository)
 {
-    public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync()
+    public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync(RequestFilter filter = null)
     {
-        var requests = await repository.GetAllRequestsAsync();
-
+        var statusId = filter.StatusId ?? 0;
+        var typeId = filter.TypeId ?? 0;
+        IEnumerable<Request> requests = null;
+        if (statusId != 0 && typeId != 0)
+        {
+            requests = await repository.GetRequestsByStatusIdTypeIdAsync(statusId, typeId);
+        } else if (statusId == 0 && typeId != 0)
+        {
+            requests = await repository.GetRequestsByTypeIdAsync(typeId);
+        } else if (typeId == 0 && statusId != 0)
+        {
+            requests = await repository.GetRequestsByStatusIdAsync(statusId);
+        } 
+        else
+        {
+            requests = await repository.GetAllRequestsAsync();
+        }
+        
         if (!requests.Any())
         {
             throw new NotFoundRequestInDbException();
         }
-
+        
         return mapper.Map<IEnumerable<RequestDto>>(requests);
     }
 
@@ -36,40 +53,24 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         return mapper.Map<RequestDto>(request);
     }
 
-    public async Task<IEnumerable<RequestDto>> GetAllRequestsSortedAsync(int statusId, int typeId)
+    public async Task<IEnumerable<RequestDto>> GetRequestsByUserIdAsync(int userId, RequestFilter filter = null)
     {
-        IEnumerable<Request> requests = null;
-        if (statusId != 0 && typeId != 0)
-        {
-            requests = await repository.GetRequestsByStatusIdTypeIdAsync(statusId, typeId);
-        } else if (statusId == 0)
-        {
-            requests = await repository.GetRequestsByTypeIdAsync(typeId);
-        } else if (typeId == 0)
-        {
-            requests = await repository.GetRequestsByStatusIdAsync(statusId);
-        }
-        
-        if (!requests.Any())
-        {
-            throw new NotFoundRequestInDbException();
-        }
-        
-        return mapper.Map<IEnumerable<RequestDto>>(requests);
-    }
-
-    public async Task<IEnumerable<RequestDto>> GetRequestsByUserIdSortedAsync(int userId, int statusId, int typeId)
-    {
+        var statusId = filter.StatusId ?? 0;
+        var typeId = filter.TypeId ?? 0;
         IEnumerable<Request> requests = null;
         if (statusId != 0 && typeId != 0)
         {
             requests = await repository.GetRequestsByStatusIdTypeIdUserIdAsync(userId, statusId, typeId);
-        } else if (statusId == 0)
+        } else if (statusId == 0 && typeId != 0)
         {
             requests = await repository.GetRequestsByTypeIdUserIdAsync(userId, typeId);
-        } else if (typeId == 0)
+        } else if (typeId == 0 && statusId != 0)
         {
             requests = await repository.GetRequestsByStatusIdUserIdAsync(userId, statusId);
+        }
+        else
+        {
+            requests = await repository.GetRequestsByUserIdAsync(userId);
         }
         
         if (!requests.Any())
@@ -78,36 +79,6 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         }
         
         return mapper.Map<IEnumerable<RequestDto>>(requests);
-    }
-
-    internal async Task<IEnumerable<RequestDto>> GetRequestsByUserIdAsync(int userId)
-    {
-        var requests = await repository.GetRequestsByUserIdAsync(userId);
-        return mapper.Map<IEnumerable<RequestDto>>(requests);
-    }
-
-    public async Task<int> GetRequestStatusIdByNameAsync(string status)
-    {
-        try
-        {
-            return await repository.GetRequestStatusIdByNameAsync(status);
-        }
-        catch (Exception)
-        {
-            throw new NotFoundRequestStatusInDb();
-        }
-    }
-    
-    public async Task<int> GetRequestTypeIdByNameAsync(string type)
-    {
-        try
-        {
-            return await repository.GetRequestTypeIdByNameAsync(type);
-        }
-        catch (Exception)
-        {
-            throw new NotFoundRequestTypeInDb();
-        }
     }
 
     public async Task UpdateRequestAsync(RequestDto request)

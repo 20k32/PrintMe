@@ -8,6 +8,7 @@ using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
+using PrintMe.Server.Models.Filters;
 
 namespace PrintMe.Server.Controllers;
 
@@ -71,7 +72,7 @@ public class RequestController(IServiceProvider provider) : ControllerBase
 
     /// <summary>
     /// Gets all requests.
-    /// Requests can be filtered by status adn type.
+    /// Requests can be filtered by status and type.
     /// Returns all requests if user is admin, else returns only user's requests.
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
@@ -91,29 +92,15 @@ public class RequestController(IServiceProvider provider) : ControllerBase
             {
                 return BadRequest(new PlainResult("Unable to get user role from token", StatusCodes.Status400BadRequest));
             }
-            if (string.IsNullOrEmpty(status) && string.IsNullOrEmpty(type))
-            {
-                if (userRole != DbConstants.UserRole.Admin)
-                {
-                    requests = (await _requestService.GetRequestsByUserIdAsync(userId)).ToList();
-                }
-                else if (userRole == DbConstants.UserRole.Admin)
-                {
-                    requests = await _requestService.GetAllRequestsAsync();
-                }
+            var filterValues = new RequestFilter { Status = status, Type = type };
+            
+            if (userRole != DbConstants.UserRole.Admin)
+            { 
+                requests = (await _requestService.GetRequestsByUserIdAsync(userId, filterValues)).ToList();
             }
-            else
-            {
-                var statusId = string.IsNullOrEmpty(status) ? 0 : await _requestService.GetRequestStatusIdByNameAsync(status);
-                var typeId = string.IsNullOrEmpty(type) ? 0 : await _requestService.GetRequestTypeIdByNameAsync(type);
-                if (userRole != DbConstants.UserRole.Admin)
-                {
-                    requests = (await _requestService.GetRequestsByUserIdSortedAsync(userId, statusId, typeId)).ToList();
-                }
-                else if (userRole == DbConstants.UserRole.Admin)
-                {
-                    requests = await _requestService.GetAllRequestsSortedAsync(statusId, typeId);
-                }
+            else if (userRole == DbConstants.UserRole.Admin)
+            { 
+                requests = await _requestService.GetAllRequestsAsync(filterValues);
             }
             return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully", StatusCodes.Status200OK));
         }
