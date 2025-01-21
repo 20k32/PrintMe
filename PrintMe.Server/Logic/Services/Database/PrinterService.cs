@@ -141,5 +141,10 @@ namespace PrintMe.Server.Logic.Services.Database
         {
             await _repository.DeactivatePrinterAsync(printerId);
         }
+
+        public async Task ActivatePrinterAsync(int printerId)
+        {
+            await _repository.ActivatePrinterAsync(printerId);
+        }
     }
 }

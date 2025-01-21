@@ -33,7 +33,9 @@ namespace PrintMe.Server.Models.DTOs.PrinterDto
                 MaxModelWidth = printer.MaxModelWidth,
                 MinModelWidth = printer.MinModelWidth,
                 Materials = printer.Materials?.MapToDtos() ?? Enumerable.Empty<PrintMaterialDto>().ToList(),
-                ModelName = printer.PrinterModel.Name
+                ModelName = printer.PrinterModel.Name,
+                IsDeactivated = printer.IsDeactivated,
+                UserId = printer.UserId ?? 0
             };
         
         public static SimplePrinterDto MapToDto(this SimplePrinter simplePrinter) =>

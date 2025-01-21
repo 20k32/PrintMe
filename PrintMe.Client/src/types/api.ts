@@ -22,6 +22,18 @@ export interface SimplePrinterDto {
     id: number;
     modelName: string;
     materials: PrintMaterial[];
+    isDeactivated?: boolean;
+}
+
+export interface PrinterDto extends SimplePrinterDto {
+    description: string;
+    minModelHeight: number;
+    minModelWidth: number;
+    maxModelHeight: number;
+    maxModelWidth: number;
+    locationX: number;
+    locationY: number;
+    userId: number;
 }
 
 export interface MarkerDto {
@@ -29,6 +41,21 @@ export interface MarkerDto {
     locationX: number;
     locationY: number;
 }
+
+export interface PrintOrderDto {
+    printOrderId: number;
+    userId: number;
+    printerId: number;
+    price: number;
+    startDate: string;
+    dueDate: string;
+    itemLink: string | null;
+    itemQuantity: number;
+    itemDescription: string | null;
+    itemMaterialId: number;
+    printOrderStatusId: number;
+    printOrderStatusReasonId: number;
+  }
 
 export interface RoleDto {
     userRole: string;

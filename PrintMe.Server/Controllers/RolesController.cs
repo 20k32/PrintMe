@@ -25,9 +25,7 @@ namespace PrintMe.Server.Controllers
             {
                 var userId = Request.TryGetUserId();
 
-                var userService = provider.GetService<UserService>();
-
-                var userRole = userService.GetUserRole(int.Parse(userId));
+                var userRole = Request.TryGetUserRole();
                     
                 if (string.IsNullOrWhiteSpace(userId))
                 {

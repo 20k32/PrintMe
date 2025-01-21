@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Constants;
 using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
@@ -7,6 +8,7 @@ using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.RequestDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
+using PrintMe.Server.Models.Filters;
 
 namespace PrintMe.Server.Controllers;
 
@@ -70,38 +72,47 @@ public class RequestController(IServiceProvider provider) : ControllerBase
 
     /// <summary>
     /// Gets all requests.
-    /// Requests can be filtered by status.
+    /// Requests can be filtered by status and type.
+    /// Returns all requests if user is admin, else returns only user's requests.
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<IEnumerable<RequestDto>>), 200)]
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllRequests([FromQuery] string status)
+    public async Task<IActionResult> GetAllRequests([FromQuery] string status, string type)
     {
         try
         {
-            IEnumerable<RequestDto> requests;
-            if (string.IsNullOrEmpty(status))
+            IEnumerable<RequestDto> requests = null;
+            var userRole = Request.TryGetUserRole();
+            var userid = Request.TryGetUserId();
+            if (userid == null || !int.TryParse(userid, out var userId))
             {
-                requests = await _requestService.GetAllRequestsAsync();
+                return BadRequest(new PlainResult("Unable to get user id from token", StatusCodes.Status400BadRequest));
             }
-            else
+            if (userRole == null) 
             {
-                var statusId = await _requestService.GetRequestStatusIdByNameAsync(status);
-                requests = (await _requestService.GetRequestsByStatusIdAsync(statusId)).ToList();
+                return BadRequest(new PlainResult("Unable to get user role from token", StatusCodes.Status400BadRequest));
             }
-
-            if (!requests.Any())
-            {
-                return NotFound(new PlainResult("No requests found", StatusCodes.Status404NotFound));
+            var filter = new RequestFilter { Status = status, Type = type };
+            
+            if (userRole != DbConstants.UserRole.Admin)
+            { 
+                requests = (await _requestService.GetRequestsByUserIdAsync(userId, filter)).ToList();
             }
-
-            return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully",
-                StatusCodes.Status200OK));
+            else if (userRole == DbConstants.UserRole.Admin)
+            { 
+                requests = await _requestService.GetAllRequestsAsync(filter);
+            }
+            return Ok(new ApiResult<IEnumerable<RequestDto>>(requests, "Requests found successfully", StatusCodes.Status200OK));
         }
         catch (NotFoundRequestInDbException ex)
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }
         catch (NotFoundRequestStatusInDb ex)
+        {
+            return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+        }
+        catch (NotFoundRequestTypeInDb ex)
         {
             return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
         }

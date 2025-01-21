@@ -181,5 +181,15 @@ namespace PrintMe.Server.Persistence.Repository
         public Task<PrintMaterial> GetMaterialByIdAsync(int printMaterialId) =>
             _dbContext.PrintMaterials1.AsQueryable()
                 .FirstAsync(material => material.PrintMaterialId == printMaterialId);
+
+        public async Task ActivatePrinterAsync(int printerId)
+        {
+            var printer = await _dbContext.Printers.FindAsync(printerId);
+            if (printer != null)
+            {
+                printer.IsDeactivated = false;
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }
