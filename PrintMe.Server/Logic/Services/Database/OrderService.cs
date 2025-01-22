@@ -24,7 +24,9 @@ namespace PrintMe.Server.Logic.Services.Database
 
             await foreach (var orderRaw in _orderRepository.GetOrdersByUserId(userId))
             {
-                yield return _mapper.Map<PrintOrderDto>(orderRaw);
+                var orderDto = _mapper.Map<PrintOrderDto>(orderRaw);
+                orderDto.ExecutorId = orderRaw.Printer.UserId;
+                yield return orderDto;
             }
         }
         
@@ -84,7 +86,10 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new NotFoundOrderInDbException();
             }
 
-            return _mapper.Map<PrintOrderDto>(result);
+            var orderDto = _mapper.Map<PrintOrderDto>(result);
+            orderDto.ExecutorId = result.Printer.UserId;
+
+            return orderDto;
         }
     }
 }
