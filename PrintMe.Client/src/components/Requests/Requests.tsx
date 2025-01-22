@@ -6,22 +6,54 @@ import { handleApiError } from '../../utils/apiErrorHandler';
 import { toast } from 'react-toastify';
 import "./assets/requests.css";
 
+interface PopupProps {
+    requestId: number;
+    selectedReason: string;
+    onReasonChange: (requestId: number, reason: string) => void;
+    onSubmit: () => void;
+    onClose: () => void;
+}
+
+const Popup: React.FC<PopupProps> = ({ requestId, selectedReason, onReasonChange, onSubmit, onClose }) => {
+    return (
+        <div className="popup">
+            <div className="popup-content">
+                <h5>Select reason for decline</h5>
+                <select
+                    className="admin-select form-select mt-2"
+                    value={selectedReason}
+                    onChange={(e) => onReasonChange(requestId, e.target.value)}
+                >
+                    <option value="">Select reason for decline</option>
+                    <option value="Inappropriate">Inappropriate</option>
+                    <option value="OffensiveContent">Offensive Content</option>
+                    <option value="SystemAbuse">System Abuse</option>
+                </select>
+                <div className='admin-btn-group'>
+                    <button className="btn admin-btn admin-btn-danger mt-2" onClick={onSubmit}>Submit</button>
+                    <button className="btn admin-btn admin-btn-primary mt-2" onClick={onClose}>Cancel</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Requests: React.FC = () => {
     const [requests, setRequests] = useState<RequestDto[]>([]);
     const [error, setError] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
     const [selectedReasons, setSelectedReasons] = useState<{ [key: number]: string }>({});
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [showDeclinePopup, setShowDeclinePopup] = useState<{ [key: number]: boolean }>({});
 
     useEffect(() => {
         const fetchRequests = async () => {
             setIsLoading(true);
             try {
                 const roleData = await roleService.getMyRole();
-                console.log(roleData);
                 const userRole = roleData.userRole;
                 setIsAdmin(userRole === 'Admin');
-                const requestsData = userRole === 'Admin' ? await requestsService.getAllRequests() : await requestsService.getMyRequests();
+                const requestsData = await requestsService.getAllRequests();
                 setRequests(requestsData);
             } catch (error: any) {
                 if (error.response?.status === 404) {
@@ -66,6 +98,7 @@ const Requests: React.FC = () => {
         try {
             await requestsService.declineRequest(request.requestId, selectedReason);
             updateRequestStatus(request, 3); // Assuming 3 is the status code for "Declined"
+            setShowDeclinePopup(prev => ({ ...prev, [request.requestId]: false }));
         } catch (exception) {
             console.error('There was an error declining the request!', exception);
         }
@@ -91,83 +124,63 @@ const Requests: React.FC = () => {
         }
     };
 
-    if (isAdmin) {
-        return (
-            <div className="requests-container">
-                <div className="container mt-4">
-                    {isLoading ? (
-                        <div>Loading...</div>
-                    ) : requests && requests.length > 0 ? (
-                        <div className="list-group">
-                            <h1 className="mb-4 text-white">Requests from users</h1>
-                            {requests.map(request => (
-                                <div key={request.requestId} className="list-group-item">
-                                    <h5>Request #{request.requestId}</h5>
-                                    {request.description && (
-                                        <p className="mb-1"><strong>Description:</strong> {request.description}</p>
-                                    )}
-                                    {request.userTextData && (
-                                        <p className="mb-1"><strong>Additional Info:</strong> {request.userTextData}</p>
-                                    )}
-                                    <p className="mb-1"><strong>Status:</strong> {getStatusDisplay(request.requestStatusId)}</p>
-                                    <p className="mb-1"><strong>Type:</strong> {request.requestTypeId}</p>
-                                    {request.requestStatusId === 1 && (
-                                        <>
-                                        <div className='btn-group'>
-                                            <button className="btn btn-primary" onClick={() => onAccept(request)}>Accept</button>
-                                            <button className="btn btn-danger" onClick={() => onDecline(request)}>Decline</button>
-                                        </div>
-                                            <select
-                                                className="form-select mt-2"
-                                                value={selectedReasons[request.requestId] || ''}
-                                                onChange={(e) => handleReasonChange(request.requestId, e.target.value)}
-                                            >
-                                                <option value="">Select reason for decline</option>
-                                                <option value="Inappropriate">Inappropriate</option>
-                                                <option value="OffensiveContent">Offensive Content</option>
-                                                <option value="SystemAbuse">System Abuse</option>
-                                            </select>
-                                        </>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No requests found</p>
-                    )}
-                </div>
-            </div>
-        );
-    }
+    const getRequestTypeDisplay = (requestTypeId: number) => {
+        switch (requestTypeId) {
+            case 1:
+                return "Printer Application";
+            case 2:
+                return "Printer Description Changing";
+            case 3:
+                return "User Report";
+            case 4:
+                return "Account Deletion";
+            default:
+                return "Unknown";
+        }
+    };
+
+    const handleDeclineClick = (requestId: number) => {
+        setShowDeclinePopup(prev => ({ ...prev, [requestId]: true }));
+    };
+
+    const handleClosePopup = (requestId: number) => {
+        setShowDeclinePopup(prev => ({ ...prev, [requestId]: false }));
+    };
 
     return (
         <div className="requests-container">
             <div className="requests-content">
-
                 {!isLoading && (
                     <div className="requests-list-container">
-                        <h2 className="text-white mb-4">Your Requests</h2>
+                        <h2 className="text-white mb-4">{isAdmin ? "Requests from users" : "Your Requests"}</h2>
                         {requests.length > 0 ? (
                             <div className="requests-list">
                                 {requests.map((request) => (
                                     <div key={request.requestId} className="request-item">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <h4>{request.requestTypeId === RequestType.PrinterApplication ? "Printer Application" : "Request"}</h4>
+                                            <h4>
+                                                {request.requestTypeId === RequestType.PrinterApplication ? "Printer Application" : "Request"} #{request.requestId}
+                                            </h4>
                                             {getStatusDisplay(request.requestStatusId)}
                                         </div>
                                         <div className="request-details">
-                                            {request.description && (
-                                                <p className="request-description mb-0">
-                                                    {request.description}
-                                                </p>
-                                            )}
+                                            <p className="mb-1 text-white"><strong>Description:</strong> {request.description}</p>
+                                            <p className="mb-1 text-white"><strong>Type:</strong> {getRequestTypeDisplay(request.requestTypeId)}</p>
                                         </div>
+                                        {isAdmin && request.requestStatusId === 1 && (
+                                            <>
+                                                <div className="admin-btn-group">
+                                                    <button className="btn admin-btn admin-btn-primary" onClick={() => onAccept(request)}>Accept</button>
+                                                    <button className="btn admin-btn admin-btn-danger" onClick={() => handleDeclineClick(request.requestId)}>Decline</button>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 ))}
                             </div>
                         ) : (
                             <div className="alert alert-dark">
-                                You don't have any requests yet.
+                                {isAdmin ? "No requests found" : "You don't have any requests yet."}
                             </div>
                         )}
                     </div>
@@ -175,6 +188,18 @@ const Requests: React.FC = () => {
 
                 {error && <div className="alert alert-danger mt-4">{error}</div>}
             </div>
+            {Object.keys(showDeclinePopup).map(requestId => (
+                showDeclinePopup[Number(requestId)] && (
+                    <Popup
+                        key={requestId}
+                        requestId={Number(requestId)}
+                        selectedReason={selectedReasons[Number(requestId)] || ''}
+                        onReasonChange={handleReasonChange}
+                        onSubmit={() => onDecline(requests.find(request => request.requestId === Number(requestId))!)}
+                        onClose={() => handleClosePopup(Number(requestId))}
+                    />
+                )
+            ))}
         </div>
     );
 };
