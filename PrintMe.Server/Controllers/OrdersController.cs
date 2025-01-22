@@ -267,5 +267,46 @@ namespace PrintMe.Server.Controllers
             
             return result.ToObjectResult();
         }
+
+        /// <summary>
+        /// Updates some details of an existing order.
+        /// </summary>
+        /// <param name="orderDto"></param>
+        /// <returns> The updated order information or error details.</returns>
+        [HttpPut("PartialUpdate")]
+        public async Task<IActionResult> PartialUpdateOrderById([FromBody] UpdatePartialOrderRequest orderDto)
+        {
+            PlainResult result;
+
+            if (orderDto is null)
+            {
+                result = new("Missing body.", StatusCodes.Status400BadRequest);
+            }
+            else if (orderDto.IsNull())
+            {
+                result = new("Missing parameters in body.", StatusCodes.Status400BadRequest);
+            }
+            else
+            {
+                try
+                {
+                    var order = await _orderService.UpdateOrderByIdAsync(orderDto.OrderId, orderDto);
+                    result = new ApiResult<PrintOrderDto>(order, "Order updated.",
+                        StatusCodes.Status200OK);
+                }
+                catch (NotFoundOrderInDbException ex)
+                {
+                    result = new($"{ex.Message}.{ex?.InnerException?.Message ?? string.Empty}",
+                        StatusCodes.Status403Forbidden);
+                }
+                catch (Exception ex)
+                {
+                    result = new($"Internal server error while updating order.\n{ex.Message}\n{ex.StackTrace}",
+                        StatusCodes.Status500InternalServerError);
+                }
+            }
+
+            return result.ToObjectResult();
+        }
     }
 }

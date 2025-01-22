@@ -24,16 +24,13 @@ namespace PrintMe.Server.Logic.Services.Database
 
             await foreach (var orderRaw in _orderRepository.GetOrdersByUserId(userId))
             {
-                var orderDto = _mapper.Map<PrintOrderDto>(orderRaw);
-                orderDto.ExecutorId = orderRaw.Printer.UserId;
-                yield return orderDto;
+                yield return _mapper.Map<PrintOrderDto>(orderRaw);
             }
         }
         
         public async Task<PrintOrderDto> UpdateOrderByIdAsync(int orderId, UpdateFullOrderRequest request)
         {
             var orderRaw = _mapper.Map<PrintOrder>(request);
-
             var orderResult = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
 
             if (orderResult is null)
@@ -42,6 +39,26 @@ namespace PrintMe.Server.Logic.Services.Database
             }
 
             return _mapper.Map<PrintOrderDto>(orderResult);
+        }
+
+        public async Task<PrintOrderDto> UpdateOrderByIdAsync(int orderId, UpdatePartialOrderRequest request)
+        {
+            try
+            {
+                var orderRaw = _mapper.Map<PrintOrder>(request);
+                var orderResult = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
+
+                if (orderResult is null)
+                {
+                    throw new NotFoundOrderInDbException();
+                }
+
+                return _mapper.Map<PrintOrderDto>(orderResult);
+            }
+            catch (Exception ex)
+            {
+                throw new NotFoundOrderInDbException(ex);
+            }
         }
 
         public async Task<PrintOrderDto> RemoveOrderByIdAsync(int orderId)
@@ -86,10 +103,7 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new NotFoundOrderInDbException();
             }
 
-            var orderDto = _mapper.Map<PrintOrderDto>(result);
-            orderDto.ExecutorId = result.Printer.UserId;
-
-            return orderDto;
+            return _mapper.Map<PrintOrderDto>(result);
         }
     }
 }
