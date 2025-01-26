@@ -12,5 +12,9 @@ export const printersService = {
 
     activatePrinter: (printerId: number) => {
         return baseApiService.post<void>(`/printers/activate/${printerId}`, {}, true);
-    }
+    },
+
+    getPrinterById(id: number): Promise<PrinterDto> {
+        return baseApiService.get<PrinterDto>(`/Printers/${id}?detailed=true`);
+    }, 
 };

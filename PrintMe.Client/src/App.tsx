@@ -13,6 +13,7 @@ import OrderDetails from "./components/Orders/components/OrderDetails.tsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Printers from "./components/Printers/Printers.tsx";
+import PrinterDetail from "./components/Printers/components/PrinterDetail.tsx";
 
 
 
@@ -56,6 +57,7 @@ function App() {
         <Route path="/requests" element={<Requests />} />
         <Route path="/printers" element={<Printers />} />
         <Route path="/printers/add" element={<AddPrinter />} />
+        <Route path="/printers/:id" element={<PrinterDetail />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
       </Routes>
