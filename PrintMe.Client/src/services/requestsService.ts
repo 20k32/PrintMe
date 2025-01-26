@@ -13,5 +13,18 @@ export const requestsService = {
     
     async submitPrinterApplication(printer: PrinterApplicationDto) {
         return baseApiService.post('/request/add', printer, true);
+    },
+
+    async approveRequest(requestId: number): Promise<void> {
+        await baseApiService.post(`/request/${requestId}/approve`, {}, true);
+    },
+
+    async declineRequest(requestId: number, reason: string): Promise<void> {
+        await baseApiService.post(`/request/${requestId}/decline?reason=${encodeURIComponent(reason)}`, {}, true);
+    },
+
+    async getAllRequests(): Promise<RequestDto[]> {
+        return baseApiService.get<RequestDto[]>('/request/all/', true);
     }
+
 };

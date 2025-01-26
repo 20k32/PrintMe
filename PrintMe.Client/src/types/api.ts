@@ -56,3 +56,8 @@ export interface PrintOrderDto {
     printOrderStatusId: number;
     printOrderStatusReasonId: number;
   }
+
+export interface RoleDto {
+    userRole: string;
+    message: string;
+}
