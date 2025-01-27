@@ -4,6 +4,7 @@ namespace PrintMe.Server.Models.DTOs
     {
         public int PrintOrderId { get; init; }
         public int UserId { get; init; }
+        public int? ExecutorId { get; set; }
         public int PrinterId { get; init; }
         public double Price { get; init; }
         public DateOnly StartDate { get; init; }

@@ -31,7 +31,6 @@ namespace PrintMe.Server.Logic.Services.Database
         public async Task<PrintOrderDto> UpdateOrderByIdAsync(int orderId, UpdateFullOrderRequest request)
         {
             var orderRaw = _mapper.Map<PrintOrder>(request);
-
             var orderResult = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
 
             if (orderResult is null)
@@ -40,6 +39,31 @@ namespace PrintMe.Server.Logic.Services.Database
             }
 
             return _mapper.Map<PrintOrderDto>(orderResult);
+        }
+
+        public async Task<PrintOrderDto> UpdateOrderByIdAsync(int orderId, UpdatePartialOrderRequest request)
+        {
+            try
+            {
+                var orderRaw = _mapper.Map<PrintOrder>(request);
+
+                if (orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Pending])
+                {
+                    throw new InvalidOrderStatusException();
+                }
+                var orderResult = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
+
+                if (orderResult is null)
+                {
+                    throw new NotFoundOrderInDbException();
+                }
+
+                return _mapper.Map<PrintOrderDto>(orderResult);
+            }
+            catch (Exception ex)
+            {
+                throw new NotFoundOrderInDbException(ex);
+            }
         }
 
         public async Task<PrintOrderDto> RemoveOrderByIdAsync(int orderId)
@@ -83,6 +107,25 @@ namespace PrintMe.Server.Logic.Services.Database
             {
                 throw new NotFoundOrderInDbException();
             }
+
+            return _mapper.Map<PrintOrderDto>(result);
+        }
+
+        public async Task<PrintOrderDto> AbortOrderByIdAsync(int orderId)
+        {
+            var orderRaw = await _orderRepository.GetOrderById(orderId);
+
+            if (orderRaw is null)
+            {
+                throw new NotFoundOrderInDbException();
+            }
+
+            if (orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Pending])
+            {
+                throw new InvalidOrderStatusException();
+            }
+            orderRaw.PrintOrderStatusId = DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Aborted];
+            var result = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
 
             return _mapper.Map<PrintOrderDto>(result);
         }
