@@ -24,7 +24,13 @@ namespace PrintMe.Server.Persistence.Repository
 				.Include(order => order.Printer)
 				.Where(order => order.UserId == id)
 				.AsAsyncEnumerable();
-
+		
+		public IAsyncEnumerable<PrintOrder> GetOrdersForPrinterOwnerAsync(int id) =>
+		_dbContext.PrintOrders
+			.Include(order => order.Printer)
+			.Where(order => order.Printer.UserId == id)
+			.AsAsyncEnumerable();
+		
 		public async Task<PrintOrder> UpdateOrderAsync(int orderId, PrintOrder order)
 		{
 			var existing = await _dbContext.PrintOrders

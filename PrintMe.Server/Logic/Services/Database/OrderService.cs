@@ -30,6 +30,18 @@ namespace PrintMe.Server.Logic.Services.Database
             }
         }
         
+        public async IAsyncEnumerable<PrintOrderDto> GetOrdersForPrinterOwnerAsync(int userId)
+        {
+            _ = await _userService.GetUserByIdAsync(userId);
+
+            await foreach (var orderRaw in _orderRepository.GetOrdersForPrinterOwnerAsync(userId))
+            {
+                var orderDto = _mapper.Map<PrintOrderDto>(orderRaw);
+                // orderDto.ExecutorId = orderRaw.Printer.UserId;
+                yield return orderDto;
+            }
+        }
+        
         public async Task<PrintOrderDto> UpdateOrderByIdAsync(int orderId, UpdateFullOrderRequest request)
         {
             var orderRaw = _mapper.Map<PrintOrder>(request);
