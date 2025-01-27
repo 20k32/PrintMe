@@ -46,6 +46,11 @@ namespace PrintMe.Server.Logic.Services.Database
             try
             {
                 var orderRaw = _mapper.Map<PrintOrder>(request);
+
+                if (orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Pending])
+                {
+                    throw new InvalidOrderStatusException();
+                }
                 var orderResult = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
 
                 if (orderResult is null)

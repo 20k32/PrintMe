@@ -294,6 +294,11 @@ namespace PrintMe.Server.Controllers
 					result = new ApiResult<PrintOrderDto>(order, "Order updated.",
 						StatusCodes.Status200OK);
 				}
+				catch (InvalidOrderStatusException ex)
+				{
+					result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+						StatusCodes.Status403Forbidden);
+				}
 				catch (NotFoundOrderInDbException ex)
 				{
 					result = new($"{ex.Message}.{ex?.InnerException?.Message ?? string.Empty}",
