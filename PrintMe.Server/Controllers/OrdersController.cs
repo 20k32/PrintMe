@@ -347,8 +347,8 @@ namespace PrintMe.Server.Controllers
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns> The updated order information or error details.</returns>
-		[HttpPut("Abort")]
-		public async Task<IActionResult> AbortOrderById([FromQuery] int orderId)
+		[HttpPost("Abort/{orderId:int}")]
+		public async Task<IActionResult> AbortOrderById(int orderId)
 		{
 			PlainResult result;
 

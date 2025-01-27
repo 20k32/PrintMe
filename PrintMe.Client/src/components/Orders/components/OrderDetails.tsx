@@ -68,7 +68,7 @@ const OrderDetails: React.FC = () => {
     if (!orderId) return;
     
     try {
-      await ordersService.abortOrder({ orderId: Number(orderId) });
+      await ordersService.abortOrder(Number(orderId));
       const updatedOrder = await ordersService.getOrderById(Number(orderId));
       setOrder(updatedOrder as PrintOrderDto);
     } catch (error) {
