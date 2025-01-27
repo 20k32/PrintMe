@@ -1,6 +1,5 @@
 import type React from "react"
 import { useEffect, useState } from "react";
-import { handleApiError } from "../../utils/apiErrorHandler";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/orders.css";
 import { PrintOrderDto } from "../../types/api";
@@ -21,7 +20,6 @@ const statusOptions = [
 const Orders: React.FC = () => {
   const [myOrders, setMyOrders] = useState<PrintOrderDto[]>([])
   const [executorOrders, setExecutorOrders] = useState<PrintOrderDto[]>([])
-  const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [userNames, setUserNames] = useState<Record<number, { firstName: string; lastName: string }>>({});
   const [filterStatus, setFilterStatus] = useState<number | "all">("all")
@@ -61,8 +59,7 @@ const Orders: React.FC = () => {
 
         setUserNames(userMap);
       } catch (error: unknown) {
-        const errorMessage = handleApiError(error);
-        setError(errorMessage);
+        console.error('Error fetching orders:', error);
       } finally {
         setIsLoading(false);
       }

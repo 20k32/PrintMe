@@ -13,6 +13,7 @@ import OrderDetails from "./components/Orders/components/OrderDetails.tsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Printers from "./components/Printers/Printers.tsx";
+import EditOrder from "./components/Orders/components/EditOrder";
 
 
 
@@ -58,6 +59,7 @@ function App() {
         <Route path="/printers/add" element={<AddPrinter />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/orders/:orderId/edit" element={<EditOrder />} />
       </Routes>
       <ToastContainer
         position="bottom-right"
