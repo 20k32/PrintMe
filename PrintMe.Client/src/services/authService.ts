@@ -1,5 +1,6 @@
 import { baseApiService } from './baseApiService';
 import { RequestData } from '../types/api';
+import { JwtResult } from '../types/requests';
 
 interface LoginRequest extends RequestData {
   email: string;
@@ -16,11 +17,12 @@ class AuthenticationError extends Error {
 export const authService = {
   async login(credentials: LoginRequest) {
     try {
-      const token = await baseApiService.post<string>('/auth/login', credentials);
-      if (!token) {
+      const jwtResult = await baseApiService.post<JwtResult>('/auth/login', credentials);
+      if (!jwtResult.accessToken) {
         throw new AuthenticationError('No token received from server');
       }
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', jwtResult.accessToken);
+      localStorage.setItem('refreshToken', jwtResult.refreshToken);
     } catch (err) {
       console.error('Login failed:', err);
       throw new AuthenticationError('Login failed');
