@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { handleApiError } from "../../utils/apiErrorHandler";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/orders.css";
 import { PrintOrderDto } from "../../types/api";
@@ -10,7 +9,6 @@ import { getStatusDisplay } from "../../utils/orderUtils";
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<PrintOrderDto[]>([]);
-  const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [userNames, setUserNames] = useState<Record<number, { firstName: string; lastName: string }>>({});
   const navigate = useNavigate();
@@ -22,11 +20,11 @@ const Orders: React.FC = () => {
         const data = await ordersService.getMyOrders();
         setOrders(data);
 
-        const userIds = Array.from(new Set(data.map((order) => order.userId)));
+        const userIds = Array.from(new Set(data.map((order) => order.executorId)));
 
-        const userPromises = userIds.map((userId) =>
-          userService.getUserFullNameById(userId).then((userData) => ({
-            userId,
+        const userPromises = userIds.map((executorId) =>
+          userService.getUserFullNameById(executorId).then((userData) => ({
+            executorId,
             userData,
           }))
         );
@@ -34,17 +32,16 @@ const Orders: React.FC = () => {
         const users = await Promise.all(userPromises);
 
         const userMap = users.reduce(
-          (acc, { userId, userData }) => ({
+          (acc, { executorId, userData }) => ({
             ...acc,
-            [userId]: userData,
+            [executorId]: userData,
           }),
           {}
         );
 
         setUserNames(userMap);
       } catch (error: unknown) {
-        const errorMessage = handleApiError(error);
-        setError(errorMessage);
+        console.error('Error fetching orders:', error);
       } finally {
         setIsLoading(false);
       }
@@ -82,8 +79,8 @@ const Orders: React.FC = () => {
             >
               <div className="header-column col">{order.printOrderId}</div>
               <div className="header-column col">
-                {userNames[order.userId]
-                  ? `${userNames[order.userId].firstName} ${userNames[order.userId].lastName}`
+                {userNames[order.executorId]
+                  ? `${userNames[order.executorId].firstName} ${userNames[order.executorId].lastName}`
                   : "Loading..."}
               </div>
               <div className="header-column col">{order.startDate}</div>

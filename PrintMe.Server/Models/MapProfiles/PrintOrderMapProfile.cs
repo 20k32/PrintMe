@@ -44,10 +44,6 @@ namespace PrintMe.Server.Models.MapProfiles
                 .ReverseMap();
 
             CreateMap<UpdatePartialOrderRequest, PrintOrder>()
-                .ForMember(orderRaw => orderRaw.OrderDate,
-                    options => options.MapFrom(request => 
-                        !string.IsNullOrEmpty(request.StartDate) ? 
-                        DateOnly.Parse(request.StartDate) : default))
                 .ForMember(orderRaw => orderRaw.DueDate,
                     options => options.MapFrom(request => 
                         !string.IsNullOrEmpty(request.DueDate) ? 

@@ -45,14 +45,26 @@ export interface MarkerDto {
 export interface PrintOrderDto {
     printOrderId: number;
     userId: number;
+    executorId: number;
     printerId: number;
     price: number;
     startDate: string;
     dueDate: string;
-    itemLink: string | null;
+    itemLink: string | undefined;
     itemQuantity: number;
-    itemDescription: string | null;
+    itemDescription: string | undefined;
     itemMaterialId: number;
     printOrderStatusId: number;
     printOrderStatusReasonId: number;
-  }
+}
+
+export interface UpdatePartialOrderRequest extends RequestData {
+  orderId: number;
+  itemDescription?: string;
+  itemQuantity?: number;
+  itemMaterialId?: number;
+  itemLink?: string;
+  dueDate?: string;
+  price?: number;
+  [key: string]: unknown;
+}

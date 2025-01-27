@@ -34,7 +34,7 @@ const OrderDetails: React.FC = () => {
         setOrder(orderDetails || null);
 
         if (orderDetails) {
-          const userData = await userService.getUserFullNameById(orderDetails.userId);
+          const userData = await userService.getUserFullNameById(orderDetails.executorId);
           setUser(userData);
         }
 
@@ -57,6 +57,23 @@ const OrderDetails: React.FC = () => {
 
   const handleBackClick = () => {
     navigate("/orders");
+  };
+
+  const handleEditClick = () => {
+    if (!orderId) return;
+    navigate(`/orders/${orderId}/edit`);
+  };
+
+  const handleAbortClick = async () => {
+    if (!orderId) return;
+    
+    try {
+      await ordersService.abortOrder({ orderId: Number(orderId) });
+      const updatedOrder = await ordersService.getOrderById(Number(orderId));
+      setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error aborting order", error);
+    }
   };
 
   if (isLoading)
@@ -83,7 +100,27 @@ const OrderDetails: React.FC = () => {
     <div className="orderd-container py-5">
       <div className="card shadow-lg p-4">
         <div className="card-header text-white d-flex align-items-center justify-content-between">
-          <h4>Order #{order.printOrderId}</h4>
+          <div className="d-flex align-items-center">
+            <h4 className="mb-0">Order #{order.printOrderId}</h4>
+            {order.printOrderStatusId === 1 && (
+              <div className="ms-3 d-flex gap-2">
+                <button 
+                  className="btn btn-outline-secondary" 
+                  onClick={handleEditClick}
+                >
+                  <i className="bi bi-pencil me-2"></i>
+                  Edit
+                </button>
+                <button 
+                  className="btn btn-outline-danger" 
+                  onClick={handleAbortClick}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Abort
+                </button>
+              </div>
+            )}
+          </div>
           <a href="#" onClick={handleBackClick} className="text-white header-icon">
             <i className="bi bi-arrow-bar-left fs-2"></i>
           </a>
