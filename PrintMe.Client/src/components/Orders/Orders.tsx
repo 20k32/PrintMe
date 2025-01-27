@@ -20,11 +20,11 @@ const Orders: React.FC = () => {
         const data = await ordersService.getMyOrders();
         setOrders(data);
 
-        const userIds = Array.from(new Set(data.map((order) => order.executorId)));
+        const userIds = Array.from(new Set(data.map((order) => order.userId)));
 
-        const userPromises = userIds.map((executorId) =>
-          userService.getUserFullNameById(executorId).then((userData) => ({
-            executorId,
+        const userPromises = userIds.map((userId) =>
+          userService.getUserFullNameById(userId).then((userData) => ({
+            userId,
             userData,
           }))
         );
@@ -32,9 +32,9 @@ const Orders: React.FC = () => {
         const users = await Promise.all(userPromises);
 
         const userMap = users.reduce(
-          (acc, { executorId, userData }) => ({
+          (acc, { userId, userData }) => ({
             ...acc,
-            [executorId]: userData,
+            [userId]: userData,
           }),
           {}
         );
@@ -79,8 +79,8 @@ const Orders: React.FC = () => {
             >
               <div className="header-column col">{order.printOrderId}</div>
               <div className="header-column col">
-                {userNames[order.executorId]
-                  ? `${userNames[order.executorId].firstName} ${userNames[order.executorId].lastName}`
+                {userNames[order.userId]
+                  ? `${userNames[order.userId].firstName} ${userNames[order.userId].lastName}`
                   : "Loading..."}
               </div>
               <div className="header-column col">{order.startDate}</div>
