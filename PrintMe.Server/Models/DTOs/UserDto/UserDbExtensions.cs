@@ -1,3 +1,4 @@
+using PrintMe.Server.Constants;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Models.DTOs.UserDto
@@ -44,7 +45,7 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             Description = user.Description,
             Password = user.Password,
             PasswordSalt = user.PasswordSalt,
-            UserRole = user?.UserRole?.UserRoleName ?? string.Empty
+            UserRole =  DbConstants.UserRole.Dictionary.Where(entry=>entry.Value == user.UserRoleId).Select(entry=>entry.Key).FirstOrDefault()
         };
 
         public static User MapToUser(this NoPasswordUserDto noPasswordUser) => new()

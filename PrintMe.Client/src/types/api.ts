@@ -67,4 +67,9 @@ export interface UpdatePartialOrderRequest extends RequestData {
   dueDate?: string;
   price?: number;
   [key: string]: unknown;
+  }
+
+export interface RoleDto {
+    userRole: string;
+    message: string;
 }
