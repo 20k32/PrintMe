@@ -40,7 +40,7 @@ const Orders: React.FC = () => {
         setExecutorOrders(executorOrdersData)
 
         const allOrders = [...myOrdersData, ...executorOrdersData]
-        const userIds = Array.from(new Set(allOrders.map((order) => order.userId)))
+        const userIds = Array.from(new Set(allOrders.map((order) => order.userId || order.executorId).filter(Boolean)))
 
         const userPromises = userIds.map((userId) =>
           userService.getUserFullNameById(userId).then((userData) => ({
@@ -97,21 +97,34 @@ const Orders: React.FC = () => {
     navigate(`/orders/${printOrderId}`);
   };
 
-  const OrdersList: React.FC<{ orders: PrintOrderDto[]; title: string }> = ({ orders, title }) => (
+  const OrdersList: React.FC<{ orders: PrintOrderDto[]; title: string; isMyOrders: boolean }> = ({ orders, title, isMyOrders,}) => (
       <>
         <h2 className="text-white mb-3">{title}</h2>
+        <div className="orders-header row">
+          <div className="header-column col">Order ID</div>
+          <div className="header-column col">{isMyOrders ? "Executor" : "Buyer"}</div>
+          <div className="header-column col">Creation date</div>
+          <div className="header-column col">Deadline</div>
+          <div className="header-column col">Price</div>
+          <div className="header-column col">Status</div>
+          <div className="header-column col">Chat</div>
+        </div>
         {orders.map((order) => (
             <div
                 className="order row"
                 key={order.printOrderId}
                 onClick={() => handleOrderClick(order.printOrderId)}
-                style={{ cursor: "pointer" }}
+                style={{cursor: "pointer"}}
             >
               <div className="header-column col">{order.printOrderId}</div>
               <div className="header-column col">
-                {userNames[order.userId]
-                    ? `${userNames[order.userId].firstName} ${userNames[order.userId].lastName}`
-                    : "Loading..."}
+                {isMyOrders
+                    ? userNames[order.executorId]
+                        ? `${userNames[order.executorId].firstName} ${userNames[order.executorId].lastName}`
+                        : "Loading..."
+                    : userNames[order.userId]
+                        ? `${userNames[order.userId].firstName} ${userNames[order.userId].lastName}`
+                        : "Loading..."}
               </div>
               <div className="header-column col">{order.startDate}</div>
               <div className="header-column col">{order.dueDate}</div>
@@ -128,15 +141,15 @@ const Orders: React.FC = () => {
   )
 
   const showOrderTypeFilter = executorOrders.length > 0
-  
+
   return (
-    <div className="orders-container">
-      <div className="orders-content container">
-        <div className="filters mb-4">
-          <div className={`row ${!showOrderTypeFilter ? "justify-content-center" : ""}`}>
-            <div className={`${showOrderTypeFilter ? "col-md-6" : "col-md-3"}`}>
-              <label htmlFor="status-filter" className="filter-label">
-                Filter by Status
+      <div className="orders-container">
+        <div className="orders-content container">
+          <div className="filters mb-4">
+            <div className={`row ${!showOrderTypeFilter ? "justify-content-center" : ""}`}>
+              <div className={`${showOrderTypeFilter ? "col-md-6" : "col-md-3"}`}>
+                <label htmlFor="status-filter" className="filter-label">
+                  Filter by Status
               </label>
               <select
                   id="status-filter"
@@ -171,16 +184,6 @@ const Orders: React.FC = () => {
             )}
           </div>
         </div>
-        {/* Header */}
-        <div className="orders-header row">
-          <div className="header-column col">Order ID</div>
-          <div className="header-column col">Buyer</div>
-          <div className="header-column col">Creation date</div>
-          <div className="header-column col">Deadline</div>
-          <div className="header-column col">Price</div>
-          <div className="header-column col">Status</div>
-          <div className="header-column col">Chat</div>
-        </div>
 
         {/* Orders List */}
         {isLoading ? (
@@ -188,10 +191,10 @@ const Orders: React.FC = () => {
         ) : (
             <>
               {(filterOrderType === "all" || filterOrderType === "my") && filteredMyOrders.length > 0 && (
-                  <OrdersList orders={filteredMyOrders} title="Orders I've Made" />
+                  <OrdersList orders={filteredMyOrders} title="Orders I've Made" isMyOrders={true}/>
               )}
               {(filterOrderType === "all" || filterOrderType === "executor") && filteredExecutorOrders.length > 0 && (
-                  <OrdersList orders={filteredExecutorOrders} title="Orders I'm Executing" />
+                  <OrdersList orders={filteredExecutorOrders} title="Orders I'm Executing" isMyOrders={false}/>
               )}
               {filteredMyOrders.length === 0 && filteredExecutorOrders.length === 0 && (
                   <div className="text-center text-white">No orders found.</div>
