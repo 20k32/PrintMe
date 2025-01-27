@@ -38,7 +38,9 @@ const Orders: React.FC = () => {
         setExecutorOrders(executorOrdersData)
 
         const allOrders = [...myOrdersData, ...executorOrdersData]
-        const userIds = Array.from(new Set(allOrders.map((order) => order.userId || order.executorId).filter(Boolean)))
+        const userIds = Array.from(new Set(
+            [...allOrders.map((order) => order.userId), ...allOrders.map((order) => order.executorId)].filter(Boolean),
+        ),);
 
         const userPromises = userIds.map((userId) =>
           userService.getUserFullNameById(userId).then((userData) => ({
