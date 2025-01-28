@@ -5,24 +5,30 @@ using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence.Repository
 {
-	public sealed class OrderRepository
-	{
-		private readonly PrintMeDbContext _dbContext;
+    public sealed class OrderRepository
+    {
+        private readonly PrintMeDbContext _dbContext;
 
-		public OrderRepository(PrintMeDbContext dbContext) => _dbContext = dbContext;
+        public OrderRepository(PrintMeDbContext dbContext) => _dbContext = dbContext;
 
-		public async Task<PrintOrder> CreateOrderAsync(PrintOrder order)
-		{
-			var added = await _dbContext.PrintOrders.AddAsync(order);
-			await _dbContext.SaveChangesAsync();
+        public async Task<PrintOrder> CreateOrderAsync(PrintOrder order)
+        {
+            var added = await _dbContext.PrintOrders.AddAsync(order);
+            await _dbContext.SaveChangesAsync();
 
-			return added?.Entity;
-		}
+            return added?.Entity;
+        }
 
 		public IAsyncEnumerable<PrintOrder> GetOrdersByUserId(int id) =>
 			_dbContext.PrintOrders
 				.Include(order => order.Printer)
 				.Where(order => order.UserId == id)
+				.AsAsyncEnumerable();
+		
+		public IAsyncEnumerable<PrintOrder> GetOrdersForPrinterOwnerAsync(int id) =>
+			_dbContext.PrintOrders
+				.Include(order => order.Printer)
+				.Where(order => order.Printer.UserId == id)
 				.AsAsyncEnumerable();
 
 		public async Task<PrintOrder?> UpdateOrderAsync(int orderId, PrintOrder order)

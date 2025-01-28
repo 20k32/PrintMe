@@ -112,20 +112,48 @@ namespace PrintMe.Server.Controllers
 				result = Enumerable.Empty<PrintOrderDto>().ToAsyncEnumerable();
 			}
 
-			return result;
-		}
+            return result;
+        }
+        
+        /// <summary>
+        /// Retrieves all orders for printer owner as executor.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint allows a printer owner to retrieve all print orders where they are the executor.
+        /// The printer owner is identified by their user ID.
+        /// </remarks>
+        [HttpGet("forMe")]
+        [ProducesResponseType(typeof(PrintOrderDto), 200)]
+        public IAsyncEnumerable<PrintOrderDto> GetOrdersForPrinterOwner()
+        {
+            IAsyncEnumerable<PrintOrderDto> result;
 
-		/// <summary>
-		/// Retrieves all orders for a specific user.
-		/// </summary>
-		/// <param name="userId">The ID of the user whose orders to retrieve.</param>
-		/// <returns>A collection of orders for the specified user.</returns>
-		/// <response code="200">Returns the list of orders.</response>
-		[HttpGet]
-		[ProducesResponseType(typeof(PrintOrderDto), 200)]
-		public IAsyncEnumerable<PrintOrderDto> GetOrdersByUserId([FromQuery] int userId)
-		{
-			IAsyncEnumerable<PrintOrderDto> result;
+            try
+            {
+                var userIdStr = Request.TryGetUserId();
+                var userId = int.Parse(userIdStr);
+                
+                result = _orderService.GetOrdersForPrinterOwnerAsync(userId);
+            }
+            catch
+            {
+                result = Enumerable.Empty<PrintOrderDto>().ToAsyncEnumerable();
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// Retrieves all orders for a specific user.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose orders to retrieve.</param>
+        /// <returns>A collection of orders for the specified user.</returns>
+        /// <response code="200">Returns the list of orders.</response>
+        [HttpGet]
+        [ProducesResponseType(typeof(PrintOrderDto), 200)]
+        public IAsyncEnumerable<PrintOrderDto> GetOrdersByUserId([FromQuery] int userId)
+        {
+            IAsyncEnumerable<PrintOrderDto> result;
 
 			if (userId < 1)
 			{
@@ -319,8 +347,8 @@ namespace PrintMe.Server.Controllers
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns> The updated order information or error details.</returns>
-		[HttpPut("Abort")]
-		public async Task<IActionResult> AbortOrderById([FromQuery] int orderId)
+		[HttpPost("Abort/{orderId:int}")]
+		public async Task<IActionResult> AbortOrderById(int orderId)
 		{
 			PlainResult result;
 
