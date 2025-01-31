@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PrintOrderDto, UpdatePartialOrderRequest } from "../../../types/api";
 import { ordersService } from "../../../services/ordersService";
-import { printerService } from "../../../services/printerService";
+import { printersService } from "../../../services/printersService";
 import { PrintMaterial } from "../../../constants";
 import "./../assets/orderDetails.css";
 
@@ -30,7 +30,7 @@ const EditOrder: React.FC = () => {
         setOrder(data);
         
         // Fetch printer materials
-        const printerData = await printerService.getPrinterMinimalInfo(data.printerId);
+        const printerData = await printersService.getPrinterMinimalInfo(data.printerId);
         setMaterials(printerData.materials);
 
         setFormData({

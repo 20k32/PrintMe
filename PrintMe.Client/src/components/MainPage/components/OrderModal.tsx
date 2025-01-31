@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SimplePrinterDto } from '../../../types/api';
-import { orderService } from '../../../services/orderService';
+import { ordersService } from '../../../services/ordersService';
 import { toast } from 'react-toastify';
 
 interface OrderModalProps {
@@ -47,7 +47,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ printer, onClose }) => {
         itemMaterialId: Number(formData.get('selectedMaterial')),
       };
 
-      await orderService.createOrder(orderData);
+      await ordersService.createOrder(orderData);
       toast.success('Order created successfully!');
       onClose();
     } catch (err) {

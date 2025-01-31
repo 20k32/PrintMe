@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ordersService } from "../../../services/ordersService";
 import { userService } from "../../../services/userService";
 import { PrintOrderDto } from "../../../types/api";
-import { printerService } from "../../../services/printerService";
+import { printersService } from "../../../services/printersService";
 import { getStatusDisplay } from "../../../utils/orderUtils";
 import "./../assets/orderDetails.css";
 
@@ -22,23 +22,45 @@ const OrderDetails: React.FC = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState<PrintOrderDto | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [customer, setCustomer] = useState<User | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExecutorView, setIsExecutorView] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       setIsLoading(true);
       try {
-        const data = await ordersService.getMyOrders();
-        const orderDetails = data.find((o) => o.printOrderId === Number(orderId));
+        let data = await ordersService.getMyOrders();
+        let orderDetails = data.find(
+          (o) => o.printOrderId === Number(orderId)
+        );
+
+        if (!orderDetails) {
+          data = await ordersService.getOrdersAsExecutor();
+          orderDetails = data.find(
+            (o) => o.printOrderId === Number(orderId)
+          );
+          if (orderDetails) {
+            setIsExecutorView(true);
+          }
+        }
+
         setOrder(orderDetails || null);
 
         if (orderDetails) {
-          const userData = await userService.getUserFullNameById(orderDetails.executorId);
-          setUser(userData);
+          const executorData = await userService.getUserFullNameById(
+            orderDetails.executorId
+          );
+          setUser(executorData);
+
+          const customerData = await userService.getUserFullNameById(
+            orderDetails.userId
+          );
+          setCustomer(customerData);
         }
 
-        const materialsData = await printerService.getMaterials();
+        const materialsData = await printersService.getMaterials();
         setMaterials(materialsData);
       } catch (error) {
         console.error("Error fetching order details or materials", error);
@@ -66,7 +88,7 @@ const OrderDetails: React.FC = () => {
 
   const handleAbortClick = async () => {
     if (!orderId) return;
-    
+
     try {
       await ordersService.abortOrder(Number(orderId));
       const updatedOrder = await ordersService.getOrderById(Number(orderId));
@@ -104,15 +126,15 @@ const OrderDetails: React.FC = () => {
             <h4 className="mb-0">Order #{order.printOrderId}</h4>
             {order.printOrderStatusId === 1 && (
               <div className="ms-3 d-flex gap-2">
-                <button 
-                  className="btn btn-outline-secondary" 
+                <button
+                  className="btn btn-outline-secondary"
                   onClick={handleEditClick}
                 >
                   <i className="bi bi-pencil me-2"></i>
                   Edit
                 </button>
-                <button 
-                  className="btn btn-outline-danger" 
+                <button
+                  className="btn btn-outline-danger"
                   onClick={handleAbortClick}
                 >
                   <i className="bi bi-x-circle me-2"></i>
@@ -121,7 +143,11 @@ const OrderDetails: React.FC = () => {
               </div>
             )}
           </div>
-          <a href="#" onClick={handleBackClick} className="text-white header-icon">
+          <a
+            href="#"
+            onClick={handleBackClick}
+            className="text-white header-icon"
+          >
             <i className="bi bi-arrow-bar-left fs-2"></i>
           </a>
         </div>
@@ -166,7 +192,10 @@ const OrderDetails: React.FC = () => {
             <div className="col-md-6">
               <h5>Chat with:</h5>
               <p>
-                {user ? `${user.firstName} ${user.lastName}` : "Loading..."}{" "}
+                {isExecutorView 
+                  ? customer ? `${customer.firstName} ${customer.lastName}` : "Loading..."
+                  : user ? `${user.firstName} ${user.lastName}` : "Loading..."
+                }{" "}
                 <a href="#" className="text-white header-icon">
                   <i className="bi bi-chat-dots-fill"></i>
                 </a>
