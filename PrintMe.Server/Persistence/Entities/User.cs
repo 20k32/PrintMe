@@ -13,7 +13,8 @@ public partial class User
     public string Password { get; set; }
     public string PasswordSalt { get; set; }
     public int UserRoleId { get; set; }
-
+    public string ConfirmationToken { get; set; }
+    public bool IsVerified { get; set; }
     public virtual ICollection<Chat> ChatUser1s { get; set; } = new List<Chat>();
 
     public virtual ICollection<Chat> ChatUser2s { get; set; } = new List<Chat>();

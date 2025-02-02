@@ -43,7 +43,9 @@ namespace PrintMe.Server.Logic.Services.Database
                 UserStatusId = activeStatusId,
                 UserRoleId = userRoleId,
                 ShouldHidePhoneNumber = true,
-                Description = ""
+                Description = "",
+                ConfirmationToken = Guid.NewGuid().ToString(),
+                IsVerified = false
             };
             await _repository.AddUserAsync(userRaw);
         }
