@@ -4,6 +4,7 @@ import { PrinterDto } from "../../../types/api";
 import { printersService } from "../../../services/printersService";
 import { handleApiError } from "../../../utils/apiErrorHandler";
 import { toast } from "react-toastify";
+import MapSection from "../../MainPage/components/MapSection";
 import "./../assets/printerDetail.css";
 
 const PrinterDetail: React.FC = () => {
@@ -100,9 +101,7 @@ const PrinterDetail: React.FC = () => {
           <div className="row mb-3">
             <div className="col-md-6">
               <h5>Location:</h5>
-              <p>
-                ({printer.locationX}, {printer.locationY})
-              </p>
+              <MapSection selectionMode={true} singleMarkerLocation={{ lat: printer.locationY, lng: printer.locationX }}/>
             </div>
             <div className="col-md-6">
               <h5>Is Deactivated:</h5>
