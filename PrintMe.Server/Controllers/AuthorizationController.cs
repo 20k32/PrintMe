@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
@@ -22,7 +23,7 @@ public sealed class AuthorizationController : ControllerBase
     /// Checks for user in database and generates token with fields: id, email, role.
     /// To view use https://jwt.io/
     /// </summary>
-    [ProducesResponseType(typeof(ApiResult<string>), 200)]
+    [ProducesResponseType(typeof(ApiResult<JwtResult>), 200)]
     [HttpPost("Login")]
     public async Task<IActionResult> GenerateToken([FromBody] UserAuthRequest authRequest)
     {
@@ -43,7 +44,7 @@ public sealed class AuthorizationController : ControllerBase
             try
             {
                 var token = await _userService.GenerateTokenAsync(authRequest);
-                result = new ApiResult<string>(token, "Token successfully created.",
+                result = new ApiResult<JwtResult>(token, "Token successfully created.",
                     StatusCodes.Status200OK);
             }
             catch (NoRoleAvailableException ex)
@@ -112,6 +113,48 @@ public sealed class AuthorizationController : ControllerBase
         }
 
         if (result != null)
+        {
+            return result.ToObjectResult();
+        }
+
+        return new PlainResult("Internal server error while registering user.",
+                StatusCodes.Status500InternalServerError)
+            .ToObjectResult();
+    }
+    
+    /// <summary>
+    /// Refreshes JWT token (access token).
+    /// </summary>
+    [HttpPost("refreshToken")]
+    [ProducesResponseType(typeof(ApiResult<JwtResult>), 200)]
+    public async Task<IActionResult> RefreshToken([FromBody] JwtResult jwtResult)
+    {
+        PlainResult result = null;
+        
+        if (jwtResult is null)
+        {
+            result = new("Missing body.", StatusCodes.Status403Forbidden);
+        }
+        else if (jwtResult.IsNull())
+        {
+            result = new("Missing parameters in body.", StatusCodes.Status403Forbidden);
+        }
+        else
+        {
+            var newToken = await _userService.RefreshTokenAsync(jwtResult);
+
+            if (newToken is not null)
+            {
+                result = new ApiResult<JwtResult>(newToken, "token refrehsed successfully",
+                    StatusCodes.Status200OK);
+            }
+            else
+            {
+                throw new DatabaseInternalException();
+            }
+        }
+
+        if (result is not null)
         {
             return result.ToObjectResult();
         }

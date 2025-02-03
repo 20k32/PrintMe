@@ -27,3 +27,8 @@ export interface PrinterApplicationDto extends RequestData {
     locationY: number;
     materials: { printMaterialId: number }[];
 }
+
+export interface JwtResult {
+    accessToken: string;
+    refreshToken: string;
+}

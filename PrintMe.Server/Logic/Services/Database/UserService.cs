@@ -1,4 +1,5 @@
 using System.Data;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;
 using PrintMe.Server.Logic.Authentication;
@@ -185,10 +186,8 @@ namespace PrintMe.Server.Logic.Services.Database
             return result;
         }
 
-        public async Task<string> GenerateTokenAsync(UserAuthRequest authRequest)
+        public async Task<JwtResult> GenerateTokenAsync(UserAuthRequest authRequest)
         {
-            string tokenResult = null;
-
             var dbUser = await _repository.GetUserByEmailAsync(authRequest.Email);
 
             if (dbUser is null)
@@ -203,12 +202,48 @@ namespace PrintMe.Server.Logic.Services.Database
             }
 
             var loginResult = new SuccessLoginEntity(dbUser.UserId, authRequest.Email, _repository.GetUserRole(dbUser.UserId));
-            tokenResult = _tokenGenerator.GetForSuccessLoginResult(loginResult);
+            var tokenResult = _tokenGenerator.GetForSuccessLoginResult(loginResult);
+            var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
-            return tokenResult;
+            return new JwtResult(tokenResult, refreshToken);
         }
 
         [GeneratedRegex(@"^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
         private static partial Regex EmailRegex();
+        
+        public async Task<JwtResult> RefreshTokenAsync(JwtResult jwtResult)
+        {
+            var claims = _tokenGenerator.GetPrincipalFromExpiredToken(jwtResult.AccessToken);
+            
+            if (claims is null)
+            {
+                throw new NotFoundClaimsException();
+            }
+
+            var userId = claims.Claims.FirstOrDefault(claim => claim.Type == CustomClaimTypes.USER_ID)
+                ?.Value;
+            var idInteger = int.Parse(userId);
+            var dbUser = await _repository.GetUserByIdAsync(idInteger);
+
+            if (dbUser is null)
+            {
+                throw new NotFoundUserInDbException();
+            }
+
+            var successLoginEntity = new SuccessLoginEntity(dbUser.UserId, dbUser.Email,
+                claims.Claims.First(claim => claim.Type == ClaimTypes.Role).Value);
+            
+            var newAccessToken = _tokenGenerator.GetForSuccessLoginResult(successLoginEntity);
+
+            
+            var updatedUser =  await _repository.UpdateUserByIdAsync(dbUser.UserId, dbUser);
+
+            if (updatedUser is null)
+            {
+                throw new DatabaseInternalException();
+            }
+            
+            return new JwtResult(newAccessToken, dbUser.RefreshToken);
+        }
     }
 }

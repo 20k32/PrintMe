@@ -13,16 +13,16 @@ using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Controllers
 {
-	/// <summary>
-	/// Controller for managing print orders in the system.
-	/// </summary>
-	[ApiController]
-	[Route("api/[controller]")]
-	[Authorize]
-	public class OrdersController : ControllerBase
-	{
-		private readonly OrderService _orderService;
-
+    /// <summary>
+    /// Controller for managing print orders in the system.
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
+    public class OrdersController : ControllerBase
+    {
+        private readonly OrderService _orderService;
+        
 		public OrdersController(IServiceProvider provider)
 		{
 			_orderService = provider.GetService<OrderService>();
