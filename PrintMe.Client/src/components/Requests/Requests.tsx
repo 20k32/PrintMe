@@ -55,8 +55,8 @@ const Requests: React.FC = () => {
                 setIsAdmin(userRole === 'Admin');
                 const requestsData = await requestsService.getAllRequests();
                 setRequests(requestsData);
-            } catch (error: any) {
-                if (error.response?.status === 404) {
+            } catch (error: unknown) {
+                if ((error as { response?: { status?: number } }).response?.status === 404) {
                     setError('No requests found.');
                 } else {
                     console.error('There was an error fetching the requests or roles!', error);

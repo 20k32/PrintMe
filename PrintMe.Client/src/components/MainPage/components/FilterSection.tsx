@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FilterOption } from "../types";
 import { INITIAL_FILTER_STATE, FilterKey, PrintMaterial } from "../../../constants";
-import { printerService } from "../../../services/printerService";
+import { printersService } from "../../../services/printersService";
 
 const SizeInput: React.FC<{
   label: string;
@@ -180,7 +180,7 @@ const FilterFoldGroup: React.FC<FilterFoldGroupProps> = ({ onFiltersChange }) =>
       setIsLoading(true);
       setError(null);
       try {
-        const materials = await printerService.getMaterials();
+        const materials = await printersService.getMaterials();
         setMaterialOptions(materials);
       } catch (error) {
         console.error("Failed to fetch materials", error);

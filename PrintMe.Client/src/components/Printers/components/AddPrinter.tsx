@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { requestsService } from "../../../services/requestsService";
-import { printerService } from "../../../services/printerService";
+import { printersService } from "../../../services/printersService";
 import { useNavigate } from "react-router-dom";
 import MapSection from "../../MainPage/components/MapSection";
 import { handleApiError } from '../../../utils/apiErrorHandler';
@@ -34,8 +34,8 @@ export const AddPrinter = () => {
     const loadData = async () => {
       try {
         const [fetchedMaterials, fetchedModels] = await Promise.all([
-          printerService.getMaterials(),
-          printerService.getModels()
+          printersService.getMaterials(),
+          printersService.getModels()
         ]);
         setMaterials(fetchedMaterials);
         setModels(fetchedModels);

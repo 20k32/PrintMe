@@ -1,6 +1,6 @@
 import {PrintMaterial} from "../constants";
 import {baseApiService} from "./baseApiService";
-import {printerService} from "./printerService";
+import {printersService} from "./printersService";
 import {MarkerDto, RequestData, SimplePrinterDto} from "../types/api";
 
 export interface FetchParams extends RequestData {
@@ -33,7 +33,7 @@ const createMarker = async (
   }
 
   const position = { lat: marker.locationY, lng: marker.locationX };
-  const printerInfo = await printerService.getPrinterMinimalInfo(marker.id);
+  const printerInfo = await printersService.getPrinterMinimalInfo(marker.id);
 
   const advancedMarker = new AdvancedMarkerElement({
     position,

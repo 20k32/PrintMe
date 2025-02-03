@@ -70,6 +70,7 @@ internal class RequestService(RequestRepository repository, IMapper mapper, Prin
         var requestDto = mapper.Map<RequestDto>(editRequest);
         var request = mapper.Map<Request>(requestDto);
         await repository.EditPrinterRequestAsync(request);
+        await repository.AddPrinterRequestMaterialsAsync(request.RequestId, editRequest.Materials.Select(m => m.PrintMaterialId));
     }
 
     private async Task<string> GetRequestTypeNameByIdAsync(int requestTypeId)
