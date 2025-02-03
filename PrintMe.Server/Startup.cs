@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Services;
+using PrintMe.Server.Models.SignalR;
 using PrintMe.Server.Persistence;
 using PrintMe.Server.Persistence.Repository;
 
@@ -13,6 +14,8 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services, ConfigurationManager manager)
     {
+        services.AddUserIdProvider().AddSignalR();
+        
         services.AddRouting(options => options.LowercaseUrls = true);
         
         services.AddAutoMapper(typeof(Startup).Assembly);

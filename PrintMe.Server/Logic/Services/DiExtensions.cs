@@ -1,5 +1,6 @@
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.DTOs.PrinterDto;
+using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Logic.Services
 {
@@ -10,6 +11,7 @@ namespace PrintMe.Server.Logic.Services
                 .AddScoped<UserService>()
                 .AddScoped<RequestService>()
                 .AddScoped<PrinterService>()
-                .AddScoped<OrderService>();
+                .AddScoped<OrderService>()
+                .AddScoped<ChatService>();
     }
 }
