@@ -10,6 +10,7 @@ namespace PrintMe.Server.Logic.Services
                 .AddScoped<UserService>()
                 .AddScoped<RequestService>()
                 .AddScoped<PrinterService>()
-                .AddScoped<OrderService>();
+                .AddScoped<OrderService>()
+                .AddScoped<VerificationService>();
     }
 }

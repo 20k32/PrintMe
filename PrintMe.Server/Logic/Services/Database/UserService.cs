@@ -42,9 +42,10 @@ namespace PrintMe.Server.Logic.Services.Database
                 LastName = user.LastName,
                 UserStatusId = activeStatusId,
                 UserRoleId = userRoleId,
+                PhoneNumber = "",
                 ShouldHidePhoneNumber = true,
                 Description = "",
-                ConfirmationToken = Guid.NewGuid().ToString(),
+                ConfirmationToken = "",
                 IsVerified = false
             };
             await _repository.AddUserAsync(userRaw);

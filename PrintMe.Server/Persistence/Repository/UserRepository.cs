@@ -95,5 +95,12 @@ namespace PrintMe.Server.Persistence.Repository
                 .FirstOrDefault(user => user.UserId == userId)
                 ?.UserRole?.UserRoleName;
         }
+        
+        public async Task<User> GetUserByTokenAsync(string token)
+        {
+            return await _dbContext.Users
+                .AsQueryable()
+                .FirstOrDefaultAsync(user => user.ConfirmationToken == token);
+        }
     }
 }
