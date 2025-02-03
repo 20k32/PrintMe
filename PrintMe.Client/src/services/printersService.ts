@@ -16,7 +16,9 @@ export const printersService = {
     activatePrinter: (printerId: number) => {
         return baseApiService.post<void>(`/printers/activate/${printerId}`, {}, true);
     },
-
+    getPrinterById(id: number): Promise<PrinterDto> {
+        return baseApiService.get<PrinterDto>(`/Printers/${id}?detailed=true`);
+    }, 
     getPrinter: (id: string) => baseApiService.get<SimplePrinterDto>(`/printers/${id}`, true, false),
 
     async getPrinterMinimalInfo(id: number): Promise<SimplePrinterDto> {

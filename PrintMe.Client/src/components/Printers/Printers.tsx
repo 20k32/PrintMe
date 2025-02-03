@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { printersService } from "../../services/printersService";
 import { PrinterDto } from "../../types/api";
 import { handleApiError } from "../../utils/apiErrorHandler";
@@ -11,6 +12,8 @@ const Printers: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [showDeactivated, setShowDeactivated] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchPrinters = useCallback(() => {
     setIsLoading(true);
@@ -131,7 +134,10 @@ const Printers: React.FC = () => {
         ) : (
           <div className="row g-4 printers-grid">
             {filteredPrinters.map((printer) => (
-              <div key={printer.id} className="col-md-6 col-lg-4">
+              <div key={printer.id}
+              className="col-md-6 col-lg-4"
+              onClick={() => navigate(`/printers/${printer.id}`)}
+              >
                 <div
                   className={`printer-card card ${
                     printer.isDeactivated ? "deactivated" : ""
@@ -158,16 +164,22 @@ const Printers: React.FC = () => {
                       ))}
                     </div>
                     {printer.isDeactivated ? (
-                      <button
+                        <button
                         className="btn btn-success activate-btn"
-                        onClick={async () => await handleActivate(printer.id)}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await handleActivate(printer.id);
+                        }}
                       >
                         Activate
                       </button>
                     ) : (
                       <button
                         className="btn btn-danger deactivate-btn"
-                        onClick={async () => await handleDeactivate(printer.id)}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await handleDeactivate(printer.id);
+                        }}
                       >
                         Deactivate
                       </button>

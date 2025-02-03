@@ -29,6 +29,7 @@ interface MapSectionProps {
   selectionMode?: boolean;
   filters?: FetchParams;
   onMarkerClick?: (printer: SimplePrinterDto) => void;
+  singleMarkerLocation?: { lat: number; lng: number };
 }
 
 interface AdvancedMarkerProps {
@@ -137,6 +138,7 @@ const MapSection: React.FC<MapSectionProps> = ({
   selectionMode = false,
   filters = {} as FetchParams,
   onMarkerClick,
+  singleMarkerLocation,
 }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -157,7 +159,10 @@ const MapSection: React.FC<MapSectionProps> = ({
 
   const onLoadMap = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-  }, []);
+    if (singleMarkerLocation) {
+      setSingleMarker(singleMarkerLocation.lat, singleMarkerLocation.lng);
+    }
+  }, [singleMarkerLocation]);
 
   const onUnmountMap = useCallback(() => {
     setMap(null);
@@ -228,6 +233,15 @@ const MapSection: React.FC<MapSectionProps> = ({
 
   const memoizedFilters = useMemo(() => filters, [filters]);
 
+  const setSingleMarker = useCallback((lat: number, lng: number) => {
+    if (map) {
+      const location = new google.maps.LatLng(lat, lng);
+      setSelectedLocation(location);
+      map.setCenter(location);
+      map.setZoom(5);
+    }
+  }, [map]);
+
   useEffect(() => {
     let isMounted = true;
     let debounceTimeout: NodeJS.Timeout;
@@ -278,6 +292,12 @@ const MapSection: React.FC<MapSectionProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (map && singleMarkerLocation) {
+      setSingleMarker(singleMarkerLocation.lat, singleMarkerLocation.lng);
+    }
+  }, [map, singleMarkerLocation, setSingleMarker]);
+
   if (!isLoaded) {
     return (
       <div className="d-flex justify-content-center align-items-center h-100">
@@ -289,9 +309,11 @@ const MapSection: React.FC<MapSectionProps> = ({
   return (
     <>
       <div className="d-flex flex-column h-100">
-        <h2 className="text-white fs-3 mb-3">
-          {selectionMode ? "Select Printer Location" : "Map of printers"}
-        </h2>
+        {!singleMarkerLocation && (
+          <h2 className="text-white fs-3 mb-3">
+            {selectionMode ? "Select Printer Location" : "Map of printers"}
+          </h2>
+        )}
         <div
           className="map-wrapper mb-3"
           style={{
@@ -322,7 +344,7 @@ const MapSection: React.FC<MapSectionProps> = ({
               streetViewControl: false,
             }}
           >
-            {selectedLocation && selectionMode && map && (
+            {selectedLocation && map && (
               <AdvancedMarker position={selectedLocation} map={map} />
             )}
             {activeMarker && (
