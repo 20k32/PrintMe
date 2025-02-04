@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 
 namespace PrintMe.Server.Models.Api.ApiRequest;
