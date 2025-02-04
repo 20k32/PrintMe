@@ -326,6 +326,10 @@ namespace PrintMe.Server.Controllers
 
             try
             {
+                if(string.IsNullOrEmpty(token))
+                {
+                    throw new ArgumentException("Invalid token");
+                }
                 await _verificationService.VerifyEmailAsync(token);
                 result = new PlainResult("Email verified successfully.", StatusCodes.Status200OK);
             }
