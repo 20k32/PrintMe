@@ -1,0 +1,61 @@
+.verify-email-container {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.verify-email-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.verify-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-left-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.verify-status i {
+    font-size: 3rem;
+}
+
+.verify-status p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.btn {
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
