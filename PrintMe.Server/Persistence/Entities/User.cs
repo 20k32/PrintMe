@@ -40,4 +40,6 @@ public partial class User
     
     public virtual UserRole UserRole { get; set; }
     public virtual ICollection<Printer> Printers { get; set; } = new List<Printer>();
+    
+    public string RefreshToken { get; set; }
 }

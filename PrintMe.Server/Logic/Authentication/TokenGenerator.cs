@@ -1,8 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using PrintMe.Server.Models.Authentication;
+using PrintMe.Server.Models.Exceptions;
 
 namespace PrintMe.Server.Logic.Authentication;
 
@@ -29,11 +31,12 @@ internal sealed class TokenGenerator
 
         var token = handler.CreateToken(tokenDescriptor);
         
+        
         return handler.WriteToken(token);
     }
     
     
-    private static ClaimsIdentity GenerateClaims(SuccessLoginEntity loginEntity)
+    private ClaimsIdentity GenerateClaims(SuccessLoginEntity loginEntity)
     {
         var claims = new ClaimsIdentity();
         
@@ -44,4 +47,42 @@ internal sealed class TokenGenerator
         return claims;
     }
 
+    public string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomNumber);
+        }
+        
+        return Convert.ToBase64String(randomNumber);
+    }
+    
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false, 
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecureBase64Span.ToArray())),
+            ValidateLifetime = false, 
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        SecurityToken securityToken;
+        
+        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+        
+        var jwtSecurityToken = securityToken as JwtSecurityToken;
+
+        if (jwtSecurityToken == null ||
+            !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+                StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new InvalidTokenException();
+        }
+        
+        return principal;
+    }
 }
