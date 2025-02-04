@@ -147,7 +147,7 @@ namespace PrintMe.Server.Migrations
                     password = table.Column<string>(type: "text", nullable: false),
                     salt = table.Column<string>(type: "text", nullable: false),
                     user_role_id = table.Column<int>(type: "integer", nullable: false),
-                    RefreshToken = table.Column<string>(type: "text", nullable: true)
+                    refresh_token = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

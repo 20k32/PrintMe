@@ -678,7 +678,8 @@ namespace PrintMe.Server.Migrations
                         .HasColumnName("phone_number");
 
                     b.Property<string>("RefreshToken")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("refresh_token");
 
                     b.Property<bool?>("ShouldHidePhoneNumber")
                         .ValueGeneratedOnAdd()
