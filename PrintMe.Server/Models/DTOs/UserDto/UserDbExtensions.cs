@@ -45,7 +45,8 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             Description = user.Description,
             Password = user.Password,
             PasswordSalt = user.PasswordSalt,
-            UserRole =  DbConstants.UserRole.Dictionary.Where(entry=>entry.Value == user.UserRoleId).Select(entry=>entry.Key).FirstOrDefault()
+            UserRole =  DbConstants.UserRole.Dictionary.Where(entry=>entry.Value == user.UserRoleId).Select(entry=>entry.Key).FirstOrDefault(),
+            isVerified = user.IsVerified
         };
 
         public static User MapToUser(this NoPasswordUserDto noPasswordUser) => new()

@@ -11,6 +11,8 @@ namespace PrintMe.Server.Models.DTOs.UserDto
         public bool? ShouldHidePhoneNumber { get; init; }
         public string Description { get; init; }
         public string UserRole { get; init; }
+        
+        public bool isVerified { get; init; }
 
         public virtual bool IsNull() => UserId == default
                                 || string.IsNullOrWhiteSpace(FirstName)
