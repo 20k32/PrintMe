@@ -26,7 +26,6 @@ This is a project for finding 3D printers for printing figures and/or for provid
 | AutoMapper                                    | 13.0.1 |
 | Microsoft.AspNetCore.SignalR.Protocols.Json   | 9.0.1  |
 | Microsoft.EntityFrameworkCore.Design          | 8.0.10 |
-| Server project                                |version |
 
 | Client project              |version  |
 |-----------------------------|---------|
