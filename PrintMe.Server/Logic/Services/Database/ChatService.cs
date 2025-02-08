@@ -13,8 +13,8 @@ internal sealed class ChatService(MessageRepository messageRepository, ChatRepos
     private readonly MessageRepository _messageRepository = messageRepository;
     private readonly ChatRepository _chatRepository = chatRepository;
     private readonly UserService _userService = userService;
-    private readonly IMapper _mapper;
-    private readonly PrintMeDbContext _dbContext;
+    private readonly IMapper _mapper = mapper;
+    private readonly PrintMeDbContext _dbContext = dbContext;
 
     public async Task<ChatDto> GetChatByIdAsync(int chatId)
     {
@@ -75,24 +75,72 @@ internal sealed class ChatService(MessageRepository messageRepository, ChatRepos
     
     public async Task<ChatDto> AddMessageToChatByIdAsync(int chatId, MessageDto message)
     {
-        try
-        {
-            var messageRaw = _mapper.Map<Message>(message);
-            var result = await _chatRepository.AddMessageToChatByIdAsync(chatId, messageRaw);
+        var messageRaw = _mapper.Map<Message>(message);
 
-            return _mapper.Map<ChatDto>(result);
-        }
-        catch (ArgumentNullException ex)
+        var sender = await _userService.GetUserByIdAsync(messageRaw.SenderId);
+
+        if (sender is null)
         {
-            throw new DatabaseInternalException(ex);
+            throw new NotFoundUserInDbException();
         }
+
+        var chat = await _chatRepository.GetChatByIdAsync(chatId);
+
+        if (chat is null 
+            || chat.User1Id != sender.UserId 
+            && chat.User2Id != sender.UserId)
+        {
+            throw new NotFoundChatInDbException();
+        }
+
+        await _messageRepository.AddMessageAsync(messageRaw);
+        
+        var result = await _chatRepository.AddMessageToChatByIdAsync(chatId, messageRaw);
+
+        return _mapper.Map<ChatDto>(result);
     }
 
-    public async Task AddChatAsync(ChatDto chat)
+    public async Task<ChatDto> AddChatAsync(ChatDto chat)
     {
+        var firstUser = await _userService.GetUserByIdAsync(chat.User1Id);
+        var secondUser = await _userService.GetUserByIdAsync(chat.User2Id);
+
+        if (chat.User1Id == chat.User2Id)
+        {
+            throw new IncorrectChatParametersException();
+        }
+        
+        if (firstUser is null || secondUser is null)
+        {
+            throw new NotFoundUserInDbException();
+        }
+
+        Chat existingChat = null;
+
+        try
+        {
+            existingChat = await _chatRepository.GetByUserIdsInexactAsync(chat.User1Id, chat.User2Id);
+        }
+        catch (ArgumentNullException)
+        {
+            existingChat = null;
+        }
+        
+        if (existingChat is not null)
+        {
+            throw new FoundChatInDbException();
+        }
+        
         var chatRaw = _mapper.Map<Chat>(chat);
         
-        await _chatRepository.AddChatAsync(chatRaw);
+       var result = await _chatRepository.AddChatAsync(chatRaw);
+
+       if (result is null)
+       {
+           throw new DatabaseInternalException();
+       }
+
+       return _mapper.Map<ChatDto>(result);
     }
 
     public async Task<ChatDto> UpdateChatByIdAsync(int chatId, ChatDto chat)

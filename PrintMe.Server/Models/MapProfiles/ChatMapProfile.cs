@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.ChatDto;
 using PrintMe.Server.Persistence.Entities;
 
@@ -37,6 +38,18 @@ public class ChatMapProfile : Profile
             .ForMember(dest => dest.SendedDateTime,
                 options
                     => options.MapFrom(source => source.SendTime))
+            .ReverseMap();
+
+        CreateMap<ChatDto, CreateChatRequest>()
+            .ForMember(dest => dest.User1Id,
+                options
+                    => options.MapFrom(source => source.User1Id))
+            .ForMember(dest => dest.User2Id,
+                options
+                    => options.MapFrom(source => source.User2Id))
+            .ForMember(dest => dest.ShouldArchive,
+                options
+                    => options.MapFrom(source => source.IsArchived))
             .ReverseMap();
     }
 }

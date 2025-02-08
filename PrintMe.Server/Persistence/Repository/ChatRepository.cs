@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Persistence.Repository;
@@ -11,13 +12,26 @@ internal sealed class ChatRepository(PrintMeDbContext dbContext)
     public async Task<Chat> GetChatByIdAsync(int chatId) =>
         await _dbContext.Chats.FirstOrDefaultAsync(existing => existing.ChatId == chatId);
 
+    /// <summary>
+    /// Get chat by user ids, order matters
+    /// </summary>
+    /// <param name="user1Id"></param>
+    /// <param name="user2Id"></param>
+    /// <returns></returns>
     public async Task<Chat> GetByUsersIdsStrictAsync(int user1Id, int user2Id) =>
         await _dbContext.Chats.FirstOrDefaultAsync(existing => existing.User1.UserId == user1Id
                                                                 && existing.User2.UserId == user2Id);
 
+    /// <summary>
+    /// Get chat by user ids, order of ids does not matter
+    /// </summary>
+    /// <param name="user1Id"></param>
+    /// <param name="user2Id"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public async Task<Chat> GetByUserIdsInexactAsync(int user1Id, int user2Id)
     {
-        var result = await GetByUsersIdsStrictAsync(user1Id, user1Id);
+        var result = await GetByUsersIdsStrictAsync(user1Id, user2Id);
         
         if (result is null)
         {
@@ -36,21 +50,28 @@ internal sealed class ChatRepository(PrintMeDbContext dbContext)
     {
         var chat = await GetChatByIdAsync(chatId);
 
-        if (chat is not null)
+        if (chat is null)
         {
-            chat.Messages.Add(message);
-            
-            _dbContext.Chats.Update(chat);
-        
-            await _dbContext.SaveChangesAsync();
-
-            return chat;
+            throw new NotFoundChatInDbException();
         }
+            
+        chat.Messages.Add(message);
+            
+        _dbContext.Chats.Update(chat);
         
-        throw new ArgumentNullException(nameof(chat));
+        await _dbContext.SaveChangesAsync();
+
+        return chat;
+        
     }
 
-    public async Task AddChatAsync(Chat chat) => await _dbContext.Chats.AddAsync(chat);
+    public async Task<Chat> AddChatAsync(Chat chat)
+    {
+        await _dbContext.Chats.AddAsync(chat);
+        await _dbContext.SaveChangesAsync();
+
+        return chat;
+    }
 
     public async Task<Chat> UpdateChatByIdAsync(int chatId, Chat chat)
     {

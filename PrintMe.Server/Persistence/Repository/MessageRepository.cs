@@ -6,5 +6,9 @@ internal sealed class MessageRepository(PrintMeDbContext dbContext)
 {
     private readonly PrintMeDbContext _dbContext = dbContext;
 
-    public async Task AddMessageAsync(Message message) => await _dbContext.Messages.AddAsync(message);
+    public async Task AddMessageAsync(Message message)
+    {
+        await _dbContext.Messages.AddAsync(message);
+        await _dbContext.SaveChangesAsync();
+    }
 }
