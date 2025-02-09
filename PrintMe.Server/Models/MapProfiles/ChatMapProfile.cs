@@ -35,7 +35,7 @@ public class ChatMapProfile : Profile
             .ForMember(dest => dest.Payload,
                 options
                     => options.MapFrom(source => source.Text))
-            .ForMember(dest => dest.SendedDateTime,
+            .ForMember(dest => dest.SentDateTime,
                 options
                     => options.MapFrom(source => source.SendTime))
             .ReverseMap();

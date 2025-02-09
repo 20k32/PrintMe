@@ -52,6 +52,11 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
                   Requests
                 </Link>
               </li>
+              <li>
+                <Link to="/chatPage" className="nav-link px-3 text-white fs-5">
+                  Chat
+                </Link>
+              </li>
             </>
           )}
         </ul>

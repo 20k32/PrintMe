@@ -8,13 +8,12 @@ using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
-internal sealed class ChatService(MessageRepository messageRepository, ChatRepository chatRepository, UserService userService, PrintMeDbContext dbContext, IMapper mapper)
+internal sealed class ChatService(MessageRepository messageRepository, ChatRepository chatRepository, UserService userService, IMapper mapper)
 {
     private readonly MessageRepository _messageRepository = messageRepository;
     private readonly ChatRepository _chatRepository = chatRepository;
     private readonly UserService _userService = userService;
     private readonly IMapper _mapper = mapper;
-    private readonly PrintMeDbContext _dbContext = dbContext;
 
     public async Task<ChatDto> GetChatByIdAsync(int chatId)
     {
@@ -152,14 +151,19 @@ internal sealed class ChatService(MessageRepository messageRepository, ChatRepos
             existingChat.User1Id = chat.User1Id;
             existingChat.User2Id = chat.User2Id;
             
-            existingChat.User1 = await _dbContext.Users.FirstAsync(existing => existing.UserId == chat.User1Id);
-            existingChat.User2 = await _dbContext.Users.FirstAsync(existing => existing.UserId == chat.User2Id);;
+            var user1Dto = await _userService.GetUserByIdAsync(chat.User1Id);
+            var user2Dto = await _userService.GetUserByIdAsync(chat.User2Id);
+            
+            var user1Raw = _mapper.Map<User>(user1Dto);
+            var user2Raw = _mapper.Map<User>(user2Dto);
+            
+            existingChat.User1 = user1Raw; 
+            existingChat.User2 = user2Raw;
             
             existingChat.IsArchived = chat.IsArchived;
 
-            _dbContext.Chats.Update(existingChat);
-            
-            await _dbContext.SaveChangesAsync();
+            existingChat =
+                await _chatRepository.UpdateChatByIdAsync(existingChat.ChatId, existingChat);
 
             return _mapper.Map<ChatDto>(existingChat);
         }
@@ -189,5 +193,46 @@ internal sealed class ChatService(MessageRepository messageRepository, ChatRepos
         }
 
         return _mapper.Map<ICollection<MessageDto>>(messages);
-    } 
+    }
+    
+    public async Task<ICollection<MessageDto>> GetMessagesByChatIdAsync(int user1Id, int user2Id, int chatId)
+    {
+        var messages = await _chatRepository.GetMessagesByChatIdAsync(user1Id, user2Id, chatId);
+
+        if (messages is null)
+        {
+            throw new NotFoundChatInDbException();
+        }
+
+        return _mapper.Map<ICollection<MessageDto>>(messages);
+    }
+
+    public async Task<ChatDto> ArchiveChatAsync(int chatId, int senderId)
+    {
+        var existingChat = await _chatRepository.GetChatByIdAsync(chatId);
+
+        if (existingChat is null || existingChat.User1Id != senderId && existingChat.User2Id != senderId)
+        {
+            throw new NotFoundChatInDbException();
+        }
+
+        if (existingChat.IsArchived is true)
+        {
+            throw new ChatAlreadyArchivedException();
+        }
+        
+        existingChat.IsArchived = true;
+
+        var chatRaw = _mapper.Map<Chat>(existingChat);
+
+        var updateResult = await _chatRepository.UpdateChatAsync(chatRaw);
+
+        if (updateResult is null)
+        {
+            throw new DatabaseInternalException();
+        }
+        
+        return _mapper.Map<ChatDto>(updateResult);
+    }
 }
+

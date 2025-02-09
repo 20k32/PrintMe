@@ -37,6 +37,21 @@ public static class DIExtensions
                 ValidateIssuer = false,
                 ValidateAudience = false,
             };
+
+            builder.Events = new JwtBearerEvents()
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        context.Token = accessToken;
+                    }
+                    
+                    return Task.CompletedTask;
+                }
+            };
         });
         
         collection.AddAuthorization();

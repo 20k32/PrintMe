@@ -11,6 +11,18 @@ internal sealed class ChatRepository(PrintMeDbContext dbContext)
 
     public async Task<Chat> GetChatByIdAsync(int chatId) =>
         await _dbContext.Chats.FirstOrDefaultAsync(existing => existing.ChatId == chatId);
+    
+    public async Task<Chat> GetChatWithMessagesByIdAsync(int chatId) =>
+        await _dbContext.Chats.Include(chat => chat.Messages).FirstOrDefaultAsync(existing => existing.ChatId == chatId);
+
+    public async Task<Chat> UpdateChatAsync(Chat chat)
+    {
+        _dbContext.Chats.Update(chat);
+        
+        await _dbContext.SaveChangesAsync();
+
+        return chat;
+    }
 
     /// <summary>
     /// Get chat by user ids, order matters
@@ -107,5 +119,24 @@ internal sealed class ChatRepository(PrintMeDbContext dbContext)
         }
 
         throw new ArgumentNullException(nameof(chat));
+    }
+    
+    public async Task<ICollection<Message>> GetMessagesByChatIdAsync(int user1Id, int user2Id, int chatId)
+    {
+        var chat = await GetChatWithMessagesByIdAsync(chatId);
+
+        if (chat is null)
+        {
+            throw new ArgumentNullException(nameof(chat));
+           
+        }
+
+        if ((chat.User1Id != user1Id || chat.User2Id != user2Id) && 
+            (chat.User2Id != user1Id || chat.User1Id != user2Id))
+        {
+            throw new NotFoundChatInDbException();
+        }
+        
+        return chat.Messages;
     }
 }

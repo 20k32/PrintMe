@@ -1,14 +1,26 @@
 namespace PrintMe.Server.Models.DTOs.ChatDto;
 
-public sealed class MessageDto(int chatId = default, string senderId = default, DateTime sendedDateTime = default, string payload = default) : INullCheck
+public sealed class MessageDto : INullCheck
 {
-    public int ChatId { get; init; } = chatId;
-    public string SenderId { get; init; } = senderId;
-    public DateTime SendedDateTime { get; init; } = sendedDateTime;
-    public string Payload { get; init; } = payload;
+    public int ChatId { get; set; }
+    public string SenderId { get; set; }
+    public DateTime SentDateTime { get; set; }
+    public string Payload { get; set; }
 
     public bool IsNull() => ChatId == default
                             || string.IsNullOrWhiteSpace(SenderId)
-                            || SendedDateTime == default || SendedDateTime == DateTime.MinValue
+                            || SentDateTime == default || SentDateTime == DateTime.MinValue
                             || string.IsNullOrWhiteSpace(Payload);
+
+    public MessageDto()
+    {
+    }
+
+    public MessageDto(int chatId, string senderId, DateTime sentDateTime, string payload)
+    {
+        ChatId = chatId;
+        SenderId = senderId;
+        SentDateTime = sentDateTime;
+        Payload = payload;
+    }
 }
