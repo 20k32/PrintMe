@@ -1,30 +1,52 @@
-if run/debug configurations aren't available, change this line
+# Description
+This is a project for finding 3D printers for printing figures and/or for providing figure printing services.
 
-![image](https://github.com/user-attachments/assets/b95727e7-f0d4-444e-9173-c148fbbe98e8)
+## How to run project?
 
-in 
-.idea/idea.PrintMe/.idea/workspace.xaml
+* Clone repository.
+* Open server project.
+* Start server project from IDE or use 'dotnet run' command in terminal.
+* Start client project with 'npm run' command.
 
-with your path to that file.
+## Project dependencies
 
-Client stack - TypeScript, Vite, React.
-Pay attention to async/await and modules on ts/js.
-Client dependencies - Axios for http requests (maybe others if you wish)
-I recommend bootstrap for css styles and google api for map.
+| Server project                                |version |
+|-----------------------------------------------|--------|
+| Microsoft.AspNetCore.OpenApi                  | 8.0.8  |
+| System.Linq.Async                             | 6.0.1  |
+| Microsoft.EntityFrameworkCore                 | 8.0.10 |
+| Bogus                                         | 35.6.1 |
+| System.IdentityModel.Tokens.Jwt               | 8.2.0  |
+| Microsoft.AspNetCore.SignalR.Common           | 9.0.1  |
+| Microsoft.AspNetCore.Mvc.NewtonsoftJson       | 8.0.11 |
+| Microsoft.AspNetCore.Authentication.JwtBearer | 8.0.10 |
+| DotNetEnv                                     | 3.1.1  |
+| Swashbuckle.AspNetCore                        | 6.4.0  |
+| Npgsql.EntityFrameworkCore.PostgreSQL         | 8.0.10 |
+| AutoMapper                                    | 13.0.1 |
+| Microsoft.AspNetCore.SignalR.Protocols.Json   | 9.0.1  |
+| Microsoft.EntityFrameworkCore.Design          | 8.0.10 |
 
-Server stack - Net 8, Asp.Net Core WebApi, C# 12.
-Server dependencies - Entity framework (lastest) with Postgre, SignalR for chat logic.
-Architecture:
-![printmelogic](https://github.com/user-attachments/assets/60cc2e89-8f81-43ba-9e4b-2a64c6590e66)
-
-Logic is set of rules according which models will behave.
-
-Models is our entities we use in program. Models can encapsulate some simple logic. Complex logic should be moved to logic layer.
-
-Persistence is database.
-
-I think this architecture will simplify our development workflow because every non-trivial problem is a set of trivial ones and by giving structure to the solution of the problem we can't get confused in the solution and will concentrate on important things.
-
-General naming conventions (more on msdn):
-![image](https://github.com/user-attachments/assets/6c118d2f-5281-44e6-8b96-45eb28cd40c4)
+| Client project              |version  |
+|-----------------------------|---------|
+| eslint/js                   | 9.13.0  |
+| react-google-maps/api       | 2.20.3  |
+| types/node                  | 22.9.0  |
+| types/react-dom             | 18.3.1  |
+| types/react                 | 18.3.12 |
+| vitejs/plugin-react         | 4.3.3   |
+| axios                       | 1.7.7   |
+| bootstrap-icons             | 1.11.3  |
+| bootstrap                   | 5.3.3   |
+| eslint-plugin-react-hooks   | 5.0.0   |
+| eslint-plugin-react-refresh | 0.4.14  |
+| eslint                      | 9.13.0  |
+| globals                     | 15.11.0 |
+| react-dom                   | 18.3.1  |
+| react-router-dom            | 7.0.1   |
+| react-toastify              | 11.0.3  |
+| react                       | 18.3.1  |
+| typescript-eslint           | 8.12.2  |
+| typescript                  | 5.6.3   |
+| vite                        | 5.4.10  |
 
