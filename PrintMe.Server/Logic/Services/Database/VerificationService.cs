@@ -16,12 +16,14 @@ internal sealed class VerificationService
     {
         _userRepository = userRepository;
         
-        _smtpClient = new SmtpClient("localhost", 25)
+        _smtpClient = new SmtpClient("smtp.gmail.com", 587)
         {
-            Credentials = new NetworkCredential("username", "password"), // No auth for local server
-            EnableSsl = false // PaperCut doesn't support SSL
+            Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("MAIL_USERNAME"), Environment.GetEnvironmentVariable("MAIL_PASSWORD")),
+            EnableSsl = true,
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            UseDefaultCredentials = false
         };
-        _fromAddress = new MailAddress("your@email.com");
+        _fromAddress = new MailAddress(Environment.GetEnvironmentVariable("MAIL_USERNAME"));
     }
     public async Task SendEmailVerificationAsync(int userId)
     {
@@ -31,6 +33,8 @@ internal sealed class VerificationService
         {
             throw new NotFoundUserInDbException();
         }
+        
+        user.ConfirmationToken = Guid.NewGuid().ToString();     
         
         var mailMessage = new MailMessage
         {
@@ -42,9 +46,9 @@ internal sealed class VerificationService
         
         mailMessage.To.Add(user.Email);
         
-        //await _smtpClient.SendMailAsync(mailMessage);
+        await _smtpClient.SendMailAsync(mailMessage);
         
-        user.ConfirmationToken = Guid.NewGuid().ToString();
+        user.IsVerified = false;
         
         await _userRepository.UpdateUserByIdAsync(user.UserId, user);
     }

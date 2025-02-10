@@ -59,6 +59,7 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             UserStatusId = noPasswordUser.UserStatusId,
             ShouldHidePhoneNumber = noPasswordUser.ShouldHidePhoneNumber,
             Description = noPasswordUser.Description,
+            IsVerified = noPasswordUser.isVerified,
         };
         
         public static User MapToUser(this PasswordUserDto passwordUserDto, UserRole role) => new()
@@ -73,7 +74,8 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             Description = passwordUserDto.Description,
             Password = passwordUserDto.Password,
             PasswordSalt = passwordUserDto.PasswordSalt,
-            UserRole = role
+            UserRole = role,
+            IsVerified = passwordUserDto.isVerified,
         };
     }
 }

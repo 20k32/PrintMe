@@ -74,7 +74,7 @@ namespace PrintMe.Server.Persistence.Repository
             existingUser.PhoneNumber = newEntity.PhoneNumber;
             existingUser.ShouldHidePhoneNumber = newEntity.ShouldHidePhoneNumber;
             existingUser.Email = newEntity.Email;
-
+            existingUser.IsVerified = newEntity.IsVerified;
             _dbContext.Users.Update(existingUser);
             
             await _dbContext.SaveChangesAsync();

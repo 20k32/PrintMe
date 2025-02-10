@@ -84,7 +84,13 @@ namespace PrintMe.Server.Controllers
             {
                 try
                 {
+                    var user1 = await _userService.GetUserByIdAsync(noPasswordUser.UserId);
+                    if (noPasswordUser.Email != user1.Email)
+                    {
+                        noPasswordUser.isVerified = false;
+                    }
                     var user = await _userService.UpdateUser(noPasswordUser.UserId, noPasswordUser);
+                    
                     result = new ApiResult<PasswordUserDto>(user, "There is such user in database.",
                         StatusCodes.Status200OK);
                 }

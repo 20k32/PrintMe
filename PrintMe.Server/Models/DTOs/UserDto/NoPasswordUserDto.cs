@@ -12,7 +12,7 @@ namespace PrintMe.Server.Models.DTOs.UserDto
         public string Description { get; init; }
         public string UserRole { get; init; }
         
-        public bool isVerified { get; init; }
+        public bool isVerified { get; set; }
 
         public virtual bool IsNull() => UserId == default
                                 || string.IsNullOrWhiteSpace(FirstName)

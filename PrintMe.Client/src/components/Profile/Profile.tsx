@@ -107,12 +107,19 @@ const Profile = () => {
         shouldHidePhoneNumber: userInfo.shouldHidePhoneNumber,
         description: userInfo.description,
         userRole: "USER",
+        isVerified: userInfo.isVerified,
       });
+      
+      const updatedUserInfo = await profileService.fetchUserData();
+      setUserInfo(updatedUserInfo);
+
       setIsEditing(false);
+      toast.success("Profile updated successfully");
     } catch (error) {
       setErrors({
         general: error instanceof Error ? error.message : "Update failed. Please try again.",
       });
+      toast.error("Failed to update profile. Please try again.");
     }
   };
 
