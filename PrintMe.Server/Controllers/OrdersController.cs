@@ -232,9 +232,25 @@ namespace PrintMe.Server.Controllers
 			{
 				try
 				{
-					var order = await _orderService.RemoveOrderByIdAsync(orderId);
-					result = new ApiResult<PrintOrderDto>(order, "Order deleted from database.",
-						StatusCodes.Status200OK);
+					var userId = Request.TryGetUserId();
+					if (string.IsNullOrWhiteSpace(userId))
+					{
+						result = new("Missing parameters in JWT.", StatusCodes.Status400BadRequest);
+					}
+					else
+					{
+						var order = await _orderService.GetOrderByIdAsync(orderId);
+						if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+						{
+							result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+						}
+						else
+						{
+							await _orderService.RemoveOrderByIdAsync(orderId);
+							result = new ApiResult<PrintOrderDto>(order, "Order deleted from database.",
+								StatusCodes.Status200OK);
+						}
+					}
 				}
 				catch (NotFoundOrderInDbException ex)
 				{
@@ -277,9 +293,23 @@ namespace PrintMe.Server.Controllers
 			{
 				try
 				{
-					var order = await _orderService.UpdateOrderByIdAsync(orderDto.OrderId, orderDto);
-					result = new ApiResult<PrintOrderDto>(order, "Order updated.",
-						StatusCodes.Status200OK);
+					var userId = Request.TryGetUserId();
+					var order = await _orderService.GetOrderByIdAsync(orderDto.OrderId);
+					if (order is null)
+					{
+						result = new("Order not found.", StatusCodes.Status404NotFound);
+					}
+					if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+					{
+						result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+					}
+					else
+					{
+						await _orderService.UpdateOrderByIdAsync(orderDto.OrderId, orderDto);
+						result = new ApiResult<PrintOrderDto>(order, "Order updated.",
+							StatusCodes.Status200OK);
+					}
+
 				}
 				catch (NotFoundOrderInDbException ex)
 				{
@@ -304,7 +334,7 @@ namespace PrintMe.Server.Controllers
 		[HttpPut("PartialUpdate")]
 		public async Task<IActionResult> PartialUpdateOrderById([FromBody] UpdatePartialOrderRequest orderDto)
 		{
-			PlainResult result;
+			PlainResult result = null;
 
 			if (orderDto is null)
 			{
@@ -318,9 +348,16 @@ namespace PrintMe.Server.Controllers
 			{
 				try
 				{
-					var order = await _orderService.UpdateOrderByIdAsync(orderDto.OrderId, orderDto);
-					result = new ApiResult<PrintOrderDto>(order, "Order updated.",
-						StatusCodes.Status200OK);
+					var userId = Request.TryGetUserId();
+					var order = await _orderService.GetOrderByIdAsync(orderDto.OrderId);
+					if (order is null)
+					{
+						result = new("Order not found.", StatusCodes.Status404NotFound);
+					}
+					if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+					{
+						result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+					}
 				}
 				catch (InvalidOrderStatusException ex)
 				{
@@ -355,9 +392,21 @@ namespace PrintMe.Server.Controllers
 
 			try
 			{
-				var order = await _orderService.AbortOrderByIdAsync(orderId);
-				result = new ApiResult<PrintOrderDto>(order, "Order aborted.",
-					StatusCodes.Status200OK);
+				var userId = Request.TryGetUserId();
+				var order = await _orderService.GetOrderByIdAsync(orderId);
+				if (order is null)
+				{
+					result = new("Order not found.", StatusCodes.Status404NotFound);
+				}
+				if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+				{
+					result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+				}
+				else
+				{
+					await _orderService.AbortOrderByIdAsync(orderId);
+					result = new ApiResult<PrintOrderDto>(order, "Order aborted.", StatusCodes.Status200OK);
+				}
 			}
 			catch (InvalidOrderStatusException ex)
 			{
