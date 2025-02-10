@@ -18,7 +18,7 @@ namespace PrintMe.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly OrderService _orderService;
