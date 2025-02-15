@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Printers from "./components/Printers/Printers.tsx";
 import PrinterDetail from "./components/Printers/components/PrinterDetail.tsx";
 import EditOrder from "./components/Orders/components/EditOrder";
+import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
 
 function App() {
   const [isLogined, setIsLogined] = useState<boolean>(authService.isLoggedIn());
@@ -60,6 +61,7 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/orders/:orderId/edit" element={<EditOrder />} />
+        <Route path="/verify" element={<VerifyEmail />} /> 
       </Routes>
       <ToastContainer
         position="bottom-right"

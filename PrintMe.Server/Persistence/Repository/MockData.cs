@@ -68,7 +68,9 @@ namespace PrintMe.Server.Persistence.Repository
                 UserStatus = userStatus,
                 Email = _faker.Internet.Email(),
                 ShouldHidePhoneNumber = false,
-                UserRole = userRole
+                UserRole = userRole,
+                ConfirmationToken = Guid.NewGuid().ToString(),
+                IsVerified = false
             };
         }
         public static Task GenerateForUsersAsync(this DbSet<User> users, int count)

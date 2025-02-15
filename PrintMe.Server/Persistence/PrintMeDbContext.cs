@@ -484,6 +484,12 @@ public partial class PrintMeDbContext : DbContext
             entity.Property(e => e.UserRoleId).HasColumnName("user_role_id");
             entity.Property(e => e.RefreshToken).HasColumnName("refresh_token");
 
+            entity.Property(e => e.ConfirmationToken)
+                .HasColumnName("confirmation_token")
+                .HasColumnType("text");
+            entity.Property(e => e.IsVerified)
+                .HasColumnName("is_verified")
+                .HasColumnType("boolean");
 
             entity.HasOne(d => d.UserRole).WithMany(p => p.Users)
                 .HasForeignKey(d => d.UserRoleId)

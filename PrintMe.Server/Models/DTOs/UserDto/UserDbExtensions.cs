@@ -45,7 +45,8 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             Description = user.Description,
             Password = user.Password,
             PasswordSalt = user.PasswordSalt,
-            UserRole =  DbConstants.UserRole.Dictionary.Where(entry=>entry.Value == user.UserRoleId).Select(entry=>entry.Key).FirstOrDefault()
+            UserRole =  DbConstants.UserRole.Dictionary.Where(entry=>entry.Value == user.UserRoleId).Select(entry=>entry.Key).FirstOrDefault(),
+            isVerified = user.IsVerified
         };
 
         public static User MapToUser(this NoPasswordUserDto noPasswordUser) => new()
@@ -58,6 +59,7 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             UserStatusId = noPasswordUser.UserStatusId,
             ShouldHidePhoneNumber = noPasswordUser.ShouldHidePhoneNumber,
             Description = noPasswordUser.Description,
+            IsVerified = noPasswordUser.isVerified,
         };
         
         public static User MapToUser(this PasswordUserDto passwordUserDto, UserRole role) => new()
@@ -72,7 +74,8 @@ namespace PrintMe.Server.Models.DTOs.UserDto
             Description = passwordUserDto.Description,
             Password = passwordUserDto.Password,
             PasswordSalt = passwordUserDto.PasswordSalt,
-            UserRole = role
+            UserRole = role,
+            IsVerified = passwordUserDto.isVerified,
         };
     }
 }
