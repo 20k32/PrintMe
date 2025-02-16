@@ -30,6 +30,7 @@ interface MapSectionProps {
   filters?: FetchParams;
   onMarkerClick?: (printer: SimplePrinterDto) => void;
   singleMarkerLocation?: { lat: number; lng: number };
+  userPrinterIds: number[];
 }
 
 interface AdvancedMarkerProps {
@@ -79,12 +80,14 @@ interface MarkerContentProps {
   printerInfo: SimplePrinterDto;
   isLoggedIn: boolean;
   onCreateOrder: () => void;
+  isUserPrinter: boolean;
 }
 
 const MarkerContent: React.FC<MarkerContentProps> = ({
   printerInfo,
   isLoggedIn,
   onCreateOrder,
+  isUserPrinter,
 }) => (
   <div>
     <h6>Printer {printerInfo.modelName}</h6>
@@ -93,6 +96,15 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
       {printerInfo.materials.map((material) => material.name).join(", ")}
     </p>
     {isLoggedIn ? (
+          isUserPrinter ? (
+              <button
+                  className="btn btn-secondary create-order-btn"
+                  disabled
+                  title="You can't place an order on your own printer"
+              >
+                Your Printer
+              </button>
+          ) : (
       <button
         className="btn btn-primary create-order-btn"
         style={{ backgroundColor: "#2c1d55" }}
@@ -100,6 +112,7 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
       >
         Create Order
       </button>
+    )
     ) : (
       <button
         className="btn btn-primary create-order-btn"
@@ -117,8 +130,10 @@ const InfoWindowContent: React.FC<{
   marker: MarkerWithPrinterInfo;
   onClose: () => void;
   onMarkerClick: (printer: SimplePrinterDto) => void;
-}> = ({ marker, onClose, onMarkerClick }) => {
+  userPrinterIds: number[];
+  }> = ({ marker, onClose, onMarkerClick, userPrinterIds }) => {
   const isLoggedIn = authService.isLoggedIn();
+  const isUserPrinter = userPrinterIds.includes(marker.printerInfo.id);
   return (
     <InfoWindow
       anchor={marker as unknown as google.maps.MVCObject}
@@ -128,6 +143,7 @@ const InfoWindowContent: React.FC<{
         printerInfo={marker.printerInfo}
         isLoggedIn={isLoggedIn}
         onCreateOrder={() => onMarkerClick(marker.printerInfo)}
+        isUserPrinter={isUserPrinter}
       />
     </InfoWindow>
   );
@@ -139,7 +155,8 @@ const MapSection: React.FC<MapSectionProps> = ({
   filters = {} as FetchParams,
   onMarkerClick,
   singleMarkerLocation,
-}) => {
+  userPrinterIds,
+  }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: GOOGLE_MAPS_LIBRARIES,
@@ -352,13 +369,14 @@ const MapSection: React.FC<MapSectionProps> = ({
                 marker={activeMarker}
                 onClose={() => setActiveMarker(null)}
                 onMarkerClick={handleMarkerClick}
+                userPrinterIds={userPrinterIds}
               />
             )}
           </GoogleMap>
         </div>
         <div className="d-flex justify-content-center align-items-center gap-3">
           <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
+           onLoad={onSearchBoxLoad}
             onPlacesChanged={onPlacesChanged}
           >
             <input
@@ -392,4 +410,4 @@ const MapSection: React.FC<MapSectionProps> = ({
   );
 };
 
-export default React.memo(MapSection);
+export default React.memo(MapSection)

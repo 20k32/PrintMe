@@ -7,6 +7,7 @@ import Header from "./components/Header/Header.tsx";
 import MainPage from "./components/MainPage/MainPage.tsx";
 import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 import Requests from "./components/Requests/Requests.tsx";
+import { authService } from "./services/authService";
 import Profile from "./components/Profile/Profile.tsx";
 import { AddPrinter } from "./components/Printers/components/AddPrinter.tsx";
 import Orders from "./components/Orders/Orders.tsx";
@@ -16,6 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Printers from "./components/Printers/Printers.tsx";
 import PrinterDetail from "./components/Printers/components/PrinterDetail.tsx";
 import EditOrder from "./components/Orders/components/EditOrder";
+import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
 import store, { RootState, AppDispatch } from './store/store';
 import { logout } from './store/authSlice';
 
@@ -57,6 +59,7 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/orders/:orderId/edit" element={<EditOrder />} />
+        <Route path="/verify" element={<VerifyEmail />} /> 
       </Routes>
       <ToastContainer
         position="bottom-right"

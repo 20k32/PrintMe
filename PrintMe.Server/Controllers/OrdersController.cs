@@ -22,10 +22,12 @@ namespace PrintMe.Server.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly OrderService _orderService;
+        private readonly PrinterService _printerService;
         
 		public OrdersController(IServiceProvider provider)
 		{
 			_orderService = provider.GetService<OrderService>();
+			_printerService = provider.GetService<PrinterService>();
 		}
 
 		/// <summary>
@@ -70,12 +72,21 @@ namespace PrintMe.Server.Controllers
 					}
 					else
 					{
+						var printers = await _printerService.GetPrintersBasicByUserId(userId);
+						if (printers.Any(p => p.Id == orderRequest.PrinterId))
+						{
+							throw new SelfOrderException();
+						}
 						var order = await _orderService.AddOrderAsync(userId, orderRequest);
 						result = new ApiResult<PrintOrderDto>(order, "Order added.",
 							StatusCodes.Status200OK);
 					}
 				}
 				catch (NotFoundOrderInDbException ex)
+				{
+					result = new(ex.Message, StatusCodes.Status403Forbidden);
+				}
+				catch (SelfOrderException ex)
 				{
 					result = new(ex.Message, StatusCodes.Status403Forbidden);
 				}

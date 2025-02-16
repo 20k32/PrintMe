@@ -3,6 +3,7 @@ import FilterFoldGroup from "./components/FilterSection";
 import MapSection from "./components/MapSection";
 import OrderModal from "./components/OrderModal";
 import { FilterState } from "../../constants";
+import { userService } from "../../services/userService";
 import { FetchParams } from "../../services/markersService";
 import { SimplePrinterDto } from "../../types/api";
 import "./assets/mainpage.css";
@@ -11,10 +12,24 @@ const MainPage: React.FC = () => {
   const [key, setKey] = useState(0);
   const [filters, setFilters] = useState<FetchParams>({});
   const [selectedPrinter, setSelectedPrinter] = useState<SimplePrinterDto | null>(null);
+  const [userPrinterIds, setUserPrinterIds] = useState<number[]>([])
 
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, []);
+
+  useEffect(() => {
+    const fetchUserPrinters = async () => {
+      try {
+        const printerIds = await userService.getUserPrintersIds()
+        setUserPrinterIds(printerIds)
+      } catch (error) {
+        console.error("Error fetching user printers:", error)
+      }
+    }
+
+    fetchUserPrinters()
+  }, [])
 
   const debouncedSetFilters = useMemo(() => {
     let timeoutId: NodeJS.Timeout;
@@ -37,8 +52,15 @@ const MainPage: React.FC = () => {
   }, [debouncedSetFilters]);
 
   const handleMarkerClick = useCallback((printer: SimplePrinterDto) => {
-    setSelectedPrinter(printer);
-  }, []);
+        if (!userPrinterIds.includes(printer.id)) {
+          setSelectedPrinter(printer)
+        } else {
+          console.log("You can't place an order on your own printer.")
+          // Optionally, you can show a toast or alert here
+        }
+      },
+      [userPrinterIds],
+  );
 
   const handleOrderSubmit = useCallback((orderData: unknown) => {
     console.log(orderData);
@@ -49,11 +71,7 @@ const MainPage: React.FC = () => {
     <div className="mainpage-container">
       <div className="mainpage-content">
         <div className="map-container">
-          <MapSection 
-            key={key} 
-            filters={filters} 
-            onMarkerClick={handleMarkerClick}
-          />
+            <MapSection key={key} filters={filters} onMarkerClick={handleMarkerClick} userPrinterIds={userPrinterIds} />
         </div>
 
         <div className="filter-container">
@@ -64,7 +82,7 @@ const MainPage: React.FC = () => {
         </div>
       </div>
 
-      {selectedPrinter && (
+      {selectedPrinter && !userPrinterIds.includes(selectedPrinter.id) && (
         <OrderModal
           printer={selectedPrinter}
           onClose={() => setSelectedPrinter(null)}
