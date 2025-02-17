@@ -23,6 +23,7 @@ import {
   MarkerWithPrinterInfo,
 } from "../../../services/markersService";
 import { SimplePrinterDto } from "../../../types/api";
+import {userService} from "../../../services/userService.ts";
 
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
@@ -72,7 +73,6 @@ const AdvancedMarker: React.FC<AdvancedMarkerProps> = ({ position, map }) => {
       }
     };
   }, [position, map]);
-
   return null;
 };
 
@@ -81,6 +81,7 @@ interface MarkerContentProps {
   isLoggedIn: boolean;
   onCreateOrder: () => void;
   isUserPrinter: boolean;
+  isUserEmailVerified: boolean;
 }
 
 const MarkerContent: React.FC<MarkerContentProps> = ({
@@ -88,6 +89,7 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
   isLoggedIn,
   onCreateOrder,
   isUserPrinter,
+  isUserEmailVerified,  
 }) => (
   <div>
     <h6>Printer {printerInfo.modelName}</h6>
@@ -104,13 +106,21 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
               >
                 Your Printer
               </button>
-          ) : (
+          ) : isUserEmailVerified ? (
       <button
         className="btn btn-primary create-order-btn"
         style={{ backgroundColor: "#2c1d55" }}
         onClick={onCreateOrder}
       >
         Create Order
+      </button>
+    ) : (
+      <button
+         className="btn btn-secondary create-order-btn"
+         disabled
+         title="Please verify your email to create an order"
+      >
+         Verify Email to Order
       </button>
     )
     ) : (
@@ -131,7 +141,8 @@ const InfoWindowContent: React.FC<{
   onClose: () => void;
   onMarkerClick: (printer: SimplePrinterDto) => void;
   userPrinterIds: number[];
-  }> = ({ marker, onClose, onMarkerClick, userPrinterIds }) => {
+  isUserEmailVerified: boolean;
+  }> = ({ marker, onClose, onMarkerClick, userPrinterIds, isUserEmailVerified }) => {
   const isLoggedIn = authService.isLoggedIn();
   const isUserPrinter = userPrinterIds.includes(marker.printerInfo.id);
   return (
@@ -144,6 +155,7 @@ const InfoWindowContent: React.FC<{
         isLoggedIn={isLoggedIn}
         onCreateOrder={() => onMarkerClick(marker.printerInfo)}
         isUserPrinter={isUserPrinter}
+        isUserEmailVerified={isUserEmailVerified}
       />
     </InfoWindow>
   );
@@ -170,6 +182,8 @@ const MapSection: React.FC<MapSectionProps> = ({
     useState<google.maps.LatLng | null>(null);
   const [activeMarker, setActiveMarker] =
     useState<MarkerWithPrinterInfo | null>(null);
+  const [isUserEmailVerified, setIsUserEmailVerified] = 
+      useState<boolean>(false);
 
   const markersRef = useRef<MarkerWithPrinterInfo[]>([]);
   const lastFiltersRef = useRef<FetchParams>({});
@@ -303,6 +317,21 @@ const MapSection: React.FC<MapSectionProps> = ({
   }, [memoizedFilters, map, selectionMode, setupMarkerUI, handleMarkerClick]);
 
   useEffect(() => {
+    const fetchUserEmailVerificationStatus = async () => {
+      if (authService.isLoggedIn()) {
+        try {
+          const isVerified = await userService.getIsUserEmailVerified();
+          setIsUserEmailVerified(isVerified);
+        } catch (error) {
+          console.error("Error fetching user email verification status:", error)
+        }
+      }
+    }
+
+    fetchUserEmailVerificationStatus()
+  }, [])
+  
+  useEffect(() => {
     return () => {
       markersRef.current.forEach((marker) => (marker.map = null));
       markersRef.current = [];
@@ -370,6 +399,7 @@ const MapSection: React.FC<MapSectionProps> = ({
                 onClose={() => setActiveMarker(null)}
                 onMarkerClick={handleMarkerClick}
                 userPrinterIds={userPrinterIds}
+                isUserEmailVerified={isUserEmailVerified}
               />
             )}
           </GoogleMap>
