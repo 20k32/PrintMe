@@ -7,5 +7,8 @@ export const userService = {
     async getUserPrintersIds(): Promise<number[]> {
         const response = await baseApiService.get<{ id: number }[]>(`/printers/my`, true);
         return response.map((printer) => printer.id);
+    },
+    async getIsUserEmailVerified(): Promise<boolean> {
+        return baseApiService.get<{ isVerified: boolean }>(`/users/my`, true).then((data) => data.isVerified);
     }
 };
