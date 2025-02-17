@@ -79,6 +79,9 @@ namespace PrintMe.Server.Controllers
             else if (noPasswordUser.IsNull())
             {
                 result = new ("Missing parameters in body.", StatusCodes.Status400BadRequest);
+            } else if (noPasswordUser.UserId != int.Parse(Request.TryGetUserId()))
+            {
+                result = new ("Wrong user id.", StatusCodes.Status409Conflict);
             }
             else
             {
