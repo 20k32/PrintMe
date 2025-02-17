@@ -46,7 +46,8 @@ namespace PrintMe.Server.Logic.Services.Database
                 PhoneNumber = "",
                 ShouldHidePhoneNumber = true,
                 Description = "",
-                ConfirmationToken = "",
+                ConfirmationToken = null,
+                RefreshToken = _tokenGenerator.GenerateRefreshToken(),
                 IsVerified = false
             };
             await _repository.AddUserAsync(userRaw);
