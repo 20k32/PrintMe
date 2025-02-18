@@ -18,6 +18,7 @@ namespace PrintMe.Server.Controllers;
 public class RequestController(IServiceProvider provider) : ControllerBase
 {
     private readonly RequestService _requestService = provider.GetRequiredService<RequestService>();
+    private readonly UserService _userService = provider.GetRequiredService<UserService>();
 
     /// <summary>
     /// Checks for request in database and returns if it is present.
@@ -215,7 +216,18 @@ public class RequestController(IServiceProvider provider) : ControllerBase
 
         try
         {
+            var isUserEmailVerified = _userService.GetUserByIdAsync(userId).Result.isVerified;
+            if (isUserEmailVerified == false)
+            {
+                throw new EmailNotVerifiedException();
+            }
+
             await _requestService.AddPrinterRequestAsync(request);
+        }
+        catch (EmailNotVerifiedException ex)
+        {
+            return StatusCode(403,
+                new PlainResult(ex.Message, StatusCodes.Status403Forbidden));
         }
         catch (Exception ex)
         {
@@ -243,7 +255,18 @@ public class RequestController(IServiceProvider provider) : ControllerBase
 
         try
         {
+            var isUserEmailVerified = _userService.GetUserByIdAsync(userId).Result.isVerified;
+            if (isUserEmailVerified == false)
+            {
+                throw new EmailNotVerifiedException();
+            }
+
             await _requestService.EditPrinterRequestAsync(request, userId);
+        }
+        catch (EmailNotVerifiedException ex)
+        {
+            return StatusCode(403,
+                new PlainResult(ex.Message, StatusCodes.Status403Forbidden));
         }
         catch (Exception ex)
         {

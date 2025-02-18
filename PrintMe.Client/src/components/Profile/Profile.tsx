@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { profileService } from "../../services/profileService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./assets/profile.css";
 
 interface UserInfo {
@@ -11,6 +13,7 @@ interface UserInfo {
   phoneNumber: string | null;
   shouldHidePhoneNumber: boolean;
   description: string;
+  isVerified: boolean;
 }
 
 const Profile = () => {
@@ -23,6 +26,7 @@ const Profile = () => {
     phoneNumber: null,
     shouldHidePhoneNumber: true,
     description: "",
+    isVerified: false,
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -103,12 +107,19 @@ const Profile = () => {
         shouldHidePhoneNumber: userInfo.shouldHidePhoneNumber,
         description: userInfo.description,
         userRole: "USER",
+        isVerified: userInfo.isVerified,
       });
+      
+      const updatedUserInfo = await profileService.fetchUserData();
+      setUserInfo(updatedUserInfo);
+
       setIsEditing(false);
+      toast.success("Profile updated successfully");
     } catch (error) {
       setErrors({
         general: error instanceof Error ? error.message : "Update failed. Please try again.",
       });
+      toast.error("Failed to update profile. Please try again.");
     }
   };
 
@@ -121,8 +132,21 @@ const Profile = () => {
     }
   };
 
+  const sendVerificationEmail = async () => {
+    try {
+      await profileService.sendVerificationEmail();
+      toast.success("Verification email sent successfully.");
+    } catch (error) {
+      setErrors({
+        general: error instanceof Error ? error.message : "Failed to send verification email. Please try again.",
+      });
+      toast.error("Failed to send verification email. Please try again.");
+    }
+  };
+
   return (
     <div className="profile-container">
+        <ToastContainer />
       <div className="profile-content">
         <div className="profile-card">
           <form onSubmit={handleFormSubmit}>
@@ -196,6 +220,17 @@ const Profile = () => {
                         </>
                       ) : (
                         <p className="profile-text">{userInfo.email}</p>
+                      )}
+                      {userInfo.isVerified ? (
+                          <p className="text-success mt-2">Email Verified</p>
+                      ) : (
+                          <button
+                              type="button"
+                              className="btn btn-primary mt-2"
+                              onClick={sendVerificationEmail}
+                          >
+                            Send Verification Email
+                          </button>
                       )}
                     </div>
                     <div className="form-group mb-4">

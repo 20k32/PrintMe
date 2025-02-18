@@ -23,6 +23,7 @@ interface UserInfo {
   phoneNumber: string | null;
   shouldHidePhoneNumber: boolean;
   description: string;
+  isVerified: boolean;
 }
 
 export const profileService = {
@@ -43,6 +44,16 @@ export const profileService = {
     } catch (error) {
       throw new Error(handleApiError(error, {
         default: "Failed to load profile data"
+      }));
+    }
+  },
+
+  async sendVerificationEmail() {
+    try {
+      return await baseApiService.get<void>('/users/sendverificationmail', true);
+    } catch (error) {
+      throw new Error(handleApiError(error, {
+        default: "Failed to send verification email"
       }));
     }
   }

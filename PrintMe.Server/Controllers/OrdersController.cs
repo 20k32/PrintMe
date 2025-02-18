@@ -22,10 +22,14 @@ namespace PrintMe.Server.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly OrderService _orderService;
+        private readonly PrinterService _printerService;
+        private readonly UserService _userService;
         
 		public OrdersController(IServiceProvider provider)
 		{
 			_orderService = provider.GetService<OrderService>();
+			_printerService = provider.GetService<PrinterService>();
+			_userService = provider.GetService<UserService>();
 		}
 
 		/// <summary>
@@ -70,6 +74,17 @@ namespace PrintMe.Server.Controllers
 					}
 					else
 					{
+						var printers = await _printerService.GetPrintersBasicByUserId(userId);
+						if (printers.Any(p => p.Id == orderRequest.PrinterId))
+						{
+							throw new SelfOrderException();
+						}
+						var isUserEmailVerified = _userService.GetUserByIdAsync(userId).Result.isVerified;
+						if (isUserEmailVerified == false)
+						{
+							throw new EmailNotVerifiedException();
+						}
+
 						var order = await _orderService.AddOrderAsync(userId, orderRequest);
 						result = new ApiResult<PrintOrderDto>(order, "Order added.",
 							StatusCodes.Status200OK);
@@ -78,6 +93,15 @@ namespace PrintMe.Server.Controllers
 				catch (NotFoundOrderInDbException ex)
 				{
 					result = new(ex.Message, StatusCodes.Status403Forbidden);
+				}
+				catch (SelfOrderException ex)
+				{
+					result = new(ex.Message, StatusCodes.Status403Forbidden);
+				}
+				catch (EmailNotVerifiedException ex)
+				{
+					return StatusCode(403,
+						new PlainResult(ex.Message, StatusCodes.Status403Forbidden));
 				}
 				catch (Exception ex)
 				{
