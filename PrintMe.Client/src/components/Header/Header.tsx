@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/header.css";
 
@@ -10,6 +10,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
+  const location = useLocation();
+
   const handleShowLS = () => {
     showLS(true);
   };
@@ -26,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
 
         <ul className="nav justify-content-center flex-grow-1 fw-bold">
           <li>
-            <Link to="/main" className="nav-link px-3 text-white fs-5">
+            <Link to="/main" className={`nav-link px-3 text-white fs-5 ${location.pathname === '/main' ? 'active' : ''}`}>
               Main Page
             </Link>
           </li>
@@ -38,17 +40,17 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
           {isLogined && (
             <>
               <li>
-                <Link to='/printers' className="nav-link px-3 text-white fs-5">
+                <Link to='/printers' className={`nav-link px-3 text-white fs-5 ${location.pathname === '/printers' ? 'active' : ''}`}>
                   Printers
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="nav-link px-3 text-white fs-5">
+                <Link to="/orders" className={`nav-link px-3 text-white fs-5 ${location.pathname === '/orders' ? 'active' : ''}`}>
                   Orders
                 </Link>
               </li>
               <li>
-                <Link to="/requests" className="nav-link px-3 text-white fs-5">
+                <Link to="/requests" className={`nav-link px-3 text-white fs-5 ${location.pathname === '/requests' ? 'active' : ''}`}>
                   Requests
                 </Link>
               </li>
@@ -62,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
               <a href="#" className="text-white header-icon">
                 <i className="bi bi-chat-dots-fill fs-2"></i>
               </a>
-              <Link to="/profile" className="text-white header-icon">
+              <Link to="/profile" className={`text-white header-icon ${location.pathname === '/profile' ? 'active' : ''}`}>
                   <i className="bi bi-person-circle fs-2"></i>
               </Link>
               <a href="#" onClick={onLogout} className="text-white header-icon">
