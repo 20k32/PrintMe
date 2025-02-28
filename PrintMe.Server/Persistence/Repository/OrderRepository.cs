@@ -2,10 +2,11 @@ using AutoMapper.Configuration.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository
 {
-    public sealed class OrderRepository
+    public sealed class OrderRepository : IOrderRepository
     {
         private readonly PrintMeDbContext _dbContext;
 

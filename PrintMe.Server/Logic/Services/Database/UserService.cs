@@ -12,15 +12,17 @@ using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
 using PrintMe.Server.Constants;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal sealed partial class UserService
+    internal sealed partial class UserService : IUserService
     {
-        private readonly UserRepository _repository;
+        private readonly IUserRepository _repository;
         private readonly TokenGenerator _tokenGenerator;
 
-        public UserService(UserRepository repository, TokenGenerator tokenGenerator) =>
+        public UserService(IUserRepository repository, TokenGenerator tokenGenerator) =>
             (_repository, _tokenGenerator) = (repository, tokenGenerator);
 
         public async Task AddUserAsync(UserRegisterRequest user)

@@ -1,17 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository
 {
-    internal class UserRepository
+    internal class UserRepository : IUserRepository
     {
-        private readonly RolesRepository _rolesRepository;
+        private readonly IRolesRepository _rolesRepository;
         private readonly PrintMeDbContext _dbContext;
 
-        public UserRepository(PrintMeDbContext dbContext, RolesRepository rolesRepository) 
+        public UserRepository(PrintMeDbContext dbContext, IRolesRepository rolesRepository) 
             => (_dbContext, _rolesRepository) = (dbContext, rolesRepository);
-        
-        internal async Task AddUserAsync(User user)
+
+        public async Task AddUserAsync(User user)
         {
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
