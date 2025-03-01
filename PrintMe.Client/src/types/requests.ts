@@ -32,3 +32,17 @@ export interface JwtResult {
     accessToken: string;
     refreshToken: string;
 }
+
+export interface ChatResult {
+    id: string;
+    user1Id: number;
+    user2Id: number;
+    isArchived: boolean;
+}
+
+export interface Message {
+    chatId: string;
+    senderId: number;
+    sendedDateTime: Date;
+    payload: string;
+}

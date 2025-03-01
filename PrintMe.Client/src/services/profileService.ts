@@ -15,7 +15,7 @@ interface UpdateProfileRequest extends RequestData {
   [key: string]: unknown;
 }
 
-interface UserInfo {
+export interface UserInfo {
   userId: number;
   firstName: string;
   lastName: string;

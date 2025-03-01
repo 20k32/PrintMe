@@ -397,7 +397,7 @@ public class ChatController : ControllerBase
     
     
     /// <summary>
-    /// Archive users' chat. This endpoint is used by users.
+    /// Get chats for current user.
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<ChatDto>), 200)]
     [HttpGet("getMineChats")]

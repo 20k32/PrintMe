@@ -1,7 +1,9 @@
 import { baseApiService } from './baseApiService';
+import {UserInfo} from "./profileService.ts";
+
 
 export const userService = {
-    async getUserFullNameById(userId: number): Promise<{ firstName: string; lastName: string }> {
-        return baseApiService.get<{ firstName: string; lastName: string }>(`/users/${userId}`, true);
+    async getUserById(userId: number): Promise<UserInfo> {
+        return baseApiService.get<UserInfo>(`/users/${userId}`, true);
     }
 };
