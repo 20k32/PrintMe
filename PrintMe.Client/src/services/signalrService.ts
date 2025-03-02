@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {API_MESSAGE_URL} from "../constants.ts";
+import {SendMessageToSignalR} from "../types/requests.ts";
 
 class SignalRService {
     public connection: signalR.HubConnection;
@@ -10,7 +11,7 @@ class SignalRService {
             .withUrl(API_MESSAGE_URL, {
                 accessTokenFactory: () => localStorage.getItem("token") || "",
             })
-            .withAutomaticReconnect() // Enables automatic reconnection
+            .withAutomaticReconnect()
             .build();
 
         this.startConnection();
@@ -22,25 +23,30 @@ class SignalRService {
             console.log("SignalR Connected");
         } catch (error) {
             console.error("SignalR Connection Error:", error);
-            setTimeout(() => this.startConnection(), 5000); // Retry connection
+            setTimeout(() => this.startConnection(), 5000);
         }
     }
 
-    public async sendMessage(chatId: string, message: string) {
+    public async sendMessage(message : SendMessageToSignalR) {
         if (this.connection.state !== signalR.HubConnectionState.Connected) {
             console.error("SignalR is not connected. Retrying...");
-            await this.startConnection(); // Ensure connection is restarted
+            await this.startConnection();
         }
 
         try {
-            await this.connection.invoke("MessageReceived", chatId, message);
+            await this.connection.invoke("MessageReceived", message);
         } catch (error) {
             console.error("Error sending message:", error);
         }
     }
 
     public onMessageReceived(callback: (message: any) => void) {
-        this.connection.on("ReceiveMessage", callback);
+        
+        this.connection.on("MessageReceived", callback);
+    }
+
+    offMessageReceived(messageHandler: (message: SendMessageToSignalR) => void) {
+        this.connection.off("MessageReceived", messageHandler);
     }
 }
 

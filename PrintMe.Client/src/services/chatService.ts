@@ -1,5 +1,5 @@
 import { baseApiService } from './baseApiService';
-import {ChatResult, Message} from '../types/requests';
+import {ChatResult, Message, SendMessageToChatRequest} from '../types/requests';
 export const chatService = {
     async getMineChats() {
         
@@ -24,5 +24,19 @@ export const chatService = {
         }
         
         return result || [];
+    },
+    
+    async sendMessage(request: SendMessageToChatRequest){
+        try{
+            const result = await baseApiService.put<SendMessageToChatRequest>('/chat/sendMessage', request);
+            
+            if(result === null || result === undefined)
+            {
+                throw new Error();
+            }
+        }
+        catch(err){
+            console.error('error adding message to db:', err);
+        }
     }
 }

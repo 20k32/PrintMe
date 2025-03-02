@@ -10,7 +10,11 @@ public sealed class ChatHub : Hub
     {
         if (Context.UserIdentifier is { } userId)
         {
-            parameter.SenderId = Context.UserIdentifier;
+            if (string.IsNullOrWhiteSpace(parameter.SenderId))
+            {
+                parameter.SenderId = Context.UserIdentifier;
+            }
+            
             await Clients.Users(parameter.ReceiverId).SendAsync(nameof(MessageReceived), parameter);
         }
     }

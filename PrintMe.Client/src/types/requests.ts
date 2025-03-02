@@ -43,6 +43,20 @@ export interface ChatResult {
 export interface Message {
     chatId: string;
     senderId: number;
-    sendedDateTime: Date;
+    sentDateTime: Date;
     payload: string;
+}
+
+export interface SendMessageToChatRequest extends RequestData{
+    chatId: string;
+    sentDateTime: Date;
+    payload: string;
+}
+
+
+export interface SendMessageToSignalR {
+    senderId: string;
+    receiverId: string;
+    payload: string;
+    sentDate: Date;
 }

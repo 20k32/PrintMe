@@ -52,11 +52,12 @@ public class Startup
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("http://localhost:5173")
+                //policy.WithOrigins("http://localhost:5173")
+                policy.SetIsOriginAllowed(origin => true) //todo: filter origins
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()
-                    .WithExposedHeaders("Access-Control-Allow-Origin");
+                .WithExposedHeaders("Access-Control-Allow-Origin");
             });
         });
     }

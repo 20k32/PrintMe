@@ -10,15 +10,15 @@ public class AddMessageToChatRequest(int chatId, MessageDto messageDto) : INullC
     public bool IsNull() => ChatId == default || Message.IsNull();
 }
 
-public class SendMessageToChatRequest(int chatId, DateTime sendedDateTime, string payload) : INullCheck
+public class SendMessageToChatRequest(int chatId, DateTime sentDateTime, string payload) : INullCheck
 {
     public int ChatId { get; init; } = chatId;
 
-    public DateTime SendedDateTime { get; init; } = sendedDateTime;
+    public DateTime SentDateTime { get; init; } = sentDateTime;
 
     public string Payload { get; init; } = payload;
 
     public bool IsNull() => ChatId == default 
-                            || SendedDateTime == default || SendedDateTime == DateTime.MinValue
+                            || SentDateTime == default || SentDateTime == DateTime.MinValue
                             || string.IsNullOrWhiteSpace(Payload);
 }

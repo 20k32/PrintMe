@@ -19,7 +19,7 @@ namespace PrintMe.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "User,Admin")]
+[Authorize]
 public class ChatController : ControllerBase
 {
     private UserService _userService;
@@ -229,7 +229,7 @@ public class ChatController : ControllerBase
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<ChatDto>), 200)]
     [HttpPut("createChatForMe")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User,PrinterOwner")]
     public async Task<IActionResult> CreateChatForMe([FromBody] CreateChatForMeRequest createChatRequest)
     {
         PlainResult result = null;
@@ -290,7 +290,7 @@ public class ChatController : ControllerBase
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<ChatDto>), 200)]
     [HttpPut("sendMessage")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User,PrinterOwner")]
     public async Task<IActionResult> SendMessage([FromBody] SendMessageToChatRequest sendMessage)
     {
         PlainResult result = null;
@@ -314,7 +314,7 @@ public class ChatController : ControllerBase
                     return Unauthorized(new PlainResult("Unable to get user id from token", StatusCodes.Status401Unauthorized));
                 }
 
-                var messageDto = new MessageDto(sendMessage.ChatId, senderId, sendMessage.SendedDateTime, sendMessage.Payload);
+                var messageDto = new MessageDto(sendMessage.ChatId, user1Id, sendMessage.SentDateTime, sendMessage.Payload);
 
                 result = await AddMessageCoreAsync(sendMessage.ChatId, messageDto);
             }
@@ -342,7 +342,7 @@ public class ChatController : ControllerBase
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<ChatDto>), 200)]
     [HttpPut("archive")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User,PrinterOwner")]
     public async Task<IActionResult> ArchiveChat([FromBody] ArchiveChatRequest archiveRequest)
     {
         PlainResult result = null;
@@ -401,7 +401,7 @@ public class ChatController : ControllerBase
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<ChatDto>), 200)]
     [HttpGet("getMineChats")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User,PrinterOwner")]
     public async Task<IActionResult> GetMineChats()
     {
         PlainResult result = null;
@@ -439,7 +439,7 @@ public class ChatController : ControllerBase
     /// </summary>
     [ProducesResponseType(typeof(ApiResult<ChatDto>), 200)]
     [HttpGet("getChatMessagesForMe/{chatId}/{user2Id}")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User,PrinterOwner")]
     public async Task<IActionResult> GetChatMessagesForMe(int chatId, int user2Id)
     {
         PlainResult result = null;
