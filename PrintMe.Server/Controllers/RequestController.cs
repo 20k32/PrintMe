@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Constants;
 using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.RequestDto;
@@ -17,8 +18,8 @@ namespace PrintMe.Server.Controllers;
 [Authorize]
 public class RequestController(IServiceProvider provider) : ControllerBase
 {
-    private readonly RequestService _requestService = provider.GetRequiredService<RequestService>();
-    private readonly UserService _userService = provider.GetRequiredService<UserService>();
+    private readonly IRequestService _requestService = provider.GetRequiredService<IRequestService>();
+    private readonly IUserService _userService = provider.GetRequiredService<IUserService>();
 
     /// <summary>
     /// Checks for request in database and returns if it is present.
