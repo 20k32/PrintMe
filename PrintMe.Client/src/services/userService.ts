@@ -1,4 +1,5 @@
 import { baseApiService } from './baseApiService';
+import { UserProfileDto } from '../types/api';
 
 export const userService = {
     async getUserFullNameById(userId: number): Promise<{ firstName: string; lastName: string }> {
@@ -10,5 +11,8 @@ export const userService = {
     },
     async getIsUserEmailVerified(): Promise<boolean> {
         return baseApiService.get<{ isVerified: boolean }>(`/users/my`, true).then((data) => data.isVerified);
-    }
+    },
+    async getUserProfile(userId: number): Promise<UserProfileDto> {
+        return baseApiService.get<UserProfileDto>(`/users/${userId}`, true);
+      }
 };

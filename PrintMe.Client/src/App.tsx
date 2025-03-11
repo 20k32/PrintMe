@@ -19,6 +19,8 @@ import EditOrder from "./components/Orders/components/EditOrder";
 import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
 import store, { RootState, AppDispatch } from './store/store';
 import { logout } from './store/authSlice';
+import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
+import UserProfile from "./components/Profile/UserProfile.tsx";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -51,6 +53,7 @@ function App() {
         <Route index element={<MainPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/printers" element={<Printers />} />
         <Route path="/printers/add" element={<AddPrinter />} />
