@@ -74,7 +74,11 @@ const UserProfile: React.FC = () => {
                   </div>
                   <div className="form-group mb-4">
                     <label className="profile-label">Phone Number:</label>
-                    <p className="profile-text">{userInfo.phoneNumber || "No number"}</p>
+                    {userInfo.shouldHidePhoneNumber ? (
+                      <p className="profile-text">User has hidden their phone number</p>
+                    ) : (
+                      <p className="profile-text">{userInfo.phoneNumber || "No number"}</p>
+                    )}
                   </div>
                 </div>
               </div>
