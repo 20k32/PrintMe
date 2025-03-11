@@ -1,21 +1,23 @@
 using AutoMapper;
 using PrintMe.Server.Constants;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal sealed class OrderService
+    internal sealed class OrderService : IOrderService
     {
-        private readonly OrderRepository _orderRepository;
-        private readonly UserService _userService;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
 
-        public OrderService(IMapper mapper, UserService userService, OrderRepository orderRepository)
+        public OrderService(IMapper mapper, IUserService userService, IOrderRepository orderRepository)
             => (_mapper, _userService, _orderRepository) = (mapper, userService, orderRepository);
 
         public async IAsyncEnumerable<PrintOrderDto> GetOrdersByUserIdAsync(int userId)

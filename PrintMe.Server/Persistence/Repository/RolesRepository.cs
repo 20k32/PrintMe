@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository
 {
-    internal class RolesRepository
+    internal class RolesRepository : IRolesRepository
     {
         private PrintMeDbContext _dbContext;
 

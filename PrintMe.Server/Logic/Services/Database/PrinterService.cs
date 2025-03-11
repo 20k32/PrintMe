@@ -1,17 +1,19 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Logic.Services.Database
 {
-    internal sealed class PrinterService(PrinterRepository repository, IMapper mapper)
+    internal sealed class PrinterService(IPrinterRepository repository, IMapper mapper) : IPrinterService
     {
         private readonly IMapper _mapper = mapper;
-        private readonly PrinterRepository _repository = repository;
+        private readonly IPrinterRepository _repository = repository;
         
         public async IAsyncEnumerable<SimplePrinterDto> GetPrintersBasicAsync(int skip, int take)
         { 

@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository
 {
-    internal sealed class PrinterRepository
+    internal sealed class PrinterRepository : IPrinterRepository
     {
         private readonly PrintMeDbContext _dbContext;
 
