@@ -1,18 +1,20 @@
 using System.Net;
 using System.Net.Mail;
 using PrintMe.Server.Controllers;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
-internal sealed class VerificationService
+internal sealed class VerificationService : IVerificationService
 {
-    private readonly UserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
     private readonly SmtpClient _smtpClient; 
     private readonly MailAddress _fromAddress;
     
-    public VerificationService(UserRepository userRepository)
+    public VerificationService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
         

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.Exceptions;
@@ -12,11 +13,11 @@ namespace PrintMe.Server.Controllers;
 [Route("api/Auth")]
 public sealed class AuthorizationController : ControllerBase
 {
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
     public AuthorizationController(IServiceProvider provider)
     {
-        _userService = provider.GetService<UserService>();
+        _userService = provider.GetService<IUserService>();
     }
 
     /// <summary>

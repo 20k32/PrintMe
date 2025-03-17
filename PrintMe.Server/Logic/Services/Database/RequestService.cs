@@ -7,11 +7,13 @@ using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
 using PrintMe.Server.Constants;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Filters;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
-internal class RequestService(RequestRepository repository, IMapper mapper, PrinterRepository printerRepository)
+internal class RequestService(IRequestRepository repository, IMapper mapper, IPrinterRepository printerRepository) : IRequestService
 {
     public async Task<IEnumerable<RequestDto>> GetAllRequestsAsync(RequestFilter filter = null)
     {

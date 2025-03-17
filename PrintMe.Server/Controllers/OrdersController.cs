@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs;
@@ -21,15 +22,15 @@ namespace PrintMe.Server.Controllers
     [Authorize]
     public class OrdersController : ControllerBase
     {
-        private readonly OrderService _orderService;
-        private readonly PrinterService _printerService;
-        private readonly UserService _userService;
+        private readonly IOrderService _orderService;
+        private readonly IPrinterService _printerService;
+        private readonly IUserService _userService;
         
 		public OrdersController(IServiceProvider provider)
 		{
-			_orderService = provider.GetService<OrderService>();
-			_printerService = provider.GetService<PrinterService>();
-			_userService = provider.GetService<UserService>();
+			_orderService = provider.GetService<IOrderService>();
+			_printerService = provider.GetService<IPrinterService>();
+			_userService = provider.GetService<IUserService>();
 		}
 
 		/// <summary>
