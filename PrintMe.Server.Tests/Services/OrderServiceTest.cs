@@ -14,29 +14,37 @@ namespace PrintMe.Server.Tests.Services;
 
 public class OrderServiceTest
 {
+    
+    private readonly Mock<IMapper> _mockMapper;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<IOrderRepository> _mockOrderRepository;
+    private readonly OrderService _orderService;
+    
+    public OrderServiceTest()
+    {
+        _mockMapper = new Mock<IMapper>();
+        _mockUserService = new Mock<IUserService>();
+        _mockOrderRepository = new Mock<IOrderRepository>();
+        _orderService = new OrderService(_mockMapper.Object, _mockUserService.Object, _mockOrderRepository.Object);
+    }
+    
     [Fact]
     public async Task GetOrdersByUserIdAsync_ShouldReturnOrders()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var mockUser = new PasswordUserDto { UserId = 1 };
         var printOrder = new PrintOrder { Printer = new Printer { UserId = 2 } };
         var printOrderDto = new PrintOrderDto();
 
-        mockUserService.Setup(u => u.GetUserByIdAsync(mockUser.UserId))
+        _mockUserService.Setup(u => u.GetUserByIdAsync(mockUser.UserId))
             .ReturnsAsync(mockUser);
-        mockOrderRepository.Setup(r => r.GetOrdersByUserId(mockUser.UserId))
+        _mockOrderRepository.Setup(r => r.GetOrdersByUserId(mockUser.UserId))
             .Returns(new List<PrintOrder> { printOrder }.ToAsyncEnumerable());
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
 
         // Act
-        var result = await orderService.GetOrdersByUserIdAsync(mockUser.UserId).ToListAsync();
+        var result = await _orderService.GetOrdersByUserIdAsync(mockUser.UserId).ToListAsync();
 
         // Assert
         Assert.NotNull(result);
@@ -49,25 +57,19 @@ public class OrderServiceTest
     public async Task GetOrdersForPrinterOwnerAsync_ShouldReturnOrders()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var mockUser = new PasswordUserDto { UserId = 1 };
         var printOrder = new PrintOrder();
         var printOrderDto = new PrintOrderDto();
 
-        mockUserService.Setup(u => u.GetUserByIdAsync(mockUser.UserId))
+        _mockUserService.Setup(u => u.GetUserByIdAsync(mockUser.UserId))
             .ReturnsAsync(mockUser);
-        mockOrderRepository.Setup(r => r.GetOrdersForPrinterOwnerAsync(mockUser.UserId))
+        _mockOrderRepository.Setup(r => r.GetOrdersForPrinterOwnerAsync(mockUser.UserId))
             .Returns(new List<PrintOrder> { printOrder }.ToAsyncEnumerable());
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
 
         // Act
-        var result = await orderService.GetOrdersForPrinterOwnerAsync(mockUser.UserId).ToListAsync();
+        var result = await _orderService.GetOrdersForPrinterOwnerAsync(mockUser.UserId).ToListAsync();
 
         // Assert
         Assert.NotNull(result);
@@ -79,12 +81,6 @@ public class OrderServiceTest
     public async Task UpdateOrderByIdAsync_ShouldFullUpdateOrder()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var updateFullOrderRequest = new UpdateFullOrderRequest()
         {
@@ -95,15 +91,15 @@ public class OrderServiceTest
             ItemDescription = "desc", ItemMaterialId = 1 };;
         var printOrderDto = new PrintOrderDto();
         
-        mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdateFullOrderRequest>()))
+        _mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdateFullOrderRequest>()))
             .Returns(printOrder);
-        mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
             .ReturnsAsync(printOrder);
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
 
         // Act
-        var result = await orderService.UpdateOrderByIdAsync(orderId, updateFullOrderRequest);
+        var result = await _orderService.UpdateOrderByIdAsync(orderId, updateFullOrderRequest);
 
         // Assert
         Assert.NotNull(result);
@@ -114,12 +110,6 @@ public class OrderServiceTest
     public async Task UpdateOrderByIdAsync_ShouldThrowNotFoundOrderInDbExceptionWhenFullUpdate()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-        
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var updateFullOrderRequest = new UpdateFullOrderRequest()
         {
@@ -130,25 +120,19 @@ public class OrderServiceTest
             ItemDescription = "desc", ItemMaterialId = 1 };;
         var printOrderDto = new PrintOrderDto();
         
-        mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdateFullOrderRequest>()))
+        _mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdateFullOrderRequest>()))
             .Returns(printOrder);
-        mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
             .ReturnsAsync((PrintOrder) null);
         
         // Act and Assert
-        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => orderService.UpdateOrderByIdAsync(orderId, updateFullOrderRequest));
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.UpdateOrderByIdAsync(orderId, updateFullOrderRequest));
     }
     
     [Fact]
     public async Task UpdateOrderByIdAsync_ShouldPartialUpdateOrder()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var updatePartialOrderRequest = new UpdatePartialOrderRequest
         {
@@ -158,15 +142,15 @@ public class OrderServiceTest
         var printOrder = new PrintOrder{ PrintOrderStatusId = 1 };
         var printOrderDto = new PrintOrderDto();
         
-        mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
+        _mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
             .Returns(printOrder);
-        mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
             .ReturnsAsync(printOrder);
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
 
         // Act
-        var result = await orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest);
+        var result = await _orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest);
 
         // Assert
         Assert.NotNull(result);
@@ -177,12 +161,6 @@ public class OrderServiceTest
     public async Task UpdateOrderByIdAsync_ShouldThrowInvalidOrderStatusExceptionWhenPartialUpdate()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var updatePartialOrderRequest = new UpdatePartialOrderRequest
         {
@@ -192,27 +170,21 @@ public class OrderServiceTest
         var printOrder = new PrintOrder();
         var printOrderDto = new PrintOrderDto();
         
-        mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
+        _mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
             .Returns(printOrder);
-        mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
             .ReturnsAsync(printOrder);
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
         
         // Act and Assert
-        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest));
+        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => _orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest));
     }
     
     [Fact]
     public async Task UpdateOrderByIdAsync_ShouldThrowNotFoundOrderInDbExceptionWhenPartialUpdate()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var updatePartialOrderRequest = new UpdatePartialOrderRequest
         {
@@ -222,36 +194,30 @@ public class OrderServiceTest
         var printOrder = new PrintOrder{ PrintOrderStatusId = 1 };
         var printOrderDto = new PrintOrderDto();
         
-        mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
+        _mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
             .Returns(printOrder);
-        mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
             .ReturnsAsync((PrintOrder) null);
         
         // Act and Assert
-        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest));
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest));
     }
     
     [Fact]
     public async Task RemoveOrderByIdAsync_ShouldRemoveOrder()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var printOrder = new PrintOrder();
         var printOrderDto = new PrintOrderDto();
 
-        mockOrderRepository.Setup(r => r.RemoveOrderByIdAsync(orderId))
+        _mockOrderRepository.Setup(r => r.RemoveOrderByIdAsync(orderId))
             .ReturnsAsync(printOrder);
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
 
         // Act
-        var result = await orderService.RemoveOrderByIdAsync(orderId);
+        var result = await _orderService.RemoveOrderByIdAsync(orderId);
         
         // Assert
         Assert.NotNull(result);
@@ -262,26 +228,20 @@ public class OrderServiceTest
     public async Task AddOrderAsync_ShouldAddOrder()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-
         var userId = 0;
         var createOrderRequest = new CreateOrderRequest();
         var printOrder = new PrintOrder();
         var printOrderDto = new PrintOrderDto();
 
-        mockMapper.Setup(m => m.Map<CreateOrderRequest, PrintOrder>(It.IsAny<CreateOrderRequest>(), It.IsAny<Action<IMappingOperationOptions>>()))
+        _mockMapper.Setup(m => m.Map<CreateOrderRequest, PrintOrder>(It.IsAny<CreateOrderRequest>(), It.IsAny<Action<IMappingOperationOptions>>()))
             .Returns(printOrder);
-        mockOrderRepository.Setup(r => r.CreateOrderAsync(It.IsAny<PrintOrder>()))
+        _mockOrderRepository.Setup(r => r.CreateOrderAsync(It.IsAny<PrintOrder>()))
             .ReturnsAsync(printOrder);
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
 
         // Act
-        var result = await orderService.AddOrderAsync(userId, createOrderRequest);
+        var result = await _orderService.AddOrderAsync(userId, createOrderRequest);
 
         // Assert
         Assert.NotNull(result);
@@ -292,31 +252,19 @@ public class OrderServiceTest
     public async Task RemoveOrderByIdAsync_ShouldThrowNotFoundOrderInDbException()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
 
-        mockOrderRepository.Setup(r => r.RemoveOrderByIdAsync(orderId))
+        _mockOrderRepository.Setup(r => r.RemoveOrderByIdAsync(orderId))
             .ReturnsAsync((PrintOrder) null);
         
         // Act and Assert
-        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => orderService.RemoveOrderByIdAsync(orderId));
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.RemoveOrderByIdAsync(orderId));
     }
 
     [Fact]
     public async Task GetOrderByIdAsync_ShouldReturnOrder()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-    
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-    
         var orderId = 1;
         var printOrder = new PrintOrder()
         {
@@ -326,13 +274,13 @@ public class OrderServiceTest
         };
         var printOrderDto = new PrintOrderDto();
     
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
-        mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
+        _mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
             .ReturnsAsync(printOrder);
     
         // Act
-        var result = await orderService.GetOrderByIdAsync(orderId);
+        var result = await _orderService.GetOrderByIdAsync(orderId);
     
         // Assert
         Assert.NotNull(result);
@@ -343,45 +291,33 @@ public class OrderServiceTest
     public async Task GetOrderByIdAsync_ShouldThrowNotFoundOrderInDbException()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-    
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-    
         var orderId = 1;
         var printOrderDto = new PrintOrderDto();
     
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
-        mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
+       _mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
             .ReturnsAsync((PrintOrder) null);
         
         // Act and Assert
-        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => orderService.GetOrderByIdAsync(orderId));
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.GetOrderByIdAsync(orderId));
     }
     
     [Fact]
     public async Task AbortOrderById_ShouldAbortOrder()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-    
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-    
         var orderId = 1;
         var printOrder = new PrintOrder{ PrintOrderStatusId = 1 };
         var printOrderDto = new PrintOrderDto();
     
-        mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
             .ReturnsAsync(printOrder);
-        mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
             .Returns(printOrderDto);
     
         // Act
-        var result = await orderService.AbortOrderByIdAsync(orderId);
+        var result = await _orderService.AbortOrderByIdAsync(orderId);
     
         // Assert
         Assert.NotNull(result);
@@ -392,37 +328,25 @@ public class OrderServiceTest
     public async Task AbortOrderById_ShouldThrowNotFoundInDbException()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-    
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
-        mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
+        _mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
             .ReturnsAsync((PrintOrder) null);
         
         // Act and Assert
-        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => orderService.AbortOrderByIdAsync(orderId));
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.AbortOrderByIdAsync(orderId));
     }
 
     [Fact]
     public async Task AbortOrderById_ShouldThrowInvalidOrderStatusException()
     {
         // Arrange
-        var mockMapper = new Mock<IMapper>();
-        var mockUserService = new Mock<IUserService>();
-        var mockOrderRepository = new Mock<IOrderRepository>();
-    
-        var orderService = new OrderService(mockMapper.Object, mockUserService.Object, mockOrderRepository.Object);
-        
         var orderId = 1;
         var printOrder = new PrintOrder{ PrintOrderStatusId = 2 };
         
-        mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
+        _mockOrderRepository.Setup(r => r.GetOrderById(It.IsAny<int>()))
             .ReturnsAsync(printOrder);
         
         // Act and Assert
-        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => orderService.AbortOrderByIdAsync(orderId));
+        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => _orderService.AbortOrderByIdAsync(orderId));
     }
 }
