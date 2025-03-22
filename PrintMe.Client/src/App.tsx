@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import "./App.css";
 import Header from "./components/Header/Header.tsx";
 import MainPage from "./components/MainPage/MainPage.tsx";
 import LoginSignup from "./components/LoginSignup/LoginSignup.tsx";
 import Requests from "./components/Requests/Requests.tsx";
-import { authService } from "./services/authService";
 import Profile from "./components/Profile/Profile.tsx";
 import { AddPrinter } from "./components/Printers/components/AddPrinter.tsx";
 import Orders from "./components/Orders/Orders.tsx";
@@ -16,37 +17,34 @@ import Printers from "./components/Printers/Printers.tsx";
 import PrinterDetail from "./components/Printers/components/PrinterDetail.tsx";
 import EditOrder from "./components/Orders/components/EditOrder";
 import Chat from "./components/Chat/Chat.tsx";
+import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
+import store, { RootState, AppDispatch } from './store/store';
+import { logout } from './store/authSlice';
 
 function App() {
-  const [isLogined, setIsLogined] = useState<boolean>(authService.isLoggedIn());
+  const dispatch = useDispatch<AppDispatch>();
+  const isLogined = useSelector((state: RootState) => state.auth.isLogined);
   const [showLogin, setShowLogin] = useState<boolean>(false);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const loginState = authService.isLoggedIn();
-    setIsLogined(loginState);
-  }, []);
 
   const handleCloseLogin = () => {
     setShowLogin(false);
   };
 
   const handleLogout = () => {
-    setIsLogined(false);
-    authService.logout();
+    dispatch(logout());
     navigate("/mainpage");
   };
 
   return (
-    <>
+    <Provider store={store}>
       <Header 
         isLogined={isLogined} 
         showLS={setShowLogin} 
         onLogout={handleLogout}
       />
       <LoginSignup
-        onClick={setIsLogined}
         showLS={showLogin}
         onClose={handleCloseLogin}
       />      
@@ -62,6 +60,7 @@ function App() {
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/orders/:orderId/edit" element={<EditOrder />} />
           <Route path="/chatPage" element={<Chat />} />
+        <Route path="/verify" element={<VerifyEmail />} /> 
       </Routes>
       <ToastContainer
         position="bottom-right"
@@ -75,7 +74,7 @@ function App() {
         pauseOnHover
         theme="dark"
       />
-    </>
+    </Provider>
   );
 }
 

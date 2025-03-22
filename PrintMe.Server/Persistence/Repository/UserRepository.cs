@@ -74,7 +74,7 @@ namespace PrintMe.Server.Persistence.Repository
             existingUser.PhoneNumber = newEntity.PhoneNumber;
             existingUser.ShouldHidePhoneNumber = newEntity.ShouldHidePhoneNumber;
             existingUser.Email = newEntity.Email;
-
+            existingUser.IsVerified = newEntity.IsVerified;
             _dbContext.Users.Update(existingUser);
             
             await _dbContext.SaveChangesAsync();
@@ -94,6 +94,13 @@ namespace PrintMe.Server.Persistence.Repository
                 .AsQueryable()
                 .FirstOrDefault(user => user.UserId == userId)
                 ?.UserRole?.UserRoleName;
+        }
+        
+        public async Task<User> GetUserByTokenAsync(string token)
+        {
+            return await _dbContext.Users
+                .AsQueryable()
+                .FirstOrDefaultAsync(user => user.ConfirmationToken == token);
         }
     }
 }

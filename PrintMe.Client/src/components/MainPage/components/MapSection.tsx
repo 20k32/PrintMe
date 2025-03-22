@@ -23,6 +23,7 @@ import {
   MarkerWithPrinterInfo,
 } from "../../../services/markersService";
 import { SimplePrinterDto } from "../../../types/api";
+import {userService} from "../../../services/userService.ts";
 
 interface MapSectionProps {
   onLocationSelect?: (location: { x: number; y: number }) => void;
@@ -30,6 +31,7 @@ interface MapSectionProps {
   filters?: FetchParams;
   onMarkerClick?: (printer: SimplePrinterDto) => void;
   singleMarkerLocation?: { lat: number; lng: number };
+  userPrinterIds: number[];
 }
 
 interface AdvancedMarkerProps {
@@ -71,7 +73,6 @@ const AdvancedMarker: React.FC<AdvancedMarkerProps> = ({ position, map }) => {
       }
     };
   }, [position, map]);
-
   return null;
 };
 
@@ -79,12 +80,16 @@ interface MarkerContentProps {
   printerInfo: SimplePrinterDto;
   isLoggedIn: boolean;
   onCreateOrder: () => void;
+  isUserPrinter: boolean;
+  isUserEmailVerified: boolean;
 }
 
 const MarkerContent: React.FC<MarkerContentProps> = ({
   printerInfo,
   isLoggedIn,
   onCreateOrder,
+  isUserPrinter,
+  isUserEmailVerified,  
 }) => (
   <div>
     <h6>Printer {printerInfo.modelName}</h6>
@@ -93,6 +98,15 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
       {printerInfo.materials.map((material) => material.name).join(", ")}
     </p>
     {isLoggedIn ? (
+          isUserPrinter ? (
+              <button
+                  className="btn btn-secondary create-order-btn"
+                  disabled
+                  title="You can't place an order on your own printer"
+              >
+                Your Printer
+              </button>
+          ) : isUserEmailVerified ? (
       <button
         className="btn btn-primary create-order-btn"
         style={{ backgroundColor: "#2c1d55" }}
@@ -100,6 +114,15 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
       >
         Create Order
       </button>
+    ) : (
+      <button
+         className="btn btn-secondary create-order-btn"
+         disabled
+         title="Please verify your email to create an order"
+      >
+         Verify Email to Order
+      </button>
+    )
     ) : (
       <button
         className="btn btn-primary create-order-btn"
@@ -117,8 +140,11 @@ const InfoWindowContent: React.FC<{
   marker: MarkerWithPrinterInfo;
   onClose: () => void;
   onMarkerClick: (printer: SimplePrinterDto) => void;
-}> = ({ marker, onClose, onMarkerClick }) => {
+  userPrinterIds: number[];
+  isUserEmailVerified: boolean;
+  }> = ({ marker, onClose, onMarkerClick, userPrinterIds, isUserEmailVerified }) => {
   const isLoggedIn = authService.isLoggedIn();
+  const isUserPrinter = userPrinterIds.includes(marker.printerInfo.id);
   return (
     <InfoWindow
       anchor={marker as unknown as google.maps.MVCObject}
@@ -128,6 +154,8 @@ const InfoWindowContent: React.FC<{
         printerInfo={marker.printerInfo}
         isLoggedIn={isLoggedIn}
         onCreateOrder={() => onMarkerClick(marker.printerInfo)}
+        isUserPrinter={isUserPrinter}
+        isUserEmailVerified={isUserEmailVerified}
       />
     </InfoWindow>
   );
@@ -139,7 +167,8 @@ const MapSection: React.FC<MapSectionProps> = ({
   filters = {} as FetchParams,
   onMarkerClick,
   singleMarkerLocation,
-}) => {
+  userPrinterIds,
+  }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: GOOGLE_MAPS_LIBRARIES,
@@ -153,6 +182,8 @@ const MapSection: React.FC<MapSectionProps> = ({
     useState<google.maps.LatLng | null>(null);
   const [activeMarker, setActiveMarker] =
     useState<MarkerWithPrinterInfo | null>(null);
+  const [isUserEmailVerified, setIsUserEmailVerified] = 
+      useState<boolean>(false);
 
   const markersRef = useRef<MarkerWithPrinterInfo[]>([]);
   const lastFiltersRef = useRef<FetchParams>({});
@@ -286,6 +317,21 @@ const MapSection: React.FC<MapSectionProps> = ({
   }, [memoizedFilters, map, selectionMode, setupMarkerUI, handleMarkerClick]);
 
   useEffect(() => {
+    const fetchUserEmailVerificationStatus = async () => {
+      if (authService.isLoggedIn()) {
+        try {
+          const isVerified = await userService.getIsUserEmailVerified();
+          setIsUserEmailVerified(isVerified);
+        } catch (error) {
+          console.error("Error fetching user email verification status:", error)
+        }
+      }
+    }
+
+    fetchUserEmailVerificationStatus()
+  }, [])
+  
+  useEffect(() => {
     return () => {
       markersRef.current.forEach((marker) => (marker.map = null));
       markersRef.current = [];
@@ -352,13 +398,15 @@ const MapSection: React.FC<MapSectionProps> = ({
                 marker={activeMarker}
                 onClose={() => setActiveMarker(null)}
                 onMarkerClick={handleMarkerClick}
+                userPrinterIds={userPrinterIds}
+                isUserEmailVerified={isUserEmailVerified}
               />
             )}
           </GoogleMap>
         </div>
         <div className="d-flex justify-content-center align-items-center gap-3">
           <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
+           onLoad={onSearchBoxLoad}
             onPlacesChanged={onPlacesChanged}
           >
             <input
@@ -392,4 +440,4 @@ const MapSection: React.FC<MapSectionProps> = ({
   );
 };
 
-export default React.memo(MapSection);
+export default React.memo(MapSection)

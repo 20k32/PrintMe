@@ -13,5 +13,6 @@ namespace PrintMe.Server.Logic.Services
                 .AddScoped<PrinterService>()
                 .AddScoped<OrderService>()
                 .AddScoped<ChatService>();
+                .AddScoped<VerificationService>();
     }
 }

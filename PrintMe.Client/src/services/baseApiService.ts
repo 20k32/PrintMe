@@ -53,6 +53,15 @@ export const baseApiService = {
             return response.data as unknown as T;
         }
         return response.data.value;
+    },
+    
+    async patch<T>(endpoint: string, data: RequestData, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
+        const config = requiresAuth ? createAuthHeader() : {};
+        const response = await axios.patch<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, data, config);
+        if (isArray || Array.isArray(response.data)) {
+            return response.data as unknown as T;
+        }
+        return response.data.value;
     }
 };
 

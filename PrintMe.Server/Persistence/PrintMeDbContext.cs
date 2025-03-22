@@ -488,7 +488,14 @@ public partial class PrintMeDbContext : DbContext
                 .HasColumnName("should_hide_phone_number");
             entity.Property(e => e.UserStatusId).HasColumnName("user_status_id");
             entity.Property(e => e.UserRoleId).HasColumnName("user_role_id");
+            entity.Property(e => e.RefreshToken).HasColumnName("refresh_token");
 
+            entity.Property(e => e.ConfirmationToken)
+                .HasColumnName("confirmation_token")
+                .HasColumnType("text");
+            entity.Property(e => e.IsVerified)
+                .HasColumnName("is_verified")
+                .HasColumnType("boolean");
 
             entity.HasOne(d => d.UserRole).WithMany(p => p.Users)
                 .HasForeignKey(d => d.UserRoleId)
@@ -518,6 +525,7 @@ public partial class PrintMeDbContext : DbContext
                         j.IndexerProperty<int>("UserId").HasColumnName("user_id");
                         j.IndexerProperty<int>("PrinterId").HasColumnName("printer_id");
                     });
+
         });
 
         modelBuilder.Entity<UserStatus>(entity =>

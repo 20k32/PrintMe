@@ -1,16 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
-using PrintMe.Server.Models.DTOs;
 using PrintMe.Server.Models.DTOs.UserDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Models.Extensions;
-using PrintMe.Server.Persistence;
-using PrintMe.Server.Persistence.Entities;
-using PrintMe.Server.Persistence.Repository;
 
 namespace PrintMe.Server.Controllers
 {
@@ -20,10 +16,12 @@ namespace PrintMe.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly VerificationService _verificationService;
         
         public UserController(IServiceProvider provider)
         {
             _userService = provider.GetService<UserService>();
+            _verificationService = provider.GetService<VerificationService>();
         }
         
         /// <summary>
@@ -81,12 +79,21 @@ namespace PrintMe.Server.Controllers
             else if (noPasswordUser.IsNull())
             {
                 result = new ("Missing parameters in body.", StatusCodes.Status400BadRequest);
+            } else if (noPasswordUser.UserId != int.Parse(Request.TryGetUserId()))
+            {
+                result = new ("Wrong user id.", StatusCodes.Status409Conflict);
             }
             else
             {
                 try
                 {
+                    var user1 = await _userService.GetUserByIdAsync(noPasswordUser.UserId);
+                    if (noPasswordUser.Email != user1.Email)
+                    {
+                        noPasswordUser.isVerified = false;
+                    }
                     var user = await _userService.UpdateUser(noPasswordUser.UserId, noPasswordUser);
+                    
                     result = new ApiResult<PasswordUserDto>(user, "There is such user in database.",
                         StatusCodes.Status200OK);
                 }
@@ -263,6 +270,89 @@ namespace PrintMe.Server.Controllers
                             StatusCodes.Status500InternalServerError);
                     }
                 }
+            }
+
+            return result.ToObjectResult();
+        }
+        
+        /// <summary>
+        /// Sends an email verification to the user email.
+        /// </summary>
+        [ProducesResponseType(typeof(ApiResult<string>), 200)]
+        [HttpGet("sendverificationmail")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> SendEmailVerification()
+        {
+            PlainResult result;
+        
+            try
+            {
+                if (!int.TryParse(Request.TryGetUserId(), out var id))
+                {
+                    throw new ArgumentException("Invalid user ID");
+                }
+                await _verificationService.SendEmailVerificationAsync(id);
+                result = new PlainResult("Email verification successfully sent.", StatusCodes.Status200OK);
+            }
+            catch (NoRoleAvailableException ex)
+            {
+                return StatusCode(StatusCodes.Status405MethodNotAllowed, new PlainResult(ex.Message, StatusCodes.Status405MethodNotAllowed));
+            }
+            catch (NotFoundUserInDbException ex)
+            {
+                return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+            catch (SmtpFailedRecipientException ex)
+            {
+                return BadRequest(new PlainResult($"Failed to deliver email to recipient.\n{ex.Message}", StatusCodes.Status400BadRequest));
+            }
+            catch (SmtpException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new PlainResult($"SMTP error occurred while sending email.\n{ex.Message}\n{ex.StackTrace}", StatusCodes.Status500InternalServerError));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new PlainResult($"Internal server error while sending email.\n{ex.Message}", StatusCodes.Status500InternalServerError));
+            }
+        
+            return result.ToObjectResult();
+        }
+        
+        
+        /// <summary>
+        /// Email verification by UUID token.
+        /// </summary>
+        [ProducesResponseType(typeof(ApiResult<string>), 200)]
+        [HttpPatch("verifyemail")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyEmail(string token)
+        {
+            PlainResult result;
+
+            try
+            {
+                if(string.IsNullOrEmpty(token))
+                {
+                    throw new ArgumentException("Invalid token");
+                }
+                await _verificationService.VerifyEmailAsync(token);
+                result = new PlainResult("Email verified successfully.", StatusCodes.Status200OK);
+            }
+            catch (InvalidUUIDTokenException ex)
+            {
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+            catch (NotFoundUserInDbException ex)
+            {
+                return NotFound(new PlainResult(ex.Message, StatusCodes.Status404NotFound));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new PlainResult(ex.Message, StatusCodes.Status400BadRequest));
             }
 
             return result.ToObjectResult();
