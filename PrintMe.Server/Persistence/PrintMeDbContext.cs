@@ -13,12 +13,18 @@ public partial class PrintMeDbContext : DbContext
 {
     public PrintMeDbContext()
     {
+        InitializeCore();
     }
 
     public PrintMeDbContext(DbContextOptions<PrintMeDbContext> options)
         : base(options)
     {
-        
+        InitializeCore();
+    }
+
+    private void InitializeCore()
+    {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
     }
 
     public async Task LoadTestDataAsync()
@@ -94,9 +100,9 @@ public partial class PrintMeDbContext : DbContext
 
         modelBuilder.Entity<Message>(entity =>
         {
-            entity.HasKey(e => new { e.ChatId, e.SendTime }).HasName("message_pkey");
-
-            entity.ToTable("message");
+            entity.HasKey(e => e.MessageId).HasName("message_pkey");
+            entity.HasIndex(e => e.MessageId);
+            entity.Property(e => e.MessageId).HasColumnName("message_id");
 
             entity.HasIndex(e => e.ChatId, "idx_message_chat_id");
 
