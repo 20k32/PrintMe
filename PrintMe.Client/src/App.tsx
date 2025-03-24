@@ -16,7 +16,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import Printers from "./components/Printers/Printers.tsx";
 import PrinterDetail from "./components/Printers/components/PrinterDetail.tsx";
 import EditOrder from "./components/Orders/components/EditOrder";
-redux-implementation
+import Chat from "./components/Chat/Chat.tsx";
+import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
 import store, { RootState, AppDispatch } from './store/store';
 import { logout } from './store/authSlice';
 
@@ -58,6 +59,7 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/orders/:orderId/edit" element={<EditOrder />} />
+          <Route path="/chatPage" element={<Chat />} />
         <Route path="/verify" element={<VerifyEmail />} /> 
       </Routes>
       <ToastContainer

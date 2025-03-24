@@ -1,4 +1,5 @@
 using DotNetEnv;
+using PrintMe.Server.Controllers.Hubs;
 using PrintMe.Server.Logic.Authentication;
 using PrintMe.Server.Models.Authentication;
 using PrintMe.Server.Persistence;
@@ -20,6 +21,9 @@ public static class Program
         var app = builder.Build();
         startup.Configure(app, app.Environment);
         app.MapControllers();
+        
+        app.MapHub<ChatHub>("/message");
+        
         app.Run();
     }
 }

@@ -1,5 +1,4 @@
 using PrintMe.Server.Logic.Services.Database;
-using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.DTOs.PrinterDto;
 
 namespace PrintMe.Server.Logic.Services
@@ -12,6 +11,7 @@ namespace PrintMe.Server.Logic.Services
                 .AddScoped<IRequestService, RequestService>()
                 .AddScoped<IPrinterService, PrinterService>()
                 .AddScoped<IOrderService,OrderService>()
+                .AddScoped<ChatService>()
                 .AddScoped<IVerificationService, VerificationService>();
     }
 }

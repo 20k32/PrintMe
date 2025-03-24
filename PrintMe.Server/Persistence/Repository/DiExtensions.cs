@@ -10,6 +10,8 @@ namespace PrintMe.Server.Persistence.Repository
                 .AddScoped<IUserRepository, UserRepository>()
                 .AddScoped<IRequestRepository, RequestRepository>()
                 .AddScoped<IPrinterRepository, PrinterRepository>()
-                .AddScoped<IOrderRepository, OrderRepository>();
+                .AddScoped<IOrderRepository, OrderRepository>()
+                .AddScoped<MessageRepository>()
+                .AddScoped<ChatRepository>();
     }
 }
