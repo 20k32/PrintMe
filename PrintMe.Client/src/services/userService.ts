@@ -1,7 +1,12 @@
 import { baseApiService } from './baseApiService';
 import { UserProfileDto } from '../types/api';
+import {UserInfo} from "./profileService.ts";
 
 export const userService = {
+
+    async getUserById(userId: number): Promise<UserInfo> {
+        return baseApiService.get<UserInfo>(`/users/${userId}`, true);
+
     async getUserFullNameById(userId: number): Promise<{ firstName: string; lastName: string }> {
         return baseApiService.get<{ firstName: string; lastName: string }>(`/users/${userId}`, true);
     },

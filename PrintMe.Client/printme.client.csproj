@@ -10,6 +10,7 @@
     <ItemGroup>
       <Folder Include="src\components\AdminRequests\assets\" />
       <Folder Include="src\components\AdminRequests\components\" />
+      <Folder Include="src\components\Chat\assets\" />
     </ItemGroup>
 
 </Project>

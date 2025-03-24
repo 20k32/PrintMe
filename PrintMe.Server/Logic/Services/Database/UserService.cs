@@ -46,6 +46,7 @@ namespace PrintMe.Server.Logic.Services.Database
                 PhoneNumber = "",
                 ShouldHidePhoneNumber = true,
                 Description = "",
+                RefreshToken = _tokenGenerator.GenerateRefreshToken(),
                 ConfirmationToken = null,
                 RefreshToken = _tokenGenerator.GenerateRefreshToken(),
                 IsVerified = false
