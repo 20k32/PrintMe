@@ -98,6 +98,10 @@ const OrderDetails: React.FC = () => {
     }
   };
 
+  const handleChatClick = (userId: number) => {
+    navigate(`/profile/${userId}`);
+  };
+
   if (isLoading)
     return (
       <div className="orderd-container py-5">
@@ -196,7 +200,11 @@ const OrderDetails: React.FC = () => {
                   ? customer ? `${customer.firstName} ${customer.lastName}` : "Loading..."
                   : user ? `${user.firstName} ${user.lastName}` : "Loading..."
                 }{" "}
-                <a href="#" className="text-white header-icon">
+                <a
+                  href="#"
+                  onClick={() => handleChatClick(isExecutorView ? order.userId : order.executorId)}
+                  className="text-white header-icon"
+                >
                   <i className="bi bi-chat-dots-fill"></i>
                 </a>
               </p>
