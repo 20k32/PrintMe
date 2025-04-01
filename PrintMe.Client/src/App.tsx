@@ -20,7 +20,6 @@ import Chat from "./components/Chat/Chat.tsx";
 import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
 import store, { RootState, AppDispatch } from './store/store';
 import { logout } from './store/authSlice';
-import VerifyEmail from "./components/EmailConfirmation/EmailConfirmation.tsx";
 import UserProfile from "./components/Profile/UserProfile.tsx";
 
 function App() {
