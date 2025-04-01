@@ -73,3 +73,13 @@ export interface RoleDto {
     userRole: string;
     message: string;
 }
+export interface UserProfileDto {
+    userId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string | null;
+    shouldHidePhoneNumber: boolean;
+    description: string;
+    isVerified: boolean;
+  }
