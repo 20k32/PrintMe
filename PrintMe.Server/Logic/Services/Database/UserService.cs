@@ -50,7 +50,6 @@ namespace PrintMe.Server.Logic.Services.Database
                 Description = "",
                 RefreshToken = _tokenGenerator.GenerateRefreshToken(),
                 ConfirmationToken = null,
-                RefreshToken = _tokenGenerator.GenerateRefreshToken(),
                 IsVerified = false
             };
             await _repository.AddUserAsync(userRaw);

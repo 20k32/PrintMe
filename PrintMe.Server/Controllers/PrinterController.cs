@@ -56,7 +56,7 @@ namespace PrintMe.Server.Controllers
             }
             else
             {
-                var printerService = _provider.GetService<PrinterService>();
+                var printerService = _provider.GetService<IPrinterService>();
 
                 if (detailed)
                 {
@@ -88,7 +88,7 @@ namespace PrintMe.Server.Controllers
             }
             else
             {
-                var printerService = _provider.GetService<PrinterService>();
+                var printerService = _provider.GetService<IPrinterService>();
                 try
                 {
                     if (detailed)
@@ -201,7 +201,7 @@ namespace PrintMe.Server.Controllers
         {
             PlainResult result;
 
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
             try
             {
                 var idString = Request.TryGetUserId();

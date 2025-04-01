@@ -1,18 +1,20 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.DTOs.ChatDto;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence;
 using PrintMe.Server.Persistence.Entities;
 using PrintMe.Server.Persistence.Repository;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Logic.Services.Database;
 
-internal sealed class ChatService(MessageRepository messageRepository, ChatRepository chatRepository, UserService userService, IMapper mapper)
+internal sealed class ChatService(IMessageRepository messageRepository, IChatRepository chatRepository, IUserService userService, IMapper mapper) : IChatService
 {
-    private readonly MessageRepository _messageRepository = messageRepository;
-    private readonly ChatRepository _chatRepository = chatRepository;
-    private readonly UserService _userService = userService;
+    private readonly IMessageRepository _messageRepository = messageRepository;
+    private readonly IChatRepository _chatRepository = chatRepository;
+    private readonly IUserService _userService = userService;
     private readonly IMapper _mapper = mapper;
 
     public async Task<ChatDto> GetChatByIdAsync(int chatId)
