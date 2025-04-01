@@ -2,10 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using PrintMe.Server.Models.Exceptions;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository;
 
-internal sealed class ChatRepository(PrintMeDbContext dbContext)
+internal sealed class ChatRepository(PrintMeDbContext dbContext) : IChatRepository
 {
     private readonly PrintMeDbContext _dbContext = dbContext;
 

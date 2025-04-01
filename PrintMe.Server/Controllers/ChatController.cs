@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Services;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.ChatDto;
@@ -22,14 +23,14 @@ namespace PrintMe.Server.Controllers;
 [Authorize]
 public class ChatController : ControllerBase
 {
-    private UserService _userService;
-    private ChatService _chatService;
+    private IUserService _userService;
+    private IChatService _chatService;
     private IMapper _mapper;
 
     public ChatController(IServiceProvider provider)
     {
-        _userService = provider.GetRequiredService<UserService>();
-        _chatService = provider.GetRequiredService<ChatService>();
+        _userService = provider.GetRequiredService<IUserService>();
+        _chatService = provider.GetRequiredService<IChatService>();
         _mapper = provider.GetRequiredService<IMapper>();
     }
     

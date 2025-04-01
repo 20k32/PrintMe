@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository;
 
-internal sealed class MessageRepository(PrintMeDbContext dbContext)
+internal sealed class MessageRepository(PrintMeDbContext dbContext) : IMessageRepository
 {
     private readonly PrintMeDbContext _dbContext = dbContext;
 

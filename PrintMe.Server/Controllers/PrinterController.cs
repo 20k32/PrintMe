@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using PrintMe.Server.Logic;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.PrinterDto;
@@ -55,7 +56,7 @@ namespace PrintMe.Server.Controllers
             }
             else
             {
-                var printerService = _provider.GetService<PrinterService>();
+                var printerService = _provider.GetService<IPrinterService>();
 
                 if (detailed)
                 {
@@ -87,7 +88,7 @@ namespace PrintMe.Server.Controllers
             }
             else
             {
-                var printerService = _provider.GetService<PrinterService>();
+                var printerService = _provider.GetService<IPrinterService>();
                 try
                 {
                     if (detailed)
@@ -138,7 +139,7 @@ namespace PrintMe.Server.Controllers
             }
             else
             {
-                var printerService = _provider.GetService<PrinterService>();
+                var printerService = _provider.GetService<IPrinterService>();
                 try
                 {
                     if (detailed)
@@ -200,7 +201,7 @@ namespace PrintMe.Server.Controllers
         {
             PlainResult result;
 
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
             try
             {
                 var idString = Request.TryGetUserId();
@@ -261,7 +262,7 @@ namespace PrintMe.Server.Controllers
             var maxHeight = request.MaxModelHeight;
             var maxWidth = request.MaxModelWidth;
 
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
 
             result = printerService.GetPrinterLocationAsync(materials, maxHeight, maxWidth);
 
@@ -275,7 +276,7 @@ namespace PrintMe.Server.Controllers
         [ProducesResponseType(typeof(List<PrintMaterialDto>), 200)]
         public async Task<IActionResult> GetMaterials()
         {
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
             try
             {
                 var materials = await printerService.GetMaterialsAsync();
@@ -294,7 +295,7 @@ namespace PrintMe.Server.Controllers
         [ProducesResponseType(typeof(List<PrinterModelDto>), 200)]
         public async Task<IActionResult> GetModels()
         {
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
             try
             {
                 var models = await printerService.GetModelsAsync();
@@ -315,7 +316,7 @@ namespace PrintMe.Server.Controllers
         [Authorize]
         public async Task<IActionResult> DeactivatePrinter(int printerId)
         {
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
             var userId = Request.TryGetUserId();
             var userPrinters = await printerService.GetPrintersDetailedByUserId(int.Parse(userId));
             if (userPrinters.All(dto => dto.Id != printerId))
@@ -342,7 +343,7 @@ namespace PrintMe.Server.Controllers
         [Authorize]
         public async Task<IActionResult> ActivatePrinter(int printerId)
         {
-            var printerService = _provider.GetService<PrinterService>();
+            var printerService = _provider.GetService<IPrinterService>();
             var userId = Request.TryGetUserId();
             var userPrinters = await printerService.GetPrintersDetailedByUserId(int.Parse(userId));
             if (userPrinters.All(dto => dto.Id != printerId))

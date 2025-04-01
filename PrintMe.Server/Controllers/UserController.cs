@@ -2,6 +2,7 @@ using System.Net.Mail;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Api;
 using PrintMe.Server.Models.Api.ApiRequest;
 using PrintMe.Server.Models.DTOs.UserDto;
@@ -15,13 +16,13 @@ namespace PrintMe.Server.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
-        private readonly VerificationService _verificationService;
+        private readonly IUserService _userService;
+        private readonly IVerificationService _verificationService;
         
         public UserController(IServiceProvider provider)
         {
-            _userService = provider.GetService<UserService>();
-            _verificationService = provider.GetService<VerificationService>();
+            _userService = provider.GetService<IUserService>();
+            _verificationService = provider.GetService<IVerificationService>();
         }
         
         /// <summary>

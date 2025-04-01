@@ -1,6 +1,6 @@
 using PrintMe.Server.Logic.Services.Database;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.DTOs.PrinterDto;
-using PrintMe.Server.Persistence.Entities;
 
 namespace PrintMe.Server.Logic.Services
 {
@@ -8,11 +8,11 @@ namespace PrintMe.Server.Logic.Services
     {
         public static IServiceCollection AddDatabaseServices(this IServiceCollection collection) =>
             collection
-                .AddScoped<UserService>()
-                .AddScoped<RequestService>()
-                .AddScoped<PrinterService>()
-                .AddScoped<OrderService>()
-                .AddScoped<ChatService>();
-                .AddScoped<VerificationService>();
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<IRequestService, RequestService>()
+                .AddScoped<IPrinterService, PrinterService>()
+                .AddScoped<IOrderService,OrderService>()
+                .AddScoped<IChatService, ChatService>()
+                .AddScoped<IVerificationService, VerificationService>();
     }
 }

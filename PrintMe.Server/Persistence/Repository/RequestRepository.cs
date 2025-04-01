@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using PrintMe.Server.Logic.Services.Database.Interfaces;
 using PrintMe.Server.Models.Filters;
 using PrintMe.Server.Persistence.Entities;
+using PrintMe.Server.Persistence.Repository.Interfaces;
 
 namespace PrintMe.Server.Persistence.Repository;
 
-public class RequestRepository(PrintMeDbContext context)
+public class RequestRepository(PrintMeDbContext context) : IRequestRepository
 {
 	public async Task<IEnumerable<Request>> GetAllRequestsAsync(RequestFilter filter = null)
 	{
