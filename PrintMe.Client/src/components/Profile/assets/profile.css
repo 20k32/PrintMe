@@ -78,3 +78,28 @@
   padding-left: 0.5rem;
   font-size: 1.1rem;
 }
+
+.back-arrow {
+  display: flex;
+  align-items: center; /* Align the arrow and text vertically */
+  gap: 10px; /* Add spacing between the arrow and the heading */
+  margin-bottom: 20px; /* Add spacing below the arrow */
+}
+
+.back-arrow i {
+  color: rgba(255, 255, 255, 0.7); /* Set the arrow color */
+  font-size: 1.5rem; /* Adjust the size of the arrow */
+  cursor: pointer; /* Make the arrow clickable */
+  transition: color 0.2s ease, transform 0.2s ease; /* Add hover effects */
+}
+
+.back-arrow i:hover {
+  color: rgba(255, 255, 255, 1); /* Brighten the arrow on hover */
+  transform: translateX(-3px); /* Add a slight movement effect */
+}
+
+.back-arrow h2 {
+  margin: 0; /* Remove default margin from the heading */
+  color: white; /* Ensure the heading text is white */
+  font-size: 1.5rem; /* Adjust the font size */
+}
