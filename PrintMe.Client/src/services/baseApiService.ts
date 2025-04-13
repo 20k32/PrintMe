@@ -21,7 +21,7 @@ const createAuthHeader = (): AxiosRequestConfig => ({
 export const baseApiService = {
     async get<T>(endpoint: string, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
         const config = requiresAuth ? createAuthHeader() : {};
-        const response = await api.get<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, config);
+        const response = await api.get<ApiResponse<T>>(endpoint, config);
         if (isArray || Array.isArray(response.data)) {
             return response.data as unknown as T;
         }
@@ -30,7 +30,7 @@ export const baseApiService = {
 
     async post<T>(endpoint: string, data: RequestData | FormData, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
         const config = requiresAuth ? createAuthHeader() : {};
-        const response = await api.post<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, data, config);
+        const response = await api.post<ApiResponse<T>>(endpoint, data, config);
         if (isArray || Array.isArray(response.data)) {
             return response.data as unknown as T;
         }
@@ -39,7 +39,7 @@ export const baseApiService = {
 
     async put<T>(endpoint: string, data: RequestData, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
         const config = requiresAuth ? createAuthHeader() : {};
-        const response = await api.put<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, data, config);
+        const response = await api.put<ApiResponse<T>>(endpoint, data, config);
         if (isArray || Array.isArray(response.data)) {
             return response.data as unknown as T;
         }
@@ -48,7 +48,7 @@ export const baseApiService = {
 
     async delete<T>(endpoint: string, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
         const config = requiresAuth ? createAuthHeader() : {};
-        const response = await api.delete<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, config);
+        const response = await api.delete<ApiResponse<T>>(endpoint, config);
         if (isArray || Array.isArray(response.data)) {
             return response.data as unknown as T;
         }
@@ -57,7 +57,7 @@ export const baseApiService = {
     
     async patch<T>(endpoint: string, data: RequestData, requiresAuth: boolean = false, isArray: boolean = false): Promise<T> {
         const config = requiresAuth ? createAuthHeader() : {};
-        const response = await axios.patch<ApiResponse<T>>(`${API_BASE_URL}${endpoint}`, data, config);
+        const response = await api.patch<ApiResponse<T>>(endpoint, data, config);
         if (isArray || Array.isArray(response.data)) {
             return response.data as unknown as T;
         }
@@ -98,7 +98,7 @@ api.interceptors.response.use(
                 })
                     .then((token) => {
                         originalRequest.headers["Authorization"] = `Bearer ${token}`;
-                        return axios(originalRequest);
+                        return api(originalRequest);
                     })
                     .catch((err) => Promise.reject(err));
             }
@@ -107,8 +107,8 @@ api.interceptors.response.use(
 
             try {
                 
-                const response = await axios.post<ApiResponse<JwtResult>>(
-                    `${API_BASE_URL}/auth/refreshtoken`,
+                const response = await api.post<ApiResponse<JwtResult>>(
+                    "/auth/refreshtoken",
                     {
                         accessToken: getToken(),
                         refreshToken: getRefreshToken()
