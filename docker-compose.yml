@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  printme-server:
+    build:
+      context: ./PrintMe.Server
+      dockerfile: Dockerfile
+    ports:
+      - "5193:5193"
+    depends_on:
+      - postgres
+    env_file:
+      - ./PrintMe.Server/.env
+    networks:
+      - backend-network
+    volumes:
+      - data_protection_keys:/root/.aspnet/DataProtection-Keys
+    
+  printme-client:
+    build:
+      context: ./PrintMe.Client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    env_file:
+      - ./printme.client/.env
+    networks:
+      - backend-network
+
+  printme-server-tests:
+    build:
+      context: .
+      dockerfile: PrintMe.Server.Tests/Dockerfile
+    depends_on:
+      - printme-server
+    networks:
+      - backend-network
+    entrypoint: ["dotnet", "test", "--verbosity", "normal"]
+
+volumes:
+  postgres_data:
+  data_protection_keys:
+
+networks:
+  backend-network:
+    driver: bridge
