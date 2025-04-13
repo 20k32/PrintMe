@@ -1,0 +1,11 @@
+**/.env
+**/.env.example
+
+bin/
+obj/
+out/
+
+node_modules/
+
+.docker
+docker-compose.override.yml
