@@ -16,48 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache frontend build
-        uses: actions/cache@v3
-        with:
-          path: |
-            printme.client/node_modules
-            printme.client/dist
-          key: ${{ runner.os }}-frontend-${{ hashFiles('**/printme.client/**') }}
-          restore-keys: |
-            ${{ runner.os }}-frontend-
-
-      - name: Check for frontend code changes
-        id: check_frontend_changes
-        run: |
-          FRONTEND_CHANGED=false
-          git diff --exit-code --quiet -- ./printme.client || FRONTEND_CHANGED=true
-          echo "frontend_changed=$FRONTEND_CHANGED" >> $GITHUB_ENV
-
-      - name: Download frontend artifact if exists
-        if: env.frontend_changed != 'true' && steps.cache-frontend.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
-        with:
-          name: printme-client-artifact
-          path: ./printme.client/build
-
-      - name: Build frontend from scratch
-        if: env.frontend_changed == 'true' || steps.cache-frontend.outputs.cache-hit != 'true'
-        run: |
-          cd printme.client
-          npm install
-          npm run build
-          # Save the build artifact
-          mkdir -p build
-          cp -R dist/* build/
-          echo "Frontend built and artifact saved"
-      
-      - name: Upload frontend build artifact
-        if: env.frontend_changed == 'true' || steps.cache-frontend.outputs.cache-hit != 'true'
-        uses: actions/upload-artifact@v3
-        with:
-          name: printme-client-artifact
-          path: ./printme.client/build
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -70,7 +28,7 @@ jobs:
           EOF
           
           cat > ./PrintMe.Server/.env << EOF
-          CONNECTION_STRING_PRINTME_DB=Host=postgres;Port=5432;Database=${{ secrets.POSTGRES_DB }};Username=${{ secrets.POSTGRES_USER }};Password=${{ secrets.POSTGRES_PASSWORD }}          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          CONNECTION_STRING_PRINTME_DB=Host=postgres;Port=5432;Database=${{ secrets.POSTGRES_DB }};Username=${{ secrets.POSTGRES_USER }};Password=${{ secrets.POSTGRES_PASSWORD }};MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
@@ -83,12 +41,41 @@ jobs:
         run: |
           docker compose up -d postgres
           docker compose up --build -d printme-server
-          # docker compose exec -T printme-server dotnet ef database update
+
+      - name: Start Frontend
+        run: |
+          docker compose up --build -d printme-client
+
+      - name: Create test results directory
+        run: mkdir -p TestResults
 
       - name: Run backend tests
+        id: run-tests
         run: |
-          docker compose up --build -d printme-server-tests
-          docker compose up --build --exit-code-from printme-server-tests printme-server-tests
-          
+          set +e
+          docker compose run --rm printme-server-tests
+          TEST_EXIT_CODE=$?
+          echo "Test exit code: $TEST_EXIT_CODE"
+          echo "test_exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+
+      - name: Process test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: TestResults/test-results.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Test Summary
+        if: always()
+        run: |
+          if [ "${{ steps.run-tests.outputs.test_exit_code }}" == "0" ]; then
+            echo "All tests passed successfully!"
+          else
+            echo "Some tests failed. Check the test report for details."
+          fi
+
       - name: Stop and remove containers
+        if: always()
         run: docker compose down

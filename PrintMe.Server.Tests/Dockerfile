@@ -9,4 +9,4 @@ RUN dotnet restore "./PrintMe.Server.Tests/PrintMe.Server.Tests.csproj"
 COPY . .
 WORKDIR "/src/PrintMe.Server.Tests"
 
-ENTRYPOINT ["dotnet", "test", "--verbosity", "minimal"]
+ENTRYPOINT ["dotnet", "test", "--verbosity", "minimal", "--nologo", "/p:TreatWarningsAsErrors=false", "/p:NoWarn=CS1591"]

@@ -49,7 +49,6 @@ services:
       - printme-server
     networks:
       - backend-network
-    entrypoint: ["dotnet", "test", "--verbosity", "normal"]
 
 volumes:
   postgres_data:
