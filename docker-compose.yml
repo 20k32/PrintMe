@@ -37,7 +37,7 @@ services:
     ports:
       - "5173:80"
     env_file:
-      - ./printme.client/.env
+      - ./PrintMe.Client/.env
     networks:
       - backend-network
 
