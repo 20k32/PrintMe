@@ -1,15 +1,15 @@
-﻿FROM node:20-slim AS base
+﻿FROM node:20 AS base
 WORKDIR /app
 
 FROM base AS build
 WORKDIR /src
 COPY package*.json ./
 ENV NODE_ENV=development
-RUN npm install --include=dev && npm install -g typescript vite
-COPY tsconfig*.json vite.config.* ./
+RUN npm install --include=dev && npm install -g typescript
+COPY tsconfig*.json ./
 
 COPY . .
-RUN vite build
+RUN npx vite build
 
 FROM nginx:alpine AS final
 COPY --from=build /src/dist /usr/share/nginx/html
