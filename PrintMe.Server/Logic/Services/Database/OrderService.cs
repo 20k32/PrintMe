@@ -76,6 +76,10 @@ namespace PrintMe.Server.Logic.Services.Database
 
                 return _mapper.Map<PrintOrderDto>(orderResult);
             }
+            catch (InvalidOrderStatusException ex)
+            {
+                throw new InvalidOrderStatusException();
+            }
             catch (Exception ex)
             {
                 throw new NotFoundOrderInDbException(ex);

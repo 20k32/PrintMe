@@ -13,6 +13,11 @@ public static class Program
         Env.Load();
         
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(5193);
+        });
         
         var startup = new Startup();
 
