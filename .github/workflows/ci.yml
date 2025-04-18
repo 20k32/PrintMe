@@ -1,9 +1,6 @@
 name: Build and Deploy
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -28,7 +25,8 @@ jobs:
           EOF
           
           cat > ./PrintMe.Server/.env << EOF
-          CONNECTION_STRING_PRINTME_DB=Host=postgres;Port=5432;Database=${{ secrets.POSTGRES_DB }};Username=${{ secrets.POSTGRES_USER }};Password=${{ secrets.POSTGRES_PASSWORD }};MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          CONNECTION_STRING_PRINTME_DB=Host=postgres;Port=5432;Database=${{ secrets.POSTGRES_DB }};Username=${{ secrets.POSTGRES_USER }};Password=${{ secrets.POSTGRES_PASSWORD }}
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
@@ -57,15 +55,6 @@ jobs:
           TEST_EXIT_CODE=$?
           echo "Test exit code: $TEST_EXIT_CODE"
           echo "test_exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
-
-      - name: Process test results
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: .NET Tests
-          path: TestResults/test-results.trx
-          reporter: dotnet-trx
-          fail-on-error: false
 
       - name: Test Summary
         if: always()
