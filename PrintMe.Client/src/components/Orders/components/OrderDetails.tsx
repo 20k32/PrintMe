@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ordersService } from "../../../services/ordersService";
 import { userService } from "../../../services/userService";
 import { PrintOrderDto } from "../../../types/api";
@@ -196,13 +196,23 @@ const OrderDetails: React.FC = () => {
             <div className="col-md-6">
               <h5>Chat with:</h5>
               <p>
-                {isExecutorView 
-                  ? customer ? `${customer.firstName} ${customer.lastName}` : "Loading..."
-                  : user ? `${user.firstName} ${user.lastName}` : "Loading..."
+                {isExecutorView
+                    ? customer ? `${customer.firstName} ${customer.lastName}` : "Loading..."
+                    : user ? `${user.firstName} ${user.lastName}` : "Loading..."
                 }{" "}
                 <a
-                  onClick={() => handleChatClick(isExecutorView ? order.userId : order.executorId)}
-                  className="text-white header-icon"
+                    onClick={() => handleChatClick(isExecutorView ? order.userId : order.executorId)}
+                    className="text-white header-icon"
+                >
+                  <i className="bi bi-person-circle"></i>
+                </a>
+                <a
+                    href="#"
+                    className="text-white header-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/chatPage/`, {state: {selectedUserId: isExecutorView ? order.userId : order.executorId}});
+                    }}
                 >
                   <i className="bi bi-chat-dots-fill"></i>
                 </a>
