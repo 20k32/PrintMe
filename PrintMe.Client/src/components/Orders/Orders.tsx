@@ -130,7 +130,13 @@ const Orders: React.FC = () => {
               <div className="header-column col">{order.price}$</div>
               <div className="header-column col">{getStatusDisplay(order.printOrderStatusId)}</div>
               <div className="header-column col">
-                <a href="#" className="text-white header-icon">
+                <a
+                    href="#"
+                    className="text-white header-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/chatPage/`, {state: {selectedUserId: isMyOrders ? order.executorId : order.userId}});}}
+                >
                   <i className="bi bi-chat-dots-fill fs-2"></i>
                 </a>
               </div>
