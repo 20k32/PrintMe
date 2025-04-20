@@ -224,9 +224,13 @@ const Printers: React.FC = () => {
                       )}
                     </div>
                     <h5 className="card-title">{printer.modelName}</h5>
-                    <p className="card-text">{printer.description}</p>
+                    <p className="card-text">
+                      {printer.description.length > 25
+                        ? `${printer.description.slice(0, 25)}...`
+                        : printer.description}
+                    </p>
                     <div className="materials-badges">
-                      {printer.materials.map((material) => (
+                      {printer.materials.slice(0, 1).map((material) => (
                         <span
                           key={material.printMaterialId}
                           className="material-badge"
@@ -234,6 +238,11 @@ const Printers: React.FC = () => {
                           {material.name}
                         </span>
                       ))}
+                      {printer.materials.length > 1 && (
+                        <span className="material-badge">
+                          +{printer.materials.length - 1} more
+                        </span>
+                      )}
                     </div>
                     {printer.isDeactivated ? (
                       <button
