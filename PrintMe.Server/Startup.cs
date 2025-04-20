@@ -71,11 +71,10 @@ public class Startup
         }
 
         builder.UseHttpsRedirection();
-
+        builder.UseRouting();
         builder.UseCors();
 
         builder.UseAuthentication();
-        builder.UseRouting();
         builder.UseAuthorization();
         
         builder.UseEndpoints(endpoints =>

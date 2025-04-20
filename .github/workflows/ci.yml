@@ -1,0 +1,70 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create environment files
+        run: |
+          cat > ./.env << EOF
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          EOF
+          
+          cat > ./PrintMe.Server/.env << EOF
+          CONNECTION_STRING_PRINTME_DB=Host=postgres;Port=5432;Database=${{ secrets.POSTGRES_DB }};Username=${{ secrets.POSTGRES_USER }};Password=${{ secrets.POSTGRES_PASSWORD }}
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          EOF
+          
+          cat > ./PrintMe.Client/.env << EOF
+          VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          EOF
+
+      - name: Start PostgreSQL and Backend
+        run: |
+          docker compose up -d postgres
+          docker compose up --build -d printme-server
+
+      - name: Start Frontend
+        run: |
+          docker compose up --build -d printme-client
+
+      - name: Run backend tests
+        id: run-tests
+        run: |
+          set +e
+          docker compose run --rm printme-server-tests
+          TEST_EXIT_CODE=$?
+          echo "Test exit code: $TEST_EXIT_CODE"
+          echo "test_exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+
+      - name: Test Summary
+        if: always()
+        run: |
+          if [ "${{ steps.run-tests.outputs.test_exit_code }}" == "0" ]; then
+            echo "All tests passed successfully!"
+          else
+            echo "Some tests failed. Check the test report for details."
+          fi
+
+      - name: Stop and remove containers
+        if: always()
+        run: docker compose down

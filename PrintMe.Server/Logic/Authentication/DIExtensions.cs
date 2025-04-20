@@ -10,7 +10,18 @@ public static class DIExtensions
 {
     public static IServiceCollection ConfigureAuthentication(this IServiceCollection collection, ConfigurationManager manager)
     {
-        var secureString = manager["PrivateJWTKey"].ToReadonlySecureString();
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET") 
+                     ?? manager["PrivateJWTKey"] 
+                     ?? manager["JWT:Secret"]
+                     ?? manager["Authentication:PrivateJWTKey"];
+                  
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new InvalidOperationException(
+                "JWT Secret key is missing. Please set JWT_SECRET in your .env file or environment variables.");
+        }
+
+        var secureString = jwtKey.ToReadonlySecureString();
 
         var authOptions = new Options()
         {

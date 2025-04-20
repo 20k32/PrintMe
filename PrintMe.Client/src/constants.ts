@@ -55,5 +55,5 @@ export interface PrinterModel {
   name: string;
 }
 
-export const API_BASE_URL = "http://localhost:5193/api";
-export const API_MESSAGE_URL = "http://localhost:5193/message"
+export const API_BASE_URL = "/api"; //"http://localhost:5193/api"
+export const API_MESSAGE_URL = "/message" //"http://localhost:5193/message"
