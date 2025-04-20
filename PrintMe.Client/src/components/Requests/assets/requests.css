@@ -1,4 +1,4 @@
-/* Основний контейнер */
+
 .requests-container {
   min-height: calc(100vh - 80px);
   background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
@@ -14,33 +14,6 @@
   width: 100%;
 }
 
-/* Карточки запитів */
-.request-card, .requests-list-container, .printer-form-container, .printer-form-section {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 2rem;
-  color: white;
-  transition: all 0.3s ease;
-}
-
-.request-card:hover, .printer-form-section:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Заголовки та текст */
-.request-card h3, .request-item h4 {
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.request-card p, .request-description {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-/* Список запитів */
 .requests-list {
   display: flex;
   flex-direction: column;
@@ -66,7 +39,6 @@
   text-align: left;
 }
 
-/* Форма */
 .printer-form-container input,
 .printer-form-container textarea,
 .printer-form-container select {
@@ -88,7 +60,6 @@
   color: white;
 }
 
-/* Чекбокси */
 .printer-form-container input[type="checkbox"] {
   appearance: none;
   background: rgba(255, 255, 255, 0.15);
@@ -117,7 +88,6 @@
   transform: rotate(45deg);
 }
 
-/* Групи кнопок */
 .btn-group, .admin-btn-group {
   display: flex;
   justify-content: center;
@@ -150,7 +120,6 @@
   background-color: #c52838;
 }
 
-/* Спливаючі вікна */
 .popup {
   background: rgba(9, 1, 38, 0.4);
   position: fixed;
@@ -171,6 +140,27 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 90%;
   max-width: 500px;
+}
+
+.popup select {
+  background-color: rgba(0, 0, 0, 0.8); /* Темний фон для контрасту */
+  color: white; /* Білий текст */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* Видима межа */
+  border-radius: 5px; /* Заокруглені кути */
+  padding: 0.5rem; /* Відступи всередині */
+  width: 100%; /* Займає всю ширину контейнера */
+  outline: none; /* Забирає стандартний фокус */
+  transition: all 0.3s ease; /* Анімація при взаємодії */
+}
+
+.popup select:focus {
+  border-color: #0d6efd; /* Синя межа при фокусі */
+  background-color: rgba(0, 0, 0, 0.9); /* Трохи темніший фон */
+}
+
+.popup option {
+  background-color: rgba(0, 0, 0, 0.8); /* Темний фон для опцій */
+  color: white; /* Білий текст */
 }
 
 .requests-container {

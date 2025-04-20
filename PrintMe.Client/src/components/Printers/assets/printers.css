@@ -1,11 +1,10 @@
 .printer-form-container {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 2rem;
-  color: white;
-  max-width: 800px;
-  margin: 0 auto;
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
 }
 
 .printer-form-section {
@@ -392,4 +391,192 @@ input:checked + .slider:before {
 .activate-btn:hover {
     background: rgba(25, 135, 84, 1);
     transform: translateY(-2px);
+}
+
+.printer-requests-content {
+  text-align: center;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.printer-requests-container {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #090126 0%, #1b0454 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.request-card, .requests-list-container, .printer-form-container, .printer-form-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.request-card:hover, .printer-form-section:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.request-card h3, .request-item h4 {
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.request-card p, .request-description {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.printer-card {
+  height: 250px; /* Встановлюємо фіксовану висоту */
+  width: 100%; /* Ширина картки займає всю доступну ширину */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 15px; /* Заокруглені кути */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Вирівнювання по вертикалі */
+  align-items: center; /* Вирівнювання по горизонталі */
+  text-align: center; /* Текст вирівняний по центру */
+  transition: all 0.3s ease;
+}
+
+.printer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.printer-card .card-body {
+  padding: 1rem; /* Зменшено відступи для компактності */
+}
+
+.printer-card .card-title {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.printer-card .card-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.printers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Картки будуть адаптуватися до ширини */
+  gap: 1.5rem; /* Відступи між картками */
+  margin-top: 2rem;
+}
+
+/* Popup overlay */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Напівпрозорий чорний фон */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Високий пріоритет для відображення поверх інших елементів */
+}
+
+/* Popup content */
+.popup-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+}
+
+/* Кнопки в Popup */
+.popup-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.popup-buttons .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.popup-buttons .btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+
+.popup-buttons .btn-danger:hover {
+  background: #c82333;
+}
+
+.popup-buttons .btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+}
+
+.popup-buttons .btn-secondary:hover {
+  background: #5a6268;
+}
+
+.printer-requests-container {
+  position: relative;
+  z-index: 1;
+}
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.popup-buttons .btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+}
+
+.popup-buttons .btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
 }

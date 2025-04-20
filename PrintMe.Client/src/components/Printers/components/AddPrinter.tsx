@@ -104,8 +104,8 @@ export const AddPrinter = () => {
   };
 
   return (
-    <div className="requests-container">
-      <div className="requests-content">
+    <div className="printer-requests-container">
+      <div className="printer-requests-content">
         <h1 className="text-white mb-4">Add New Printer</h1>
         <div className="printer-form-container">
           {error && (
