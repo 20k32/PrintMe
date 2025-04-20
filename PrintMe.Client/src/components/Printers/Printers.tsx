@@ -8,12 +8,45 @@ import { handleApiError } from "../../utils/apiErrorHandler";
 import { toast } from "react-toastify";
 import "./assets/printers.css";
 
+interface DeactivatePopupProps {
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeactivating: boolean;
+}
+
+const DeactivatePopup: React.FC<DeactivatePopupProps> = ({ onConfirm, onCancel, isDeactivating }) => (
+  <div className="popup-overlay">
+    <div className="popup-content">
+      <h5>
+        {isDeactivating
+          ? "Are you sure you want to deactivate this printer?"
+          : "Are you sure you want to activate this printer?"}
+      </h5>
+      <div className="popup-buttons">
+        <button
+          className={`btn ${isDeactivating ? "btn-danger" : "btn-primary"}`}
+          onClick={onConfirm}
+        >
+          Confirm
+        </button>
+        <button className="btn btn-secondary" onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+
 const Printers: React.FC = () => {
   const [printers, setPrinters] = useState<PrinterDto[]>([]);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [showDeactivated, setShowDeactivated] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [showDeactivatePopup, setShowDeactivatePopup] = useState(false);
+  const [selectedPrinterId, setSelectedPrinterId] = useState<number | null>(null);
+
 
   const navigate = useNavigate();
 
@@ -54,21 +87,6 @@ const Printers: React.FC = () => {
     );
   }, [printers, showDeactivated]);
 
-  const handleDeactivate = async (printerId: number) => {
-    if (!window.confirm("Are you sure you want to deactivate this printer?")) {
-      return;
-    }
-
-    try {
-      await printersService.deactivatePrinter(printerId);
-      toast.success("Printer deactivated successfully");
-      fetchPrinters();
-    } catch (error) {
-      setError(handleApiError(error));
-      toast.error("Failed to deactivate printer");
-    }
-  };
-
   const handleActivate = async (printerId: number) => {
     if (!window.confirm('Are you sure you want to activate this printer?')) {
         return;
@@ -81,6 +99,37 @@ const Printers: React.FC = () => {
     } catch (error) {
         setError(handleApiError(error));
         toast.error('Failed to activate printer');
+    }
+  };
+
+  const handleDeactivateClick = (printerId: number) => {
+    setSelectedPrinterId(printerId);
+    setShowDeactivatePopup(true);
+  };
+
+  const handleActivateClick = (printerId: number) => {
+    setSelectedPrinterId(printerId);
+    setShowDeactivatePopup(true);
+  };
+
+  const confirmAction = async () => {
+    if (selectedPrinterId == null) return;
+  
+    try {
+      if (filteredPrinters.find((printer) => printer.id === selectedPrinterId)?.isDeactivated) {
+        await printersService.activatePrinter(selectedPrinterId);
+        toast.success("Printer activated successfully");
+      } else {
+        await printersService.deactivatePrinter(selectedPrinterId);
+        toast.success("Printer deactivated successfully");
+      }
+      fetchPrinters();
+    } catch (error) {
+      setError(handleApiError(error));
+      toast.error("Failed to perform the action");
+    } finally {
+      setShowDeactivatePopup(false);
+      setSelectedPrinterId(null);
     }
   };
 
@@ -103,8 +152,20 @@ const Printers: React.FC = () => {
       ));
 
   return (
-    <div className="requests-container">
-      <div className="requests-content">
+    <div className="printer-requests-container">
+      {showDeactivatePopup && (
+        <DeactivatePopup
+          onConfirm={confirmAction}
+          onCancel={() => {
+            setShowDeactivatePopup(false);
+            setSelectedPrinterId(null);
+          }}
+          isDeactivating={
+            filteredPrinters.find((printer) => printer.id === selectedPrinterId)?.isDeactivated === false
+          }
+        />
+      )}
+      <div className="printer-requests-content">
         <div className="printers-header">
           <div className="header-top">
             <h1 className="text-white">My Printers</h1>
@@ -146,14 +207,13 @@ const Printers: React.FC = () => {
         ) : (
           <div className="row g-4 printers-grid">
             {filteredPrinters.map((printer) => (
-              <div key={printer.id}
-              className="col-md-6 col-lg-4"
-              onClick={() => navigate(`/printers/${printer.id}`)}
+              <div
+                key={printer.id}
+                className="col d-flex"
+                onClick={() => navigate(`/printers/${printer.id}`)}
               >
                 <div
-                  className={`printer-card card ${
-                    printer.isDeactivated ? "deactivated" : ""
-                  }`}
+                  className={`printer-card ${printer.isDeactivated ? "deactivated" : ""}`}
                 >
                   <div className="card-body">
                     <div className="status-badge">
@@ -176,11 +236,11 @@ const Printers: React.FC = () => {
                       ))}
                     </div>
                     {printer.isDeactivated ? (
-                        <button
+                      <button
                         className="btn btn-success activate-btn"
-                        onClick={async (e) => {
+                        onClick={(e) => {
                           e.stopPropagation();
-                          await handleActivate(printer.id);
+                          handleActivateClick(printer.id);
                         }}
                       >
                         Activate
@@ -188,9 +248,9 @@ const Printers: React.FC = () => {
                     ) : (
                       <button
                         className="btn btn-danger deactivate-btn"
-                        onClick={async (e) => {
+                        onClick={(e) => {
                           e.stopPropagation();
-                          await handleDeactivate(printer.id);
+                          handleDeactivateClick(printer.id);
                         }}
                       >
                         Deactivate
@@ -212,7 +272,7 @@ const Printers: React.FC = () => {
               </div>
             </div>
           ) : (
-            <Link to="/printers/add" className="request-card">
+            <Link to="/printers/add" className="request-card text-center d-flex flex-column align-items-center text-decoration-none">
               <i className="bi bi-printer-fill mb-3 fs-1"></i>
               <h3>Add Printer</h3>
               <p>Register your 3D printer and start earning</p>
@@ -221,6 +281,7 @@ const Printers: React.FC = () => {
         </div>
       </div>
     </div>
+    
   );
 };
 
