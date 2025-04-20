@@ -201,7 +201,6 @@ const OrderDetails: React.FC = () => {
                   : user ? `${user.firstName} ${user.lastName}` : "Loading..."
                 }{" "}
                 <a
-                  href="#"
                   onClick={() => handleChatClick(isExecutorView ? order.userId : order.executorId)}
                   className="text-white header-icon"
                 >

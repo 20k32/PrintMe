@@ -23,11 +23,17 @@ export const authService = {
       }
       localStorage.setItem('token', jwtResult.accessToken);
       localStorage.setItem('refreshToken', jwtResult.refreshToken);
-    } catch (err) {
-      console.error('Login failed:', err);
-      throw new AuthenticationError('Login failed');
+    } catch (err: any) {
+      let message = 'An unexpected error occurred';
+      if (err?.response?.data?.message) {
+        message = err.response.data.message; // Витягуємо повідомлення з відповіді сервера
+      } else if (err?.message) {
+        message = err.message; // Якщо помилка не з response, використовуємо її
+      }
+    
+      throw new AuthenticationError(message);
     }
-  },
+    },
   logout() {
     localStorage.removeItem("token");
     window.location.href = "/";
@@ -40,3 +46,4 @@ export const authService = {
     return !!token;
   }
 };
+

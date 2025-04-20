@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/loginsignup.css";
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,7 +7,6 @@ import { RootState, AppDispatch } from '../../store/store';
 import { login } from '../../store/authSlice';
 import { authService } from "../../services/authService";
 import { registrationService } from "../../services/registrationService";
-import { handleApiError } from '../../utils/apiErrorHandler';
 
 interface LoginSignupProps {
   showLS: boolean;
@@ -19,23 +18,18 @@ interface FormData {
   lastName?: string;
   email: string;
   password: string;
-  general?: string;
 }
 
 const LoginSignup: React.FC<LoginSignupProps> = ({ showLS, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
   const loading = useSelector((state: RootState) => state.auth.loading);
-  const error = useSelector((state: RootState) => state.auth.error);
+  const [generalError, setGeneralError] = useState<string | null>(null); // State for general error
 
   const { register, handleSubmit, formState: { errors, isValid }, setError, reset } = useForm<FormData>({
     mode: "onChange"
   });
 
   const [action, setAction] = React.useState("Sign In");
-
-  useEffect(() => {
-    reset();
-  }, [action, reset]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
@@ -49,25 +43,49 @@ const LoginSignup: React.FC<LoginSignupProps> = ({ showLS, onClose }) => {
           password: data.password
         });
       }
-
+  
       const token = authService.getToken();
       if (token) {
-        onClose();
-        window.location.reload();
+        onClose(); // Close the modal on successful login
       }
-    } catch (error) {
-      setError("general", {
-        type: "manual",
-        message: handleApiError(error, {
-          unauthorized: "Invalid email or password.",
-          notFound: "User not found.",
-          conflict: "User already exists.",
-          badRequest: "Invalid request. Please check your input."
-        })
+    } catch (err: any) {
+      console.error("Login failed:", err);
+  
+      // Default error message
+      let errorMessage = err.message;
+  
+      // Check if the error message is available
+      if (err?.response?.data) {
+        try {
+          const errorData = typeof err.response.data === "string"
+            ? JSON.parse(err.response.data) // Parse stringified JSON
+            : err.response.data;
+  
+          errorMessage = errorData.message || errorMessage;
+  
+          // Handle specific error codes
+          if (err.response.status === 403) {
+            setError("password", { type: "manual", message: errorMessage }); // Display error for incorrect password
+          } else {
+            setGeneralError(errorMessage); // Display other errors
+          }
+        } catch (parseError) {
+          console.error("Error parsing server response:", parseError);
+          setGeneralError(errorMessage); // Fallback to a generic error
+        }
+      } else {
+        setGeneralError(errorMessage); // Fallback to a generic error
+      }
+  
+      reset({
+        email: data.email, // Keep email for retry
+        password: ""       // Clear password for security
       });
     }
   };
-
+  
+  
+    
   const handleModalClick = useCallback(() => {
     if (window.getSelection()?.toString()) {
       return;
@@ -192,17 +210,9 @@ const LoginSignup: React.FC<LoginSignupProps> = ({ showLS, onClose }) => {
             )}
           </div>
 
-          {action === "Sign In" && (
-            <div className="text-end">
-              <a href="#" className="text-decoration-none" style={{ color: "#6c30f3" }}>
-                Forgot password?
-              </a>
-            </div>
-          )}
-
-          {errors.general && (
+          {generalError && ( // Display general error from state
             <div className="alert alert-danger" role="alert">
-              {errors.general.message}
+              {generalError}
             </div>
           )}
 
