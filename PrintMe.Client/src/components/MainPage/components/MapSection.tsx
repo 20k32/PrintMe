@@ -89,40 +89,40 @@ const MarkerContent: React.FC<MarkerContentProps> = ({
   isLoggedIn,
   onCreateOrder,
   isUserPrinter,
-  isUserEmailVerified,  
+  isUserEmailVerified,
 }) => (
-  <div>
+  <div style={{ color: "black" }}>
     <h6>Printer {printerInfo.modelName}</h6>
     <p>
       Materials:{" "}
       {printerInfo.materials.map((material) => material.name).join(", ")}
     </p>
     {isLoggedIn ? (
-          isUserPrinter ? (
-              <button
-                  className="btn btn-secondary create-order-btn"
-                  disabled
-                  title="You can't place an order on your own printer"
-              >
-                Your Printer
-              </button>
-          ) : isUserEmailVerified ? (
-      <button
-        className="btn btn-primary create-order-btn"
-        style={{ backgroundColor: "#2c1d55" }}
-        onClick={onCreateOrder}
-      >
-        Create Order
-      </button>
-    ) : (
-      <button
-         className="btn btn-secondary create-order-btn"
-         disabled
-         title="Please verify your email to create an order"
-      >
-         Verify Email to Order
-      </button>
-    )
+      isUserPrinter ? (
+        <button
+          className="btn btn-secondary create-order-btn"
+          disabled
+          title="You can't place an order on your own printer"
+        >
+          Your Printer
+        </button>
+      ) : isUserEmailVerified ? (
+        <button
+          className="btn btn-primary create-order-btn"
+          style={{ backgroundColor: "#2c1d55" }}
+          onClick={onCreateOrder}
+        >
+          Create Order
+        </button>
+      ) : (
+        <button
+          className="btn btn-secondary create-order-btn"
+          disabled
+          title="Please verify your email to create an order"
+        >
+          Verify Email to Order
+        </button>
+      )
     ) : (
       <button
         className="btn btn-primary create-order-btn"

@@ -34,7 +34,7 @@ const Popup: React.FC<PopupProps> = ({ requestId, selectedReason, onReasonChange
   return (
     <div className="popup">
       <div className="popup-content">
-        <h5>Select reason for decline</h5>
+      <h5 style={{ color: "black" }}>Select reason for decline</h5>
         <select
           className="admin-select form-select mt-2"
           value={selectedReason}
