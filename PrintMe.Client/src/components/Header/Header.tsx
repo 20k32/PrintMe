@@ -33,9 +33,9 @@ const Header: React.FC<HeaderProps> = ({ isLogined, showLS, onLogout }) => {
             </Link>
           </li>
           <li>
-            <a href="#" className="nav-link px-3 text-white fs-5">
+            <Link to="/info" className="nav-link px-3 text-white fs-5">
               Info
-            </a>
+            </Link>
           </li>
           {isLogined && (
             <>
