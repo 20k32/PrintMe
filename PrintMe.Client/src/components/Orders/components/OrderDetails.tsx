@@ -6,6 +6,7 @@ import { PrintOrderDto } from "../../../types/api";
 import { printersService } from "../../../services/printersService";
 import { getStatusDisplay } from "../../../utils/orderUtils";
 import "./../assets/orderDetails.css";
+import { toast } from "react-toastify";
 
 interface User {
   firstName: string;
@@ -103,12 +104,12 @@ const OrderDetails: React.FC = () => {
 
     try {
       await ordersService.acceptOrder(Number(orderId));
-      alert("Order accepted successfully!");
+      toast.success("Order accepted successfully!");
       const updatedOrder = await ordersService.getOrderById(Number(orderId));
       setOrder(updatedOrder as PrintOrderDto);
     } catch (error) {
       console.error("Error accepting order", error);
-      alert("Failed to accept the order.");
+      toast.error("Failed to accept the order."); 
     }
   };
 
@@ -117,12 +118,12 @@ const OrderDetails: React.FC = () => {
 
     try {
       await ordersService.declineOrder(Number(orderId));
-      alert("Order declined successfully!");
+      toast.success("Order declined successfully!");
       const updatedOrder = await ordersService.getOrderById(Number(orderId));
       setOrder(updatedOrder as PrintOrderDto);
     } catch (error) {
       console.error("Error declining order", error);
-      alert("Failed to decline the order.");
+      toast.error("Failed to decline the order."); 
     }
   };
 
