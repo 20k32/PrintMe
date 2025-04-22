@@ -500,6 +500,12 @@ namespace PrintMe.Server.Controllers
 			return result.ToObjectResult();
 		}
 		
+		
+		/// <summary>
+		/// Declines pending order. Used by printer owner.
+		/// </summary>
+		/// <param name="orderId"></param>
+		/// <returns>Updated order information or error details</returns>
 		[HttpPost("Decline/{orderId:int}")]
 		public async Task<IActionResult> DeclineOrderById(int orderId)
 		{
