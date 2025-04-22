@@ -11,6 +11,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/message': {
+        target: 'http://localhost:5193',
+        changeOrigin: true,
+        secure: false,
+        ws: true,  // Important for WebSocket/SignalR support
+      },
     },
     port: 5173
   },

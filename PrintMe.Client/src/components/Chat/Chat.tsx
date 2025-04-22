@@ -11,6 +11,7 @@ import * as signalR from "@microsoft/signalr";
 import "./assets/chat.css";
 import {userService} from "../../services/userService.ts";
 import {profileService, UserInfo} from "../../services/profileService.ts";
+import { useLocation } from "react-router-dom";
 
 const ChatComponent: React.FC = () => {
     const [chats, setChats] = useState<ChatResult[]>([]);
@@ -23,6 +24,8 @@ const ChatComponent: React.FC = () => {
     const [me, setMe] = useState<UserInfo | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredUsers, setFilteredUsers] = useState<UserInfo[]>([]);
+    const location = useLocation();
+    const initialUserId = location.state?.selectedUserId as number | undefined;
 
     const messagesContainerRef = useRef<HTMLUListElement | null>(null);
 
@@ -92,6 +95,40 @@ const ChatComponent: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        const selectInitialChat = async () => {
+            if (initialUserId && me) {
+                const existingChat = chats.find(chat =>
+                    (chat.user1Id === initialUserId || chat.user2Id === initialUserId)
+                );
+
+                if (existingChat) {
+                    setSelectedChatId(existingChat.id);
+                    setSelectedChatChatMateId(initialUserId);
+                    setSelectedUser(userNames[initialUserId] || null);
+                } else{
+                    try {
+                        let targetUser = userNames[initialUserId];
+                        if (!targetUser) {
+                            targetUser = await userService.getUserById(initialUserId);
+                            setUserNames(prev => ({...prev, [initialUserId]: targetUser}));
+                        }
+                        const newChat = await chatService.createChat(initialUserId);
+
+                        setChats(prevChats => [...prevChats, newChat]);
+                        setSelectedChatId(newChat.id);
+                        setSelectedChatChatMateId(initialUserId);
+                        setSelectedUser(targetUser);
+                    } catch (error) {
+                        console.error("Error creating chat:", error);
+                    }
+                }
+            }
+        };
+
+        selectInitialChat();
+    }, [chats]);
+    
+    useEffect(() => {
         if (!selectedChatId || !selectedChatChatMateId) return;
 
         const fetchMessages = async () => {
@@ -146,8 +183,8 @@ const ChatComponent: React.FC = () => {
         setInput("");
     };
 
-    const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const query = e.target.value;
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value.toLowerCase();
         setSearchQuery(query);
 
         if (!query) {
@@ -155,12 +192,17 @@ const ChatComponent: React.FC = () => {
             return;
         }
 
-        try {
-            const users = await userService.searchUsers(query);
-            setFilteredUsers(users);
-        } catch (error) {
-            console.error("Error searching for users:", error);
-        }
+        const filtered = query
+            ? chats
+                .map(chat => {
+                    const otherUserId = chat.user1Id === me?.userId ? chat.user2Id : chat.user1Id;
+                    const user = userNames[otherUserId];
+                    return user && `${user.firstName} ${user.lastName}`.toLowerCase().includes(query) ? user : null;
+                })
+                .filter((user): user is UserInfo => user !== null)
+            : [];
+
+        setFilteredUsers(filtered);
     };
 
     const handleUserSelect = async (userId: number) => {
@@ -198,7 +240,7 @@ const ChatComponent: React.FC = () => {
                             placeholder="Search users..."
                         />
                         <ul>
-                            {filteredUsers.length > 0 && searchQuery && (
+                            {filteredUsers.length > 0 && searchQuery ? (
                                 <div>
                                     <h3>Search Results:</h3>
                                     {filteredUsers.map((user) => (
@@ -210,30 +252,30 @@ const ChatComponent: React.FC = () => {
                                         </li>
                                     ))}
                                 </div>
+                            ) : (
+                                chats.map((chat) => {
+                                    const otherUserId = chat.user1Id === me?.userId ? chat.user2Id : chat.user1Id;
+                                    const isSelected = selectedChatId === chat.id;
+
+                                    return (
+                                        <li
+                                            key={chat.id}
+                                            className={isSelected ? "selected" : ""}
+                                            onClick={() => {
+                                                setSelectedChatId(chat.id);
+                                                setSelectedChatChatMateId(otherUserId);
+                                                setSelectedUser(userNames[otherUserId]);
+                                            }}
+                                        >
+                                            <strong>
+                                                {userNames[otherUserId]
+                                                    ? `${userNames[otherUserId].firstName} ${userNames[otherUserId].lastName}`
+                                                    : "Loading..."}
+                                            </strong>
+                                        </li>
+                                    );
+                                })
                             )}
-
-                            {chats.map((chat) => {
-                                const otherUserId = chat.user1Id === me?.userId ? chat.user2Id : chat.user1Id;
-                                const isSelected = selectedChatId === chat.id;
-
-                                return (
-                                    <li
-                                        key={chat.id}
-                                        className={isSelected ? "selected" : ""}
-                                        onClick={() => {
-                                            setSelectedChatId(chat.id);
-                                            setSelectedChatChatMateId(otherUserId);
-                                            setSelectedUser(userNames[otherUserId]);
-                                        }}
-                                    >
-                                        <strong>
-                                            {userNames[otherUserId]
-                                                ? `${userNames[otherUserId].firstName} ${userNames[otherUserId].lastName}`
-                                                : "Loading..."}
-                                        </strong>
-                                    </li>
-                                );
-                            })}
                         </ul>
                     </div>
                 </div>
