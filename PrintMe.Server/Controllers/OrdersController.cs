@@ -265,7 +265,7 @@ namespace PrintMe.Server.Controllers
 					else
 					{
 						var order = await _orderService.GetOrderByIdAsync(orderId);
-						if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+						if (order.UserId != int.Parse(userId))
 						{
 							result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
 						}
@@ -324,7 +324,7 @@ namespace PrintMe.Server.Controllers
 					{
 						result = new("Order not found.", StatusCodes.Status404NotFound);
 					}
-					if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+					else if (order.UserId != int.Parse(userId))
 					{
 						result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
 					}
@@ -334,7 +334,6 @@ namespace PrintMe.Server.Controllers
 						result = new ApiResult<PrintOrderDto>(order, "Order updated.",
 							StatusCodes.Status200OK);
 					}
-
 				}
 				catch (NotFoundOrderInDbException ex)
 				{
@@ -359,7 +358,7 @@ namespace PrintMe.Server.Controllers
 		[HttpPut("PartialUpdate")]
 		public async Task<IActionResult> PartialUpdateOrderById([FromBody] UpdatePartialOrderRequest orderDto)
 		{
-			PlainResult result = null;
+			PlainResult result;
 
 			if (orderDto is null)
 			{
@@ -379,9 +378,14 @@ namespace PrintMe.Server.Controllers
 					{
 						result = new("Order not found.", StatusCodes.Status404NotFound);
 					}
-					if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+					else if (order.UserId != int.Parse(userId))
 					{
 						result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+					}
+					else
+					{
+						var updatedOrder = await _orderService.UpdateOrderByIdAsync(orderDto.OrderId, orderDto);
+						result = new ApiResult<PrintOrderDto>(updatedOrder, "Order updated.", StatusCodes.Status200OK);
 					}
 				}
 				catch (InvalidOrderStatusException ex)
@@ -423,7 +427,7 @@ namespace PrintMe.Server.Controllers
 				{
 					result = new("Order not found.", StatusCodes.Status404NotFound);
 				}
-				if (order.UserId != int.Parse(userId))
+				else if (order.UserId != int.Parse(userId))
 				{
 					result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
 				}
