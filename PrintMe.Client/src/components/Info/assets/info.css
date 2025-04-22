@@ -1,0 +1,131 @@
+
+
+body, html {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  background: #0d0d2b;
+}
+
+/* Hero Section */
+.hero {
+  height: 100vh;
+  background: url('head.png') no-repeat center center;
+  background-size: contain;
+  position: relative;
+}
+
+.overlay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.hero-content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #e0e0e0;
+}
+
+/* About Section */
+.about {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 60px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  border-radius: 15px;
+  margin: 20px auto;
+}
+
+
+.about h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.about p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.8;
+}
+
+/* Info Page Container */
+.info-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 60px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+  border-radius: 15px;
+  margin: 20px auto;
+}
+
+.info-container h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.info-container ul {
+  padding-left: 0;
+  margin-bottom: 40px;
+}
+
+.info-container .list-group-item {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: none;
+  margin-bottom: 10px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.info-container .list-group-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.play-icon {
+  width: 120px;
+  height: 120px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.play-icon:hover {
+  transform: scale(1.1);
+}
+
+.info-container blockquote {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid white;
+  padding: 20px;
+  border-radius: 10px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+}
+/* Media Queries */
