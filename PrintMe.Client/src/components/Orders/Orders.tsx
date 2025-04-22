@@ -5,7 +5,7 @@ import "./assets/orders.css";
 import { PrintOrderDto } from "../../types/api";
 import { ordersService } from "../../services/ordersService";
 import { userService } from "../../services/userService";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import { getStatusDisplay } from "../../utils/orderUtils";
 
 type OrderType = "all" | "my" | "executor"
@@ -130,15 +130,14 @@ const Orders: React.FC = () => {
               <div className="header-column col">{order.price}$</div>
               <div className="header-column col">{getStatusDisplay(order.printOrderStatusId)}</div>
               <div className="header-column col">
-                <a
-                    href="#"
+                <Link
+                    to="/chatPage"
+                    state={{ selectedUserId: isMyOrders ? order.executorId : order.userId }}
                     className="text-white header-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/chatPage/`, {state: {selectedUserId: isMyOrders ? order.executorId : order.userId}});}}
+                    onClick={(e) => e.stopPropagation()}
                 >
                   <i className="bi bi-chat-dots-fill fs-2"></i>
-                </a>
+                </Link>
               </div>
             </div>
         ))}

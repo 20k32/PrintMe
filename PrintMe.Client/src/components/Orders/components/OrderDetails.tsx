@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import {useParams, useNavigate, Link} from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { ordersService } from "../../../services/ordersService";
 import { userService } from "../../../services/userService";
@@ -206,16 +206,14 @@ const OrderDetails: React.FC = () => {
                 >
                   <i className="bi bi-person-circle"></i>
                 </a>
-                <a
-                    href="#"
+                <Link
+                    to="/chatPage"
+                    state={{ selectedUserId: isExecutorView ? order.userId : order.executorId }}
                     className="text-white header-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/chatPage/`, {state: {selectedUserId: isExecutorView ? order.userId : order.executorId}});
-                    }}
+                    onClick={(e) => e.stopPropagation()}
                 >
                   <i className="bi bi-chat-dots-fill"></i>
-                </a>
+                </Link>
               </p>
             </div>
           </div>
