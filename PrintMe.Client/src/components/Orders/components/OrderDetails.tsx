@@ -98,6 +98,34 @@ const OrderDetails: React.FC = () => {
     }
   };
 
+  const handleAcceptClick = async () => {
+    if (!orderId) return;
+
+    try {
+      await ordersService.acceptOrder(Number(orderId));
+      alert("Order accepted successfully!");
+      const updatedOrder = await ordersService.getOrderById(Number(orderId));
+      setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error accepting order", error);
+      alert("Failed to accept the order.");
+    }
+  };
+
+  const handleDeclineClick = async () => {
+    if (!orderId) return;
+
+    try {
+      await ordersService.declineOrder(Number(orderId));
+      alert("Order declined successfully!");
+      const updatedOrder = await ordersService.getOrderById(Number(orderId));
+      setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error declining order", error);
+      alert("Failed to decline the order.");
+    }
+  };
+
   const handleChatClick = (userId: number) => {
     navigate(`/profile/${userId}`);
   };
@@ -218,6 +246,22 @@ const OrderDetails: React.FC = () => {
             </div>
           </div>
         </div>
+        {order.printOrderStatusId === 1 && isExecutorView && (
+          <div className="card-footer d-flex justify-content-end gap-3">
+            <button
+              className="btn btn-success"
+              onClick={handleAcceptClick}
+            >
+              Accept
+            </button>
+            <button
+              className="btn btn-danger"
+              onClick={handleDeclineClick}
+            >
+              Decline
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
