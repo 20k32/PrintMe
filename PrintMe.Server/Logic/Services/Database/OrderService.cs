@@ -182,7 +182,8 @@ namespace PrintMe.Server.Logic.Services.Database
                 throw new NotFoundOrderInDbException();
             }
 
-            if (orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Pending])
+            if (orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Pending] &&
+                orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Started])
             {
                 throw new InvalidOrderStatusException();
             }
