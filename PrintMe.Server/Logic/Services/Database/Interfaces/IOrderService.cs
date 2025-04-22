@@ -15,4 +15,5 @@ public interface IOrderService
     Task<PrintOrderDto> AbortOrderByIdAsync(int orderId);
     Task<PrintOrderDto> AcceptOrderByIdAsync(int orderId);
     Task<PrintOrderDto> DeclineOrderByIdAsync(int orderId);
+    Task<PrintOrderDto> CompleteOrderByIdAsync(int orderId);
 }

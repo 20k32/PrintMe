@@ -126,6 +126,20 @@ const OrderDetails: React.FC = () => {
       toast.error("Failed to decline the order."); 
     }
   };
+  
+  const handleCompleteClick = async () => {
+    if(!orderId) return;
+    
+    try {
+      await ordersService.completeOrder(Number(orderId));
+        toast.success("Order completed successfully!");
+        const updatedOrder = await ordersService.getOrderById(Number(orderId));
+        setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error completing order", error);
+      toast.error("Failed to complete the order."); 
+    }
+  };
 
   const handleChatClick = (userId: number) => {
     navigate(`/profile/${userId}`);
@@ -262,6 +276,16 @@ const OrderDetails: React.FC = () => {
               onClick={handleDeclineClick}
             >
               Decline
+            </button>
+          </div>
+        )}
+        {order.printOrderStatusId === 3 && !isExecutorView && (
+          <div className="card-footer d-flex justify-content-end gap-3">
+            <button
+                className="btn btn-success"
+                onClick={handleCompleteClick}
+            >
+              Order Completed
             </button>
           </div>
         )}

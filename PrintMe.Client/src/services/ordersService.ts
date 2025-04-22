@@ -33,6 +33,9 @@ export const ordersService = {
     declineOrder: async (orderId: number) => {
         return baseApiService.post(`/orders/decline/${orderId}`, {}, true);
     },
-
+    
+    completeOrder: async (orderId: number) => {
+        return baseApiService.post(`/orders/complete/${orderId}`, {}, true);
+    },
 
 };

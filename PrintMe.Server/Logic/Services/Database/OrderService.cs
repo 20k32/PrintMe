@@ -192,5 +192,22 @@ namespace PrintMe.Server.Logic.Services.Database
 
             return _mapper.Map<PrintOrderDto>(result);
         }
+
+        public async Task<PrintOrderDto> CompleteOrderByIdAsync(int orderId)
+        {
+            var orderRaw = await _orderRepository.GetOrderById(orderId);
+            if (orderRaw is null)
+            {
+                throw new NotFoundOrderInDbException();
+            }
+            if (orderRaw.PrintOrderStatusId != DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Started])
+            {
+                throw new InvalidOrderStatusException();
+            }
+            orderRaw.PrintOrderStatusId = DbConstants.PrintOrderStatus.Dictionary[DbConstants.PrintOrderStatus.Done];
+            var result = await _orderRepository.UpdateOrderAsync(orderId, orderRaw);
+            
+            return _mapper.Map<PrintOrderDto>(result);
+        }
     }
 }
