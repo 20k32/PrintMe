@@ -332,3 +332,25 @@ input[type="checkbox"]:hover {
     transform: scale(0.95);
     background: linear-gradient(135deg, #0a48c2 0%, #0a67e8 100%);
 }
+
+.chat-list input {
+    background: rgba(255, 255, 255, 0.05);
+    border: none; 
+    border-radius: 10px; 
+    padding: 10px 15px; 
+    color: white; 
+    width: 100%; 
+    font-size: 1rem;
+    margin-bottom: 15px;
+    outline: none;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-list input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.chat-list input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
