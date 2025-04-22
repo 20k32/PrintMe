@@ -349,4 +349,102 @@ public class OrderServiceTest
         // Act and Assert
         await Assert.ThrowsAsync<InvalidOrderStatusException>(() => _orderService.AbortOrderByIdAsync(orderId));
     }
+    [Fact]
+    public async Task AcceptOrderByIdAsync_ShouldAcceptOrder()
+    {
+        // Arrange
+        var orderId = 1;
+        var printOrder = new PrintOrder { PrintOrderStatusId = 1 };
+        var printOrderDto = new PrintOrderDto();
+
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+            .ReturnsAsync(printOrder);
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+            .ReturnsAsync(printOrder);
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+            .Returns(printOrderDto);
+
+        // Act
+        var result = await _orderService.AcceptOrderByIdAsync(orderId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(printOrderDto, result);
+    }
+
+    [Fact]
+    public async Task AcceptOrderByIdAsync_ShouldThrowNotFoundOrderInDbException()
+    {
+        // Arrange
+        var orderId = 1;
+
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+            .ReturnsAsync((PrintOrder)null);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.AcceptOrderByIdAsync(orderId));
+    }
+
+    [Fact]
+    public async Task AcceptOrderByIdAsync_ShouldThrowInvalidOrderStatusException()
+    {
+        // Arrange
+        var orderId = 1;
+        var printOrder = new PrintOrder { PrintOrderStatusId = 2 };
+
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+            .ReturnsAsync(printOrder);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => _orderService.AcceptOrderByIdAsync(orderId));
+    }
+    [Fact]
+    public async Task DeclineOrderByIdAsync_ShouldDeclineOrder()
+    {
+        // Arrange
+        var orderId = 1;
+        var printOrder = new PrintOrder { PrintOrderStatusId = 1 };
+        var printOrderDto = new PrintOrderDto();
+
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+            .ReturnsAsync(printOrder);
+        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
+            .ReturnsAsync(printOrder);
+        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
+            .Returns(printOrderDto);
+
+        // Act
+        var result = await _orderService.DeclineOrderByIdAsync(orderId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(printOrderDto, result);
+    }
+
+    [Fact]
+    public async Task DeclineOrderByIdAsync_ShouldThrowNotFoundOrderInDbException()
+    {
+        // Arrange
+        var orderId = 1;
+
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+            .ReturnsAsync((PrintOrder)null);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<NotFoundOrderInDbException>(() => _orderService.DeclineOrderByIdAsync(orderId));
+    }
+
+    [Fact]
+    public async Task DeclineOrderByIdAsync_ShouldThrowInvalidOrderStatusException()
+    {
+        // Arrange
+        var orderId = 1;
+        var printOrder = new PrintOrder { PrintOrderStatusId = 2 };
+
+        _mockOrderRepository.Setup(r => r.GetOrderById(orderId))
+            .ReturnsAsync(printOrder);
+
+        // Act and Assert
+        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => _orderService.DeclineOrderByIdAsync(orderId));
+    }
 }
