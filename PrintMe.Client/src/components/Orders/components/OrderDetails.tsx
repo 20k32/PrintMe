@@ -157,7 +157,7 @@ const OrderDetails: React.FC = () => {
         <div className="card-header text-white d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center">
             <h4 className="mb-0">Order #{order.printOrderId}</h4>
-            {order.printOrderStatusId === 1 && (
+            {order.printOrderStatusId === 1 && !isExecutorView &&(
               <div className="ms-3 d-flex gap-2">
                 <button
                   className="btn btn-outline-secondary"
@@ -247,14 +247,16 @@ const OrderDetails: React.FC = () => {
             </div>
           </div>
         </div>
-        {order.printOrderStatusId === 1 && isExecutorView && (
+        {(order.printOrderStatusId === 1 || order.printOrderStatusId === 3) && isExecutorView && (
           <div className="card-footer d-flex justify-content-end gap-3">
+            {order.printOrderStatusId === 1 && (
             <button
               className="btn btn-success"
               onClick={handleAcceptClick}
             >
               Accept
             </button>
+            )}
             <button
               className="btn btn-danger"
               onClick={handleDeclineClick}
