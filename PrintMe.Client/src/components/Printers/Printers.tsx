@@ -17,7 +17,7 @@ interface DeactivatePopupProps {
 const DeactivatePopup: React.FC<DeactivatePopupProps> = ({ onConfirm, onCancel, isDeactivating }) => (
   <div className="popup-overlay">
     <div className="popup-content">
-      <h5>
+      <h5 style={{color: "black"}}>
         {isDeactivating
           ? "Are you sure you want to deactivate this printer?"
           : "Are you sure you want to activate this printer?"}

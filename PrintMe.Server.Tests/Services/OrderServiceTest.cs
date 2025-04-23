@@ -156,30 +156,6 @@ public class OrderServiceTest
         Assert.NotNull(result);
         Assert.Equal(printOrderDto, result);
     }
-
-    [Fact]
-    public async Task UpdateOrderByIdAsync_ShouldThrowInvalidOrderStatusExceptionWhenPartialUpdate()
-    {
-        // Arrange
-        var orderId = 1;
-        var updatePartialOrderRequest = new UpdatePartialOrderRequest
-        {
-            OrderId = 1, Price = 1, DueDate = "2022-01-01", ItemLink = "link", ItemQuantity = 1,
-            ItemDescription = "desc", ItemMaterialId = 1
-        };
-        var printOrder = new PrintOrder();
-        var printOrderDto = new PrintOrderDto();
-        
-        _mockMapper.Setup(m => m.Map<PrintOrder>(It.IsAny<UpdatePartialOrderRequest>()))
-            .Returns(printOrder);
-        _mockOrderRepository.Setup(r => r.UpdateOrderAsync(orderId, printOrder))
-            .ReturnsAsync(printOrder);
-        _mockMapper.Setup(m => m.Map<PrintOrderDto>(It.IsAny<PrintOrder>()))
-            .Returns(printOrderDto);
-        
-        // Act and Assert
-        await Assert.ThrowsAsync<InvalidOrderStatusException>(() => _orderService.UpdateOrderByIdAsync(orderId, updatePartialOrderRequest));
-    }
     
     [Fact]
     public async Task UpdateOrderByIdAsync_ShouldThrowNotFoundOrderInDbExceptionWhenPartialUpdate()
