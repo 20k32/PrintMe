@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const getStatusDisplay = (statusId: number) => {
   switch (statusId) {
     case 1:
@@ -11,6 +9,8 @@ export const getStatusDisplay = (statusId: number) => {
     case 4:
       return <span className="badge bg-danger">Aborted</span>;
     case 5:
+      return <span className="badge bg-success">Completed</span>;
+    case 6:
       return <span className="badge bg-secondary">Archived</span>;
     default:
       return <span className="badge bg-secondary">Unknown</span>;

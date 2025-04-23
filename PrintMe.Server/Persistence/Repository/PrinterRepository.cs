@@ -146,6 +146,8 @@ namespace PrintMe.Server.Persistence.Repository
             {
                 query = query.Where(printer => printer.MaxModelWidth >= maxWidth.Value);
             }
+            
+            query = query.Where(printer => !printer.IsDeactivated);
 
             await foreach (var printerRaw in query
                                .Select(printer => new PrinterLocationDto()

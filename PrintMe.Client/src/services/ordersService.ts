@@ -24,5 +24,18 @@ export const ordersService = {
 
     createOrder: async (orderData: CreateOrderRequest) => {
         return baseApiService.post<CreateOrderRequest>('/orders', orderData, true);
-    }
+    },
+
+    acceptOrder: async (orderId: number) => {
+        return baseApiService.post(`/orders/accept/${orderId}`, {}, true);
+    },
+
+    declineOrder: async (orderId: number) => {
+        return baseApiService.post(`/orders/decline/${orderId}`, {}, true);
+    },
+    
+    completeOrder: async (orderId: number) => {
+        return baseApiService.post(`/orders/complete/${orderId}`, {}, true);
+    },
+
 };

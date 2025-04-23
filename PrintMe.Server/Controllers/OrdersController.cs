@@ -265,7 +265,7 @@ namespace PrintMe.Server.Controllers
 					else
 					{
 						var order = await _orderService.GetOrderByIdAsync(orderId);
-						if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+						if (order.UserId != int.Parse(userId))
 						{
 							result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
 						}
@@ -324,7 +324,7 @@ namespace PrintMe.Server.Controllers
 					{
 						result = new("Order not found.", StatusCodes.Status404NotFound);
 					}
-					if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+					else if (order.UserId != int.Parse(userId))
 					{
 						result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
 					}
@@ -334,7 +334,6 @@ namespace PrintMe.Server.Controllers
 						result = new ApiResult<PrintOrderDto>(order, "Order updated.",
 							StatusCodes.Status200OK);
 					}
-
 				}
 				catch (NotFoundOrderInDbException ex)
 				{
@@ -359,7 +358,7 @@ namespace PrintMe.Server.Controllers
 		[HttpPut("PartialUpdate")]
 		public async Task<IActionResult> PartialUpdateOrderById([FromBody] UpdatePartialOrderRequest orderDto)
 		{
-			PlainResult result = null;
+			PlainResult result;
 
 			if (orderDto is null)
 			{
@@ -379,9 +378,14 @@ namespace PrintMe.Server.Controllers
 					{
 						result = new("Order not found.", StatusCodes.Status404NotFound);
 					}
-					if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+					else if (order.UserId != int.Parse(userId))
 					{
 						result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+					}
+					else
+					{
+						var updatedOrder = await _orderService.UpdateOrderByIdAsync(orderDto.OrderId, orderDto);
+						result = new ApiResult<PrintOrderDto>(updatedOrder, "Order updated.", StatusCodes.Status200OK);
 					}
 				}
 				catch (InvalidOrderStatusException ex)
@@ -414,7 +418,6 @@ namespace PrintMe.Server.Controllers
 		{
 			PlainResult result;
 
-
 			try
 			{
 				var userId = Request.TryGetUserId();
@@ -423,7 +426,7 @@ namespace PrintMe.Server.Controllers
 				{
 					result = new("Order not found.", StatusCodes.Status404NotFound);
 				}
-				if (order.UserId != int.Parse(userId) || order.UserId != int.Parse(userId))
+				else if (order.UserId != int.Parse(userId))
 				{
 					result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
 				}
@@ -450,6 +453,148 @@ namespace PrintMe.Server.Controllers
 			}
 
 
+			return result.ToObjectResult();
+		}
+		
+		/// <summary>
+		/// Accepts pending order. Used by printer owner.
+		/// </summary>
+		/// <param name="orderId"></param>
+		/// <returns>Updated order information or error details</returns>
+		[HttpPost("Accept/{orderId:int}")]
+		public async Task<IActionResult> AcceptOrderById(int orderId)
+		{
+			PlainResult result;
+
+			try
+			{
+				var userId = Request.TryGetUserId();
+				var order = await _orderService.GetOrderByIdAsync(orderId);
+				if (order is null)
+				{
+					result = new("Order not found.", StatusCodes.Status404NotFound);
+				}
+				else if (order.ExecutorId != int.Parse(userId))
+				{
+					result = new("You are not the executor of this order.", StatusCodes.Status403Forbidden);
+				}
+				else
+				{
+					await _orderService.AcceptOrderByIdAsync(orderId);
+					result = new ApiResult<PrintOrderDto>(order, "Order accepted.", StatusCodes.Status200OK);
+				}
+			}
+			catch (InvalidOrderStatusException ex)
+			{
+				result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+					StatusCodes.Status403Forbidden);
+			}
+			catch (NotFoundOrderInDbException ex)
+			{
+				result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+					StatusCodes.Status403Forbidden);
+			}
+			catch (Exception ex)
+			{
+				result = new($"Internal server error while updating order.\n{ex.Message}\n{ex.StackTrace}",
+					StatusCodes.Status500InternalServerError);
+			}
+
+			return result.ToObjectResult();
+		}
+		
+		
+		/// <summary>
+		/// Declines pending order. Used by printer owner.
+		/// </summary>
+		/// <param name="orderId"></param>
+		/// <returns>Updated order information or error details</returns>
+		[HttpPost("Decline/{orderId:int}")]
+		public async Task<IActionResult> DeclineOrderById(int orderId)
+		{
+			PlainResult result;
+
+			try
+			{
+				var userId = Request.TryGetUserId();
+				var order = await _orderService.GetOrderByIdAsync(orderId);
+				if (order is null)
+				{
+					result = new("Order not found.", StatusCodes.Status404NotFound);
+				}
+				else if (order.ExecutorId != int.Parse(userId))
+				{
+					result = new("You are not the executor of this order.", StatusCodes.Status403Forbidden);
+				}
+				else
+				{
+					await _orderService.DeclineOrderByIdAsync(orderId);
+					result = new ApiResult<PrintOrderDto>(order, "Order declined.", StatusCodes.Status200OK);
+				}
+			}
+			catch (InvalidOrderStatusException ex)
+			{
+				result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+					StatusCodes.Status403Forbidden);
+			}
+			catch (NotFoundOrderInDbException ex)
+			{
+				result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+					StatusCodes.Status403Forbidden);
+			}
+			catch (Exception ex)
+			{
+				result = new($"Internal server error while updating order.\n{ex.Message}\n{ex.StackTrace}",
+					StatusCodes.Status500InternalServerError);
+			}
+
+			return result.ToObjectResult();
+		}
+
+		/// <summary>
+		/// Completes order. Used by order owner.
+		/// </summary>
+		/// <param name="orderId"></param>
+		/// <returns>Updated order information or error details</returns>
+		[HttpPost("Complete/{orderId:int}")]
+		public async Task<IActionResult> CompleteOrderById(int orderId)
+		{
+			PlainResult result;
+			
+			try
+			{
+				var userId = Request.TryGetUserId();
+				var order = await _orderService.GetOrderByIdAsync(orderId);
+				if (order is null)
+				{
+					result = new("Order not found.", StatusCodes.Status404NotFound);
+				}
+				else if (order.UserId != int.Parse(userId))
+				{
+					result = new("You are not the owner of this order.", StatusCodes.Status403Forbidden);
+				}
+				else
+				{
+					await _orderService.CompleteOrderByIdAsync(orderId);
+					result = new ApiResult<PrintOrderDto>(order, "Order completed.", StatusCodes.Status200OK);
+				}
+			}
+			catch (InvalidOrderStatusException ex)
+			{
+				result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+					StatusCodes.Status403Forbidden);
+			}
+			catch (NotFoundOrderInDbException ex)
+			{
+				result = new($"{ex.Message}.{ex.InnerException?.Message ?? string.Empty}",
+					StatusCodes.Status403Forbidden);
+			}
+			catch (Exception ex)
+			{
+				result = new($"Internal server error while updating order.\n{ex.Message}\n{ex.StackTrace}",
+					StatusCodes.Status500InternalServerError);
+			}
+			
 			return result.ToObjectResult();
 		}
 	}

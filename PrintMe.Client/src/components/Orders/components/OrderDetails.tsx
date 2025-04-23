@@ -6,6 +6,7 @@ import { PrintOrderDto } from "../../../types/api";
 import { printersService } from "../../../services/printersService";
 import { getStatusDisplay } from "../../../utils/orderUtils";
 import "./../assets/orderDetails.css";
+import { toast } from "react-toastify";
 
 interface User {
   firstName: string;
@@ -98,6 +99,48 @@ const OrderDetails: React.FC = () => {
     }
   };
 
+  const handleAcceptClick = async () => {
+    if (!orderId) return;
+
+    try {
+      await ordersService.acceptOrder(Number(orderId));
+      toast.success("Order accepted successfully!");
+      const updatedOrder = await ordersService.getOrderById(Number(orderId));
+      setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error accepting order", error);
+      toast.error("Failed to accept the order."); 
+    }
+  };
+
+  const handleDeclineClick = async () => {
+    if (!orderId) return;
+
+    try {
+      await ordersService.declineOrder(Number(orderId));
+      toast.success("Order declined successfully!");
+      const updatedOrder = await ordersService.getOrderById(Number(orderId));
+      setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error declining order", error);
+      toast.error("Failed to decline the order."); 
+    }
+  };
+  
+  const handleCompleteClick = async () => {
+    if(!orderId) return;
+    
+    try {
+      await ordersService.completeOrder(Number(orderId));
+        toast.success("Order completed successfully!");
+        const updatedOrder = await ordersService.getOrderById(Number(orderId));
+        setOrder(updatedOrder as PrintOrderDto);
+    } catch (error) {
+      console.error("Error completing order", error);
+      toast.error("Failed to complete the order."); 
+    }
+  };
+
   const handleChatClick = (userId: number) => {
     navigate(`/profile/${userId}`);
   };
@@ -128,7 +171,7 @@ const OrderDetails: React.FC = () => {
         <div className="card-header text-white d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center">
             <h4 className="mb-0">Order #{order.printOrderId}</h4>
-            {order.printOrderStatusId === 1 && (
+            {order.printOrderStatusId === 1 && !isExecutorView &&(
               <div className="ms-3 d-flex gap-2">
                 <button
                   className="btn btn-outline-secondary"
@@ -218,6 +261,34 @@ const OrderDetails: React.FC = () => {
             </div>
           </div>
         </div>
+        {(order.printOrderStatusId === 1 || order.printOrderStatusId === 3) && isExecutorView && (
+          <div className="card-footer d-flex justify-content-end gap-3">
+            {order.printOrderStatusId === 1 && (
+            <button
+              className="btn btn-success"
+              onClick={handleAcceptClick}
+            >
+              Accept
+            </button>
+            )}
+            <button
+              className="btn btn-danger"
+              onClick={handleDeclineClick}
+            >
+              Decline
+            </button>
+          </div>
+        )}
+        {order.printOrderStatusId === 3 && !isExecutorView && (
+          <div className="card-footer d-flex justify-content-end gap-3">
+            <button
+                className="btn btn-success"
+                onClick={handleCompleteClick}
+            >
+              Order Completed
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
