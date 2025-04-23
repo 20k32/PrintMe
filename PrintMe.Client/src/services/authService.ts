@@ -23,6 +23,7 @@ export const authService = {
       }
       localStorage.setItem('token', jwtResult.accessToken);
       localStorage.setItem('refreshToken', jwtResult.refreshToken);
+      window.location.reload();
     } catch (err: any) {
       let message = 'An unexpected error occurred';
       if (err?.response?.data?.message) {
